@@ -2,29 +2,42 @@
 
 import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { useSelector } from 'react-redux'
-import Sidebar from '@/components/layout/Sidebar'
+import { useSelector, useDispatch } from 'react-redux'
+import { ROUTES } from '@/config/routes'
+import { verifyToken } from '@/store/slices/authSlice'
+import SidebarOnlyLayout from '@/components/layout/SidebarOnlyLayout'
 
 export default function AdminLayout({ children }) {
   const router = useRouter()
-  const { user } = useSelector((state) => state.auth)
+  const dispatch = useDispatch()
+  const { isAuthenticated, isLoading, user } = useSelector((state) => state.auth)
 
   useEffect(() => {
-    if (!user) {
-      router.push('/login')
-    } else if (user.role !== 'admin' && user.role !== 'accountant') {
-      router.push('/dashboard')
+    if (!isAuthenticated) {
+      dispatch(verifyToken())
+        .unwrap()
+        .catch(() => {
+          router.push(ROUTES.LOGIN)
+        })
+    } else if (user?.role !== 'admin') {
+      router.push(ROUTES.HOME)
     }
-  }, [user, router])
+  }, [isAuthenticated, user, router, dispatch])
 
-  if (!user) return null
+  if (isLoading) {
+    return (
+      <div className="flex h-screen items-center justify-center bg-gray-100">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Đang tải...</p>
+        </div>
+      </div>
+    )
+  }
 
-  return (
-    <div className="flex h-screen bg-gray-100">
-      <Sidebar />
-      <main className="flex-1 overflow-y-auto p-8">
-        {children}
-      </main>
-    </div>
-  )
+  if (!isAuthenticated || user?.role !== 'admin') {
+    return null
+  }
+
+  return <SidebarOnlyLayout>{children}</SidebarOnlyLayout>
 } 

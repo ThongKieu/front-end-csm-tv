@@ -1,122 +1,106 @@
-// src/app/dashboard/page.jsx
 'use client'
 
-import { useEffect } from 'react'
-import { useRouter } from 'next/navigation'
-import { useSelector } from 'react-redux'
-import Button from '@/components/ui/Button'
-import Header from '@/components/layout/Header'
-import { ROUTES, getRoleBasedRoute } from '@/config/routes'
+import { useEffect, useCallback } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
+import WorkTable from '@/components/work-schedule/WorkTable'
+import { Calendar } from 'lucide-react'
+import { 
+  fetchWorks, 
+  setSelectedDate, 
+  selectSelectedDate, 
+  selectWorks, 
+  selectLoading 
+} from '@/store/slices/workSlice'
 
 export default function DashboardPage() {
-  const router = useRouter()
-  const { user } = useSelector((state) => state.auth)
+  const dispatch = useDispatch()
+  const selectedDate = useSelector(selectSelectedDate)
+  const works = useSelector(selectWorks)
+  const loading = useSelector(selectLoading)
 
-  // Chuyển hướng nếu chưa đăng nhập
+  const handleDateChange = useCallback((e) => {
+    const newDate = e.target.value
+    dispatch(setSelectedDate(newDate))
+    dispatch(fetchWorks(newDate))
+  }, [dispatch])
+
   useEffect(() => {
-    if (!user) {
-      router.push(ROUTES.LOGIN)
-    }
-  }, [user, router])
+    dispatch(fetchWorks(selectedDate))
+  }, []) // Empty dependency array
 
-  if (!user) return null
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-[calc(100vh-64px)] bg-gradient-to-br from-blue-50 to-indigo-50">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      </div>
+    )
+  }
+
+  // Split works into assigned and unassigned
+  const assignedWorks = works.map(category => ({
+    ...category,
+    data: category.data.filter(work => work.worker_full_name)
+  })).filter(category => category.data.length > 0)
+
+  const unassignedWorks = works.map(category => ({
+    ...category,
+    data: category.data.filter(work => !work.worker_full_name)
+  })).filter(category => category.data.length > 0)
 
   return (
-    <div className="min-h-screen bg-gray-100">
-      <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-        {/* Welcome Section */}
-        <div className="px-4 py-6 sm:px-0">
-          <div className="bg-white overflow-hidden shadow rounded-lg">
-            <div className="px-4 py-5 sm:p-6">
-              <h1 className="text-2xl font-bold text-gray-900 mb-4">
-                Chào mừng, {user.name}!
-              </h1>
-              <p className="text-gray-600 mb-6">
-                Đây là trang tổng quan của hệ thống. Bạn có thể truy cập các tính năng dựa trên vai trò của mình.
-              </p>
+    <div className="h-[calc(100vh-65px)] bg-gradient-to-br from-blue-50 to-indigo-50">
+      <div className="h-full max-w-[1920px] mx-auto flex flex-col p-4">
+        {/* Header */}
+        <div className="flex items-center justify-between bg-white rounded-xl shadow-sm p-2 mb-2">
+          <h1 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+            Phân công công việc
+          </h1>
+          <div className="flex items-center space-x-3 bg-blue-50 rounded-lg px-4 py-1">
+            <Calendar className="w-3 h-3 text-blue-600" />
+            <input
+              type="date"
+              value={selectedDate}
+              onChange={handleDateChange}
+              className="bg-transparent border-none focus:ring-0 text-blue-900 font-medium"
+            />
+          </div>
+        </div>
 
-              {/* Role-based Navigation */}
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                {/* Admin Section */}
-                {user.role === 'admin' && (
-                  <div className="bg-indigo-50 p-6 rounded-lg">
-                    <h2 className="text-lg font-semibold text-indigo-900 mb-2">
-                      Quản trị hệ thống
-                    </h2>
-                    <p className="text-indigo-700 mb-4">
-                      Truy cập vào trang quản trị để quản lý người dùng và cài đặt hệ thống.
-                    </p>
-                    <Button
-                      variant="primary"
-                      onClick={() => router.push(ROUTES.ADMIN.ROOT)}
-                    >
-                      Vào trang quản trị
-                    </Button>
-                  </div>
-                )}
+        {/* Content */}
+        <div className="flex-1 grid grid-cols-1 xl:grid-cols-2 gap-4 min-h-0">
+          {/* Unassigned Works */}
+          <div className="bg-white rounded-xl shadow-sm overflow-hidden border border-blue-100 flex flex-col h-full">
+            <div className="p-1 border-b border-blue-100 bg-gradient-to-r from-blue-50 to-indigo-50">
+              <h2 className="text-lg font-semibold text-blue-900 flex items-center">
+                <span className="w-2 h-2 bg-yellow-500 rounded-full mr-2"></span>
+                Công việc chưa phân công
+                <span className="ml-2 text-sm font-normal text-blue-600 bg-blue-100 px-2 py-0.5 rounded-full">
+                  {unassignedWorks.reduce((acc, cat) => acc + cat.data.length, 0)}
+                </span>
+              </h2>
+            </div>
+            <div className="flex-1 overflow-hidden p-4">
+              <WorkTable works={unassignedWorks} />
+            </div>
+          </div>
 
-                {/* Accountant Section */}
-                {user.role === 'accountant' && (
-                  <div className="bg-green-50 p-6 rounded-lg">
-                    <h2 className="text-lg font-semibold text-green-900 mb-2">
-                      Quản lý tài chính
-                    </h2>
-                    <p className="text-green-700 mb-4">
-                      Truy cập vào trang kế toán để quản lý các giao dịch và báo cáo tài chính.
-                    </p>
-                    <Button
-                      variant="success"
-                      onClick={() => router.push(ROUTES.ACCOUNTANT.ROOT)}
-                    >
-                      Vào trang kế toán
-                    </Button>
-                  </div>
-                )}
-
-                {/* User Section */}
-                {user.role === 'user' && (
-                  <div className="bg-blue-50 p-6 rounded-lg">
-                    <h2 className="text-lg font-semibold text-blue-900 mb-2">
-                      Trang người dùng
-                    </h2>
-                    <p className="text-blue-700 mb-4">
-                      Truy cập vào trang người dùng để xem thông tin và thực hiện các thao tác.
-                    </p>
-                    <Button
-                      variant="primary"
-                      onClick={() => router.push(ROUTES.USER.ROOT)}
-                    >
-                      Vào trang người dùng
-                    </Button>
-                  </div>
-                )}
-              </div>
-
-              {/* Quick Stats */}
-              <div className="mt-8">
-                <h2 className="text-lg font-semibold text-gray-900 mb-4">
-                  Thống kê nhanh
-                </h2>
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                  <div className="bg-white p-4 rounded-lg shadow">
-                    <p className="text-sm font-medium text-gray-500">Vai trò</p>
-                    <p className="mt-1 text-xl font-semibold text-gray-900">
-                      {user.role === 'admin' ? 'Quản trị viên' : 
-                       user.role === 'accountant' ? 'Kế toán' : 'Người dùng'}
-                    </p>
-                  </div>
-                  <div className="bg-white p-4 rounded-lg shadow">
-                    <p className="text-sm font-medium text-gray-500">Email</p>
-                    <p className="mt-1 text-xl font-semibold text-gray-900">
-                      {user.email}
-                    </p>
-                  </div>
-                </div>
-              </div>
+          {/* Assigned Works */}
+          <div className="bg-white rounded-xl shadow-sm overflow-hidden border border-green-100 flex flex-col h-full">
+            <div className="p-1 border-b border-green-100 bg-gradient-to-r from-green-50 to-emerald-50">
+              <h2 className="text-lg font-semibold text-green-900 flex items-center">
+                <span className="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+                Công việc đã phân công
+                <span className="ml-2 text-sm font-normal text-green-600 bg-green-100 px-2 py-0.5 rounded-full">
+                  {assignedWorks.reduce((acc, cat) => acc + cat.data.length, 0)}
+                </span>
+              </h2>
+            </div>
+            <div className="flex-1 overflow-hidden p-4">
+              <WorkTable works={assignedWorks} />
             </div>
           </div>
         </div>
-      </main>
+      </div>
     </div>
   )
-}
+} 

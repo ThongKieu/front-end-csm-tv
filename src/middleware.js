@@ -1,65 +1,60 @@
 import { NextResponse } from 'next/server'
-import { jwtVerify } from 'jose'
 
 // Các route không cần authentication
 const publicRoutes = ['/login', '/register', '/forgot-password']
 
-export async function middleware(request) {
-  const { pathname } = request.nextUrl
+// Các route theo role
+const roleRoutes = {
+  admin: ['/admin', '/customer'],
+  accountant: ['/accountant', '/customer'],
+  user: ['/customer']
+}
 
-  // Bỏ qua các route public
+export function middleware(request) {
+  const { pathname } = request.nextUrl
+  const token = request.cookies.get('token')?.value
+
+  // Cho phép truy cập các route công khai
   if (publicRoutes.includes(pathname)) {
     return NextResponse.next()
   }
 
-  // Lấy token từ cookie
-  const token = request.cookies.get('token')?.value
-
-  // Nếu không có token, chuyển về trang login
+  // Kiểm tra token
   if (!token) {
-    return NextResponse.redirect(new URL('/login', request.url))
+    const url = new URL('/login', request.url)
+    url.searchParams.set('from', pathname)
+    return NextResponse.redirect(url)
   }
 
+  // Kiểm tra quyền truy cập
   try {
-    // Verify token
-    const secret = new TextEncoder().encode(
-      process.env.JWT_SECRET || 'your-secret-key'
-    )
-    const { payload } = await jwtVerify(token, secret)
+    const payload = JSON.parse(atob(token.split('.')[1]))
+    const userRole = payload.role
 
-    // Kiểm tra role cho các route được bảo vệ
-    if (pathname.startsWith('/admin') && payload.role !== 'admin') {
-      return NextResponse.redirect(new URL('/login', request.url))
+    // Kiểm tra quyền truy cập theo role
+    const hasAccess = roleRoutes[userRole]?.some(route => pathname.startsWith(route))
+    if (!hasAccess && !pathname.startsWith('/dashboard')) {
+      return NextResponse.redirect(new URL('/dashboard', request.url))
     }
 
-    if (pathname.startsWith('/accountant') && payload.role !== 'accountant') {
-      return NextResponse.redirect(new URL('/login', request.url))
-    }
-
-    // Thêm user info vào headers
-    const requestHeaders = new Headers(request.headers)
-    requestHeaders.set('x-user-id', payload.userId)
-    requestHeaders.set('x-user-role', payload.role)
-
-    return NextResponse.next({
-      request: {
-        headers: requestHeaders,
-      },
-    })
+    return NextResponse.next()
   } catch (error) {
-    // Token không hợp lệ, chuyển về trang login
-    return NextResponse.redirect(new URL('/login', request.url))
+    // Token không hợp lệ
+    const url = new URL('/login', request.url)
+    url.searchParams.set('from', pathname)
+    return NextResponse.redirect(url)
   }
 }
 
-// Chỉ áp dụng middleware cho các route cần bảo vệ
 export const config = {
   matcher: [
-    '/admin/:path*',
-    '/user/:path*',
-    '/accountant/:path*',
-    '/login',
-    '/register',
-    '/forgot-password'
+    /*
+     * Match all request paths except for the ones starting with:
+     * - api (API routes)
+     * - _next/static (static files)
+     * - _next/image (image optimization files)
+     * - favicon.ico (favicon file)
+     */
+    '/((?!api|_next/static|_next/image|favicon.ico).*)',
   ],
 } 

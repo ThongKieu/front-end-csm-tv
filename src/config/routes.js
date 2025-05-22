@@ -1,57 +1,39 @@
 export const ROUTES = {
   // Auth routes
-  LOGIN: "/login",
+  LOGIN: '/login',
+  REGISTER: '/register',
+  FORGOT_PASSWORD: '/forgot-password',
 
   // Main routes
-  HOME: "/dashboard", // Trang chủ/dashboard chung
-  DASHBOARD: "/dashboard", // Trùng với HOME
-  CUSTOMER: "/customer", // Trang chủ/dashboard chung
-  CUSTOMER: "/customer", // Trùng với HOME
-  LOCAL_WORKER: "/", // Trang chủ/dashboard chung
-  LOCAL_WORKER: "/", // Trùng với HOME
+  HOME: '/dashboard',
+  CUSTOMER: '/customer',
+  PROFILE: '/profile',
 
   // Admin routes
   ADMIN: {
-    ROOT: "/admin", // Trang chủ admin
-    USERS: "/admin/users",
-    SETTINGS: "/admin/settings",
+    ROOT: '/admin',
+    USERS: '/admin/users',
+    SETTINGS: '/admin/settings',
   },
 
   // Accountant routes
   ACCOUNTANT: {
-    ROOT: "/accountant", // Trang chủ kế toán
-    TRANSACTIONS: "/accountant/transactions",
-    REPORTS: "/accountant/reports",
-  },
-
-  // User routes
-  USER: {
-    ROOT: "/user", // Trang chủ user
-    PROFILE: "/user/profile",
+    ROOT: '/accountant',
+    TRANSACTIONS: '/accountant/transactions',
+    REPORTS: '/accountant/reports',
   },
 };
 
 // Helper function để lấy route dựa vào role
 export const getRoleBasedRoute = (role) => {
   switch (role) {
-    case "admin":
+    case 'admin':
       return ROUTES.ADMIN.ROOT;
-    case "accountant":
+    case 'accountant':
       return ROUTES.ACCOUNTANT.ROOT;
-    case "user":
-      return ROUTES.USER.ROOT;
+    case 'user':
+      return ROUTES.HOME;
     default:
-      return ROUTES.HOME; // Sử dụng HOME thay vì DASHBOARD
+      return ROUTES.HOME;
   }
-};
-
-// Helper function để kiểm tra route có thuộc role không
-export const isRouteAllowed = (pathname, role) => {
-  // Cho phép truy cập trang chủ/dashboard
-  if (pathname === "/") return true;
-
-  // Kiểm tra các route được bảo vệ
-  if (pathname.startsWith("/admin") && role !== "admin") return false;
-  if (pathname.startsWith("/accountant") && role !== "accountant") return false;
-  return true;
-};
+}; 

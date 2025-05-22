@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server'
-import jwt from 'jsonwebtoken'
+import * as jose from 'jose'
+
+const JWT_SECRET = 'csm_tv_secret_key_2024'
 
 // Data mẫu cho các tài khoản
 const users = [
@@ -52,15 +54,15 @@ export async function POST(request) {
     }
 
     // Create token
-    const token = jwt.sign(
-      { 
-        userId: user.id, 
-        role: user.role,
-        email: user.email
-      },
-      process.env.JWT_SECRET || 'your-secret-key',
-      { expiresIn: '1d' } 
-    )
+    const secret = new TextEncoder().encode(JWT_SECRET)
+    const token = await new jose.SignJWT({ 
+      userId: user.id, 
+      role: user.role,
+      email: user.email
+    })
+      .setProtectedHeader({ alg: 'HS256' })
+      .setExpirationTime('1d')
+      .sign(secret)
 
     // Return user data and token
     return NextResponse.json({

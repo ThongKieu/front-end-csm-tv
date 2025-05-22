@@ -1,12 +1,18 @@
 import { configureStore } from '@reduxjs/toolkit'
 import authReducer from './slices/authSlice'
-import  customerOld  from './slices/oldCusSlice'
+import workReducer from './slices/workSlice'
+import workerAssignmentReducer from './slices/workerAssignmentSlice'
 
-const store = configureStore({
+export const store = configureStore({
   reducer: {
     auth: authReducer,
-    oldCustomer: customerOld
+    work: workReducer,
+    workerAssignment: workerAssignmentReducer,
   },
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware({
+      serializableCheck: false,
+    }),
 })
 
 export default store 

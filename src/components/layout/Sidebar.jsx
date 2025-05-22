@@ -1,85 +1,95 @@
 'use client'
 
-import { useRouter } from 'next/navigation'
-import { useDispatch, useSelector } from 'react-redux'
-import { logout } from '@/store/slices/authSlice'
-import Button from '@/components/ui/Button'
+import { useState } from 'react'
+import { usePathname } from 'next/navigation'
+import Link from 'next/link'
+import { useSelector } from 'react-redux'
+import { menuItems } from '@/data/mockData'
+import {
+  LayoutDashboard,
+  Users,
+  CreditCard,
+  BarChart,
+  UserCog,
+  Settings,
+  ChevronLeft,
+  ChevronRight
+} from 'lucide-react'
+
+const iconMap = {
+  LayoutDashboard,
+  Users,
+  CreditCard,
+  BarChart,
+  UserCog,
+  Settings
+}
 
 export default function Sidebar() {
-  const router = useRouter()
-  const dispatch = useDispatch()
+  const pathname = usePathname()
   const { user } = useSelector((state) => state.auth)
+  const [isCollapsed, setIsCollapsed] = useState(false)
 
-  const handleLogout = () => {
-    dispatch(logout())
-    router.push('/login')
-  }
-
-  const menuItems = {
-    admin: [
-      { label: 'Tổng quan', href: '/admin', icon: '📊' },
-      { label: 'Quản lý người dùng', href: '/admin/users', icon: '👥' },
-      { label: 'Cài đặt hệ thống', href: '/admin/settings', icon: '⚙️' },
-    ],
-    accountant: [
-      { label: 'Tổng quan', href: '/accountant', icon: '📊' },
-      { label: 'Quản lý giao dịch', href: '/accountant/transactions', icon: '💰' },
-      { label: 'Báo cáo tài chính', href: '/accountant/reports', icon: '📈' },
-    ]
-  }
-
-  const currentMenu = menuItems[user?.role] || []
+  // Lọc menu items dựa trên role của user
+  const filteredMenuItems = menuItems.filter(item => 
+    item.roles.includes(user?.role)
+  )
 
   return (
-    <div className="flex flex-col h-screen bg-gray-800 text-white w-64">
-      {/* Logo */}
-      <div className="p-4 border-b border-gray-700">
-        <span className="text-xl font-bold">LOGO</span>
-      </div>
-
-      {/* User Info */}
-      <div className="p-4 border-b border-gray-700">
-        <div className="flex items-center space-x-3">
-          <img
-            className="h-10 w-10 rounded-full"
-            src={user?.avatar || `https://ui-avatars.com/api/?name=${user?.name}&background=0D8ABC&color=fff`}
-            alt={user?.name}
-          />
-          <div>
-            <p className="font-medium">{user?.name}</p>
-            <p className="text-sm text-gray-400">{user?.email}</p>
-          </div>
-        </div>
-      </div>
-
-      {/* Navigation */}
-      <nav className="flex-1 overflow-y-auto py-4">
-        <ul className="space-y-2 px-2">
-          {currentMenu.map((item) => (
-            <li key={item.href}>
-              <a
-                href={item.href}
-                className="flex items-center space-x-3 px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors"
-              >
-                <span>{item.icon}</span>
-                <span>{item.label}</span>
-              </a>
-            </li>
-          ))}
-        </ul>
-      </nav>
-
-      {/* Logout Button */}
-      <div className="p-4 border-t border-gray-700">
-        <Button
-          variant="outline"
-          className="w-full justify-start text-white border-gray-600 hover:bg-gray-700"
-          onClick={handleLogout}
+    <aside className={`bg-white shadow-lg transition-all duration-300 ${isCollapsed ? 'w-20' : 'w-64'}`}>
+      <div className="flex flex-col h-full">
+        {/* Toggle button */}
+        <button
+          onClick={() => setIsCollapsed(!isCollapsed)}
+          className="p-4 hover:bg-gray-100 transition-colors"
         >
-          <span className="mr-2">🚪</span>
-          Đăng xuất
-        </Button>
+          {isCollapsed ? (
+            <ChevronRight className="w-6 h-6 text-gray-600" />
+          ) : (
+            <ChevronLeft className="w-6 h-6 text-gray-600" />
+          )}
+        </button>
+
+        {/* Menu items */}
+        <nav className="flex-1 px-2 py-4 space-y-1">
+          {filteredMenuItems.map((item) => {
+            const Icon = iconMap[item.icon]
+            const isActive = pathname === item.route
+
+            return (
+              <Link
+                key={item.id}
+                href={item.route}
+                className={`flex items-center px-4 py-2 text-sm font-medium rounded-md transition-colors ${
+                  isActive
+                    ? 'bg-indigo-100 text-indigo-700'
+                    : 'text-gray-600 hover:bg-gray-100'
+                }`}
+              >
+                <Icon className={`w-5 h-5 ${isCollapsed ? 'mx-auto' : 'mr-3'}`} />
+                {!isCollapsed && <span>{item.label}</span>}
+              </Link>
+            )
+          })}
+        </nav>
+
+        {/* User info */}
+        {!isCollapsed && (
+          <div className="p-4 border-t">
+            <div className="flex items-center">
+              <img
+                src={user?.avatar}
+                alt={user?.name}
+                className="w-8 h-8 rounded-full"
+              />
+              <div className="ml-3">
+                <p className="text-sm font-medium text-gray-700">{user?.name}</p>
+                <p className="text-xs text-gray-500 capitalize">{user?.role}</p>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
-    </div>
+    </aside>
   )
 } 

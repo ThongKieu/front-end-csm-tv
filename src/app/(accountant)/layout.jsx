@@ -5,12 +5,12 @@ import { useRouter } from 'next/navigation'
 import { useSelector, useDispatch } from 'react-redux'
 import { ROUTES } from '@/config/routes'
 import { verifyToken } from '@/store/slices/authSlice'
-import HeaderOnlyLayout from '@/components/layout/HeaderOnlyLayout'
+import SidebarOnlyLayout from '@/components/layout/SidebarOnlyLayout'
 
-export default function DashboardLayout({ children }) {
+export default function AccountantLayout({ children }) {
   const router = useRouter()
   const dispatch = useDispatch()
-  const { isAuthenticated, isLoading } = useSelector((state) => state.auth)
+  const { isAuthenticated, isLoading, user } = useSelector((state) => state.auth)
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -19,8 +19,10 @@ export default function DashboardLayout({ children }) {
         .catch(() => {
           router.push(ROUTES.LOGIN)
         })
+    } else if (user?.role !== 'accountant') {
+      router.push(ROUTES.HOME)
     }
-  }, [isAuthenticated, router, dispatch])
+  }, [isAuthenticated, user, router, dispatch])
 
   if (isLoading) {
     return (
@@ -33,9 +35,9 @@ export default function DashboardLayout({ children }) {
     )
   }
 
-  if (!isAuthenticated) {
+  if (!isAuthenticated || user?.role !== 'accountant') {
     return null
   }
 
-  return <HeaderOnlyLayout>{children}</HeaderOnlyLayout>
+  return <SidebarOnlyLayout>{children}</SidebarOnlyLayout>
 } 
