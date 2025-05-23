@@ -5,39 +5,128 @@ import {
   getSortedRowModel,
   flexRender,
 } from "@tanstack/react-table";
-import { ChevronDown, ChevronUp, Filter, UserPlus, Copy } from "lucide-react";
-import { useDispatch } from "react-redux";
-import { setSelectedWorkerType } from "@/store/slices/workSlice";
+import {
+  ChevronDown,
+  ChevronUp,
+  Filter,
+  UserPlus,
+  Copy,
+  UserCog,
+  Edit2,
+  Settings,
+} from "lucide-react";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  setSelectedWorkerType,
+  selectSelectedDate,
+  fetchAssignedWorks,
+  fetchUnassignedWorks,
+} from "@/store/slices/workSlice";
 import AssignWorkerModal from "./AssignWorkerModal";
 import { copyWorkSchedule } from "@/utils/copyUtils";
+import EditWorkModal from "./EditWorkModal";
+import axios from "axios";
+import { useSocket } from '@/hooks/useSocket';
 
-const WorkTable = ({ works = [] }) => {
+const WorkTable = ({ works = [], workers = [] }) => {
   const dispatch = useDispatch();
+  const selectedDate = useSelector(selectSelectedDate);
   const [selectedWork, setSelectedWork] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isChangingWorker, setIsChangingWorker] = useState(false);
   const [copiedWorkId, setCopiedWorkId] = useState(null);
   const [selectedWorkerType, setSelectedWorkerType] = useState("all");
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const auth = useSelector((state) => state.auth);
+
+  // Add socket connection for real-time updates
+  const { emit } = useSocket('workUpdate', (data) => {
+    // Refresh data when receiving updates
+    dispatch(fetchAssignedWorks(selectedDate));
+    dispatch(fetchUnassignedWorks(selectedDate));
+  });
 
   const handleAssignWorker = (work) => {
     setSelectedWork(work);
+    setIsChangingWorker(false);
     setIsModalOpen(true);
+  };
+
+  const handleChangeWorker = (work) => {
+    setSelectedWork(work);
+    setIsChangingWorker(true);
+    setIsModalOpen(true);
+  };
+
+  const handleEditWork = (work) => {
+    setSelectedWork(work);
+    setIsEditModalOpen(true);
   };
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
     setSelectedWork(null);
+    setIsChangingWorker(false);
   };
 
-  const handleCopy = (work) => {
-    copyWorkSchedule(work);
-    setCopiedWorkId(work.id);
-    setTimeout(() => setCopiedWorkId(null), 2000);
+  const handleCloseEditModal = () => {
+    setIsEditModalOpen(false);
+    setSelectedWork(null);
+  };
+
+  const handleCopy = async (work) => {
+    try {
+      const success = await copyWorkSchedule(work);
+      if (success) {
+        setCopiedWorkId(work.id);
+        setTimeout(() => setCopiedWorkId(null), 2000);
+      }
+    } catch (error) {
+      console.error("Failed to copy:", error);
+    }
   };
 
   const handleAssign = async (work) => {
-    // TODO: Implement worker assignment logic
-    console.log("Assigning worker to work:", work);
+    // Emit socket event after successful assignment
+    emit('workUpdated', {
+      type: 'assign',
+      workId: work.id,
+      date: selectedDate
+    });
+
+    // Refresh data after assignment
+    dispatch(fetchAssignedWorks(selectedDate));
+    dispatch(fetchUnassignedWorks(selectedDate));
     handleCloseModal();
+  };
+
+  const handleEdit = async (editValue) => {
+    try {
+      const data = {
+        ...editValue,
+        auth_id: auth.user.id,
+        date_book: selectedDate,
+        from_cus: editValue.from_cus || 0,
+        status_cus: editValue.status_cus || 0,
+        kind_work: editValue.kind_work || 0,
+      };
+      
+      await axios.post("https://csm.thoviet.net/api/web/update/work", data);
+      
+      // Emit socket event after successful update
+      emit('workUpdated', {
+        type: 'edit',
+        workId: editValue.id,
+        date: selectedDate
+      });
+
+      // Refresh data after edit
+      dispatch(fetchAssignedWorks(selectedDate));
+      dispatch(fetchUnassignedWorks(selectedDate));
+      handleCloseEditModal();
+    } catch (error) {
+      console.error("Error updating work:", error);
+    }
   };
 
   const getWorkTypeColor = (kindWorker) => {
@@ -54,18 +143,34 @@ const WorkTable = ({ works = [] }) => {
 
     return typeColors[kindWorker?.id] || typeColors["default"];
   };
+
+  const handleWorkerTypeChange = (type) => {
+    setSelectedWorkerType(type);
+  };
+
   const columns = useMemo(
     () => [
       {
         header: "Nội Dung",
         accessorKey: "data",
         cell: (info) => {
-          const works = info.getValue();
-          console.log(works);
-          
+          const category = info.row.original;
+          const works = category.data || [];
+
+          if (works.length === 0) {
+            return (
+              <div className="p-4 text-center text-gray-500">
+                Không có công việc nào
+              </div>
+            );
+          }
+
           return (
             <div className="space-y-2">
               {works.map((work) => {
+                const assignedWorker = workers.find(
+                  (w) => w.id === work.id_worker
+                );
                 return (
                   <div
                     key={work.id}
@@ -73,33 +178,42 @@ const WorkTable = ({ works = [] }) => {
                   >
                     <div className="flex items-start justify-between">
                       <div className="space-y-1.5 flex-1 min-w-0">
-                        <div className="flex items-center space-x-2">
-                          {work.kind_worker && (
-                            <>
-                              <span
-                                className={`px-2 py-1 text-xs font-medium rounded-full ${getWorkTypeColor(
-                                  work.kind_worker
-                                )}`}
-                              >
-                                {work.kind_worker.nameKind || "Chưa phân loại"}
-                              </span>
-                              <span className="text-sm text-gray-500">
-                                Số lượng: {work.kind_worker.numberOfWork || 0}
-                              </span>
-                            </>
-                          )}
-                        </div>
-                        <p className="font-medium text-gray-900 truncate">
-                          {work.work_content || "Không có nội dung"}
-                        </p>
-                        <div className="space-y-1 text-sm">
-                          <p className="text-gray-600 truncate">
-                            <span className="font-medium text-gray-700">
-                              Khách hàng:
-                            </span>{" "}
-                            {work.name_cus || "Chưa có thông tin"}
+                        <div className="grid grid-cols-6 items-center space-x-2">
+                          {category.kind_worker && (
+                            <span
+                              className={`px-2 py-1 text-center col-span-1 text-xs font-medium rounded-full ${getWorkTypeColor(
+                                category.kind_worker
+                              )}`}
+                            >
+                              {category.kind_worker.nameKind == "Năng Lượng Mặt Trời" ? "NLMT" : category.kind_worker.nameKind ||
+                                "Chưa phân loại"}
+                            </span>
+                          )}{" "}
+                          <p className="font-medium  col-span-5 text-gray-900 break-words whitespace-pre-line">
+                            {work.work_content || "Không có nội dung"}
                           </p>
-                          <p className="text-gray-600 truncate">
+                        </div>
+
+                        <div className="space-y-1 text-sm">
+                          <div className="flex flex-row justify-between items-center space-x-2">
+                            {" "}
+                            <p className="text-gray-600 truncate">
+                              <span className="font-medium text-gray-700">
+                                Khách hàng:
+                              </span>{" "}
+                              {work.name_cus || "Chưa có thông tin"}
+                            </p>
+                            <p className="text-gray-600 truncate">
+                              <span className="font-medium text-gray-700">
+                                SĐT:
+                              </span>{" "}
+                              {work.phone_number || "Chưa có thông tin"}
+                            </p>{" "}
+                            <p className="truncate border border-green-400 p-1 rounded-md text-green-400">
+                              {work.date_book}
+                            </p>
+                          </div>
+                          <p className="text-gray-600 truncate break-words whitespace-pre-line">
                             <span className="font-medium text-gray-700">
                               Địa chỉ:
                             </span>{" "}
@@ -107,36 +221,22 @@ const WorkTable = ({ works = [] }) => {
                               ? `${work.street}, ${work.district}`
                               : "Chưa có thông tin"}
                           </p>
-                          <p className="text-gray-600 truncate">
-                            <span className="font-medium text-gray-700">
-                              SĐT:
-                            </span>{" "}
-                            {work.phone_number || "Chưa có thông tin"}
+
+                          <p className="font-medium text-gray-900 break-words whitespace-pre-line">
+                            {work.work_note || "Không có nội dung"}
                           </p>
-                          <div className="flex flex-row justify-between">
-                            {" "}
-                            <p className="text-gray-600 truncate">
-                              <span className="font-medium text-gray-700">
-                                Ghi chú:
-                              </span>{" "}
-                              {work.work_note || "Không có ghi chú"}
-                            </p>
-                            <p className="truncate border border-green-400 p-1 rounded-md text-green-400">
-                              <span className="font-medium">
-                                Ngày đặt:
-                              </span>{" "}
-                              {work.date_book}
-                            </p>
-                          </div>
                         </div>
-                        {work.worker_full_name && (
+                        {assignedWorker && (
                           <div className="mt-2 p-2 bg-blue-50 rounded-md border border-blue-100">
                             <p className="text-sm font-medium text-blue-700">
                               Thợ đã phân công:
                             </p>
                             <p className="text-sm text-blue-600 truncate">
-                              {work.worker_full_name} (
-                              {work.worker_code || "Không có mã"})
+                              {assignedWorker.worker_full_name} (
+                              {assignedWorker.worker_code || "Không có mã"})
+                            </p>
+                            <p className="text-sm text-blue-600 truncate">
+                              SĐT: {assignedWorker.worker_phone_company}
                             </p>
                           </div>
                         )}
@@ -153,14 +253,32 @@ const WorkTable = ({ works = [] }) => {
                         >
                           <Copy className="w-5 h-5" />
                         </button>
-                        {!work.worker_full_name && (
+                        {assignedWorker ? (
                           <button
-                            onClick={() => handleAssignWorker(work)}
-                            className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-full transition-colors"
-                            title="Phân công thợ"
+                            onClick={() => handleChangeWorker(work)}
+                            className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 cursor-pointer rounded-full transition-colors"
+                            title="Đổi thợ"
                           >
-                            <UserPlus className="w-5 h-5" />
+                            <UserCog className="w-5 h-5" />
                           </button>
+                        ) : (
+                          <div>
+                            {" "}
+                            <button
+                              onClick={() => handleAssignWorker(work)}
+                              className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-full transition-colors"
+                              title="Phân công thợ"
+                            >
+                              <UserPlus className="w-5 h-5" />
+                            </button>
+                            <button
+                              onClick={() => handleEditWork(work)}
+                              className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-full transition-colors"
+                              title="Phân công thợ"
+                            >
+                              <Settings className="w-5 h-5" />
+                            </button>
+                          </div>
                         )}
                       </div>
                     </div>
@@ -172,18 +290,7 @@ const WorkTable = ({ works = [] }) => {
         },
       },
     ],
-    [copiedWorkId]
-  );
-
-  const workerTypes = useMemo(
-    () => [
-      { id: "all", name: "Tất cả" },
-      ...works.map((item) => ({
-        id: item.kind_worker?.id || "unknown",
-        name: item.kind_worker?.nameKind || "Chưa phân loại",
-      })),
-    ],
-    [works]
+    [copiedWorkId, workers]
   );
 
   const filteredData = useMemo(
@@ -202,28 +309,36 @@ const WorkTable = ({ works = [] }) => {
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
   });
-  console.log(workerTypes);
-  
   return (
     <div className="h-full flex flex-col">
-      <div className="flex items-center justify-end mb-4">
-        <div className="flex items-center space-x-2 bg-gray-50 rounded-lg px-3 py-1.5">
-          <Filter className="w-4 h-4 text-gray-500" />
-          <select
-            value={selectedWorkerType}
-            onChange={(e) => {
-              setSelectedWorkerType(e.target.value);
-              dispatch(setSelectedWorkerType(e.target.value));
-            }}
-            className="bg-transparent border-none focus:ring-0 text-sm text-gray-700 font-medium"
-          >
-            {workerTypes.map((type) => (
-              <option key={type.id} value={type.id}>
-                {type.name}
-              </option>
-            ))}
-          </select>
-        </div>
+      <div className="flex items-center gap-2 justify-end mb-4">
+        <button
+          onClick={() => handleWorkerTypeChange("all")}
+          className={`px-3 cursor-pointer py-1.5 text-sm font-medium rounded-full transition-all duration-200 ${
+            selectedWorkerType === "all"
+              ? "bg-blue-600 text-white shadow-md"
+              : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+          }`}
+        >
+          Tất cả
+        </button>
+        {works &&
+          works.map((category) => (
+            <button
+              key={category.kind_worker?.id}
+              onClick={() => handleWorkerTypeChange(category.kind_worker?.id)}
+              className={`px-3 py-1.5 text-sm font-medium cursor-pointer rounded-full transition-all duration-200 ${
+                selectedWorkerType === category.kind_worker?.id
+                  ? "ring-2 ring-offset-2 ring-blue-500 shadow-md"
+                  : ""
+              } ${getWorkTypeColor(category.kind_worker)}`}
+            >
+              {category.kind_worker?.nameKind || "Chưa phân loại"}
+              <span className="ml-1 text-xs opacity-75">
+                ({category.kind_worker?.numberOfWork || 0})
+              </span>
+            </button>
+          ))}
       </div>
 
       <div className="flex-1 overflow-auto">
@@ -268,12 +383,23 @@ const WorkTable = ({ works = [] }) => {
         </table>
       </div>
 
-      <AssignWorkerModal
-        isOpen={isModalOpen}
-        onClose={handleCloseModal}
-        work={selectedWork}
-        onAssign={handleAssign}
-      />
+      {isModalOpen && (
+        <AssignWorkerModal
+          work={selectedWork}
+          workers={workers}
+          onClose={handleCloseModal}
+          onAssign={handleAssign}
+          isChanging={isChangingWorker}
+        />
+      )}
+
+      {isEditModalOpen && (
+        <EditWorkModal
+          work={selectedWork}
+          onClose={handleCloseEditModal}
+          onSave={handleEdit}
+        />
+      )}
     </div>
   );
 };

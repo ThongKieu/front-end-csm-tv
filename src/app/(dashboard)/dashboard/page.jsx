@@ -5,27 +5,36 @@ import { useDispatch, useSelector } from 'react-redux'
 import WorkTable from '@/components/work-schedule/WorkTable'
 import { Calendar } from 'lucide-react'
 import { 
-  fetchWorks, 
+  fetchAssignedWorks,
+  fetchUnassignedWorks,
+  fetchWorkers,
   setSelectedDate, 
   selectSelectedDate, 
-  selectWorks, 
+  selectAssignedWorks,
+  selectUnassignedWorks,
+  selectWorkers,
   selectLoading 
 } from '@/store/slices/workSlice'
 
 export default function DashboardPage() {
   const dispatch = useDispatch()
   const selectedDate = useSelector(selectSelectedDate)
-  const works = useSelector(selectWorks)
+  const assignedWorks = useSelector(selectAssignedWorks)
+  const unassignedWorks = useSelector(selectUnassignedWorks)
+  const workers = useSelector(selectWorkers)
   const loading = useSelector(selectLoading)
 
   const handleDateChange = useCallback((e) => {
     const newDate = e.target.value
     dispatch(setSelectedDate(newDate))
-    dispatch(fetchWorks(newDate))
+    dispatch(fetchAssignedWorks(newDate))
+    dispatch(fetchUnassignedWorks(newDate))
   }, [dispatch])
 
   useEffect(() => {
-    dispatch(fetchWorks(selectedDate))
+    dispatch(fetchAssignedWorks(selectedDate))
+    dispatch(fetchUnassignedWorks(selectedDate))
+    dispatch(fetchWorkers())
   }, []) // Empty dependency array
 
   if (loading) {
@@ -35,18 +44,6 @@ export default function DashboardPage() {
       </div>
     )
   }
-
-  // Split works into assigned and unassigned
-  const assignedWorks = works.map(category => ({
-    ...category,
-    data: category.data.filter(work => work.worker_full_name)
-  })).filter(category => category.data.length > 0)
-
-  const unassignedWorks = works.map(category => ({
-    ...category,
-    data: category.data.filter(work => !work.worker_full_name)
-  })).filter(category => category.data.length > 0)
-
   return (
     <div className="h-[calc(100vh-65px)] bg-gradient-to-br from-blue-50 to-indigo-50">
       <div className="h-full max-w-[1920px] mx-auto flex flex-col p-4">
@@ -80,7 +77,7 @@ export default function DashboardPage() {
               </h2>
             </div>
             <div className="flex-1 overflow-hidden p-4">
-              <WorkTable works={unassignedWorks} />
+              <WorkTable works={unassignedWorks} workers={workers} />
             </div>
           </div>
 
@@ -96,7 +93,7 @@ export default function DashboardPage() {
               </h2>
             </div>
             <div className="flex-1 overflow-hidden p-4">
-              <WorkTable works={assignedWorks} />
+              <WorkTable works={assignedWorks} workers={workers} />
             </div>
           </div>
         </div>

@@ -1,139 +1,156 @@
-import { Fragment, useState } from 'react'
-import {  Dialog, DialogPanel, DialogTitle, TransitionChild } from '@headlessui/react'
-import { X } from 'lucide-react'
-import { useDispatch, useSelector } from 'react-redux'
-import { assignWorker } from '@/store/slices/workerAssignmentSlice'
+import { useState, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { assignWorker, changeWorker, selectSelectedDate } from '@/store/slices/workSlice';
+import { X } from 'lucide-react';
 
-export default function AssignWorkerModal({ isOpen, onClose, work, onAssign }) {
-  const dispatch = useDispatch()
-  const { loading, error } = useSelector((state) => state.workerAssignment)
-  const [selectedWorkerId, setSelectedWorkerId] = useState('')
+const AssignWorkerModal = ({ work, workers = [], onClose, onAssign, isChanging = false }) => {
+  const dispatch = useDispatch();
+  const selectedDate = useSelector(selectSelectedDate);
+  const [selectedWorker, setSelectedWorker] = useState('');
+  const [selectedExtraWorker, setSelectedExtraWorker] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-  const handleAssign = async () => {
-    if (!selectedWorkerId) return
+  useEffect(() => {
+    if (isChanging && work) {
+      setSelectedWorker(work.id_worker || '');
+      setSelectedExtraWorker(work.id_phu || '');
+    }
+  }, [work, isChanging]);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
 
     try {
-      await dispatch(assignWorker({ workId: work.id, workerId: selectedWorkerId })).unwrap()
-      onClose()
-    } catch (error) {
-      console.error('Failed to assign worker:', error)
+      if (isChanging) {
+        await dispatch(changeWorker({
+          workAssignment: work,
+          worker: selectedWorker,
+          extraWorker: selectedExtraWorker,
+          authId: 1, // TODO: Get from auth context
+        })).unwrap();
+      } else {
+        await dispatch(assignWorker({
+          work,
+          worker: selectedWorker,
+          extraWorker: selectedExtraWorker,
+          dateCheck: selectedDate,
+          authId: 1, // TODO: Get from auth context
+        })).unwrap();
+      }
+      onAssign(work);
+    } catch (err) {
+      setError(err.message || 'Có lỗi xảy ra khi phân công thợ');
+    } finally {
+      setLoading(false);
     }
-  }
-
-  if (!work) return null
+  };
 
   return (
-   <Transition appear show={isOpen} as={Fragment}>
-  <Dialog as="div" className="fixed inset-0 z-40" onClose={onClose}> {/* z-40 hoặc thấp hơn */}
-    <TransitionChild
-      as={Fragment}
-      enter="ease-out duration-300"
-      enterFrom="opacity-0"
-      enterTo="opacity-100"
-      leave="ease-in duration-200"
-      leaveFrom="opacity-100"
-      leaveTo="opacity-0"
-    >
-      {/* Overlay */}
-      <div className="fixed inset-0 bg-black/40" />
-    </TransitionChild>
+    <div className="fixed inset-0 bg-black/25 flex items-center justify-center z-50">
+      <div className="bg-white rounded-lg p-6 w-full max-w-md">
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-xl font-semibold text-gray-900">
+            {isChanging ? 'Đổi thợ' : 'Phân công thợ'}
+          </h2>
+          <button
+            onClick={onClose}
+            className="text-gray-400 hover:text-gray-500 focus:outline-none"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
 
-    <div className="fixed inset-0 overflow-y-auto z-50"> {/* panel có z-50 để cho rõ */}
-      <div className="flex min-h-full items-center justify-center p-4 text-center">
-        <TransitionChild
-          as={Fragment}
-          enter="ease-out duration-300"
-          enterFrom="opacity-0 scale-95"
-          enterTo="opacity-100 scale-100"
-          leave="ease-in duration-200"
-          leaveFrom="opacity-100 scale-100"
-          leaveTo="opacity-0 scale-95"
-        >
-              <DialogPanel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all z-50">
-            <DialogTitle
-                  as="div"
-                  className="flex items-center justify-between mb-4"
-                >
-                  <h3 className="text-lg font-medium leading-6 text-gray-900">
-                    Phân công thợ
-                  </h3>
-                  <button
-                    onClick={onClose}
-                    className="rounded-md bg-white text-gray-400 hover:text-gray-500 focus:outline-none"
-                  >
-                    <X className="h-5 w-5" />
-                  </button>
-                </DialogTitle>
-
-                <div className="mt-2 space-y-4">
-                  <div className="space-y-2">
-                    <h4 className="font-medium text-gray-900">Thông tin công việc</h4>
-                    <div className="bg-gray-50 p-3 rounded-md">
-                      <p className="text-sm text-gray-600">
-                        <span className="font-medium">Nội dung:</span> {work.work_content}
-                      </p>
-                      <p className="text-sm text-gray-600">
-                        <span className="font-medium">Khách hàng:</span> {work.name_cus}
-                      </p>
-                      <p className="text-sm text-gray-600">
-                        <span className="font-medium">Địa chỉ:</span> {work.street}, {work.district}
-                      </p>
-                      <p className="text-sm text-gray-600">
-                        <span className="font-medium">SĐT:</span> {work.phone_number}
-                      </p>
-                      <p className="text-sm text-gray-600">
-                        <span className="font-medium">Ghi chú:</span> {work.work_note}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <label htmlFor="worker" className="block text-sm font-medium text-gray-700">
-                      Chọn thợ
-                    </label>
-                    <select
-                      id="worker"
-                      value={selectedWorkerId}
-                      onChange={(e) => setSelectedWorkerId(e.target.value)}
-                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-                    >
-                      <option value="">Chọn thợ...</option>
-                      {/* TODO: Add worker options from API */}
-                      <option value="1">Thợ A</option>
-                      <option value="2">Thợ B</option>
-                      <option value="3">Thợ C</option>
-                    </select>
-                  </div>
-
-                  {error && (
-                    <div className="text-sm text-red-600">
-                      {error}
-                    </div>
-                  )}
-                </div>
-
-                <div className="mt-6 flex justify-end space-x-3">
-                  <button
-                    type="button"
-                    className="inline-flex justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-                    onClick={onClose}
-                  >
-                    Hủy
-                  </button>
-                  <button
-                    type="button"
-                    className="inline-flex justify-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-                    onClick={handleAssign}
-                    disabled={loading || !selectedWorkerId}
-                  >
-                    {loading ? 'Đang xử lý...' : 'Phân công'}
-                  </button>
-                </div>
-              </DialogPanel>
-            </TransitionChild>
+        {/* Work Info */}
+        <div className="mb-6 p-4 bg-gray-50 rounded-lg border border-gray-100">
+          <h3 className="text-sm font-medium text-gray-700 mb-2">Thông tin công việc</h3>
+          <div className="space-y-2 text-sm">
+            <p className="text-gray-600">
+              <span className="font-medium">Nội dung:</span> {work.work_content}
+            </p>
+            <p className="text-gray-600">
+              <span className="font-medium">Khách hàng:</span> {work.name_cus}
+            </p>
+            <p className="text-gray-600">
+              <span className="font-medium">Địa chỉ:</span> {work.street}, {work.district}
+            </p>
+            <p className="text-gray-600">
+              <span className="font-medium">SĐT:</span> {work.phone_number}
+            </p>
+            {work.work_note && (
+              <p className="text-gray-600">
+                <span className="font-medium">Ghi chú:</span> {work.work_note}
+              </p>
+            )}
           </div>
         </div>
-      </Dialog>
-    </Transition>
-  )
-} 
+        
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Thợ chính <span className="text-red-500">*</span>
+            </label>
+            <select
+              value={selectedWorker}
+              onChange={(e) => setSelectedWorker(e.target.value)}
+              className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              required
+            >
+              <option value="">Chọn thợ chính</option>
+              {workers.map((worker) => (
+                <option key={worker.id} value={worker.id}>
+                  {worker.worker_full_name} ({worker.worker_code})
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Thợ phụ
+            </label>
+            <select
+              value={selectedExtraWorker}
+              onChange={(e) => setSelectedExtraWorker(e.target.value)}
+              className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="">Chọn thợ phụ (không bắt buộc)</option>
+              {workers.map((worker) => (
+                <option key={worker.id} value={worker.id}>
+                  {worker.worker_full_name} ({worker.worker_code})
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {error && (
+            <div className="p-3 bg-red-50 border border-red-200 rounded-md text-red-600 text-sm">
+              {error}
+            </div>
+          )}
+
+          <div className="flex justify-end space-x-3 mt-6">
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+            >
+              Hủy
+            </button>
+            <button
+              type="submit"
+              disabled={loading}
+              className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
+            >
+              {loading ? 'Đang xử lý...' : isChanging ? 'Đổi thợ' : 'Phân công'}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+};
+
+export default AssignWorkerModal;

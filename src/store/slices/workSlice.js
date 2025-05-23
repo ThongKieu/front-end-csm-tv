@@ -1,64 +1,97 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
+import axios from 'axios'
 
-// Async thunk for fetching works
-export const fetchWorks = createAsyncThunk(
-  'work/fetchWorks',
-  async (date, { rejectWithValue }) => {
-    try {
-      // Fetch both works and work assignments
-      const [worksResponse, assignmentsResponse] = await Promise.all([
-        fetch(`https://csm.thoviet.net/api/web/works?dateCheck=${date}`),
-        fetch(`https://csm.thoviet.net/api/web/work-assignment?dateCheck=${date}`)
-      ])
+// Async thunk for fetching assigned works
+export const fetchAssignedWorks = createAsyncThunk(
+  'work/fetchAssignedWorks',
+  async (date) => {
+    const response = await axios.get(`https://csm.thoviet.net/api/web/work-assignment?dateCheck=${date}`)
+    return response.data
+  }
+)
 
-      if (!worksResponse.ok || !assignmentsResponse.ok) {
-        const error = await worksResponse.json()
-        return rejectWithValue(error.message)
-      }
+// Async thunk for fetching unassigned works
+export const fetchUnassignedWorks = createAsyncThunk(
+  'work/fetchUnassignedWorks',
+  async (date) => {
+    const response = await axios.get(`https://csm.thoviet.net/api/web/works?dateCheck=${date}`)
+    return response.data
+  }
+)
 
-      const works = await worksResponse.json()
-      const assignments = await assignmentsResponse.json()
+// Async thunk for fetching workers
+export const fetchWorkers = createAsyncThunk(
+  'work/fetchWorkers',
+  async () => {
+    const response = await axios.get('https://csm.thoviet.net/api/web/workers')
+    return response.data
+  }
+)
 
-      // Merge work assignments into works data
-      const mergedData = works.map(workCategory => {
-        const assignmentCategory = assignments.find(
-          assignment => assignment.kind_worker.id === workCategory.kind_worker.id
-        )
+// Async thunk for assigning worker
+export const assignWorker = createAsyncThunk(
+  'work/assignWorker',
+  async ({ work, worker, extraWorker, dateCheck, authId }) => {
+    const data_hisWork = [
+      {
+        id_auth: authId,
+        id_worker: null,
+        action: "guitho",
+        time: new Date().toLocaleTimeString(),
+      },
+    ];
 
-        if (assignmentCategory) {
-          // Merge work data with assignment data
-          const mergedWorks = workCategory.data.map(work => {
-            const assignment = assignmentCategory.data.find(
-              assignment => assignment.id_work === work.id
-            )
-            return {
-              ...work,
-              ...assignment,
-              worker_full_name: assignment?.worker_full_name,
-              worker_code: assignment?.worker_code,
-              worker_phone_company: assignment?.worker_phone_company,
-              his_work: assignment?.his_work
-            }
-          })
+    const data = {
+      id_work: work.id,
+      id_worker: worker,
+      id_phu: extraWorker,
+      work_note: work.work_note,
+      auth_id: authId,
+      his_work: JSON.stringify(data_hisWork),
+      dateCheck: dateCheck,
+    };
 
-          return {
-            ...workCategory,
-            data: mergedWorks
-          }
-        }
+    const response = await axios.post(
+      `https://csm.thoviet.net/api/web/work-assignment?dateCheck=${dateCheck}`,
+      data
+    );
+    return response.data;
+  }
+)
 
-        return workCategory
-      })
+// Async thunk for changing worker
+export const changeWorker = createAsyncThunk(
+  'work/changeWorker',
+  async ({ workAssignment, worker, extraWorker, authId }) => {
+    const data_hisWork = [
+      {
+        id_auth: authId,
+        id_worker: null,
+        action: "doitho",
+        time: new Date().toLocaleTimeString(),
+      },
+    ];
 
-      return mergedData
-    } catch (error) {
-      return rejectWithValue(error.message)
-    }
+    const data = {
+      id_work_ass: workAssignment.id,
+      id_worker: worker || "",
+      auth_id: authId,
+      id_phu: extraWorker || "",
+      his_work: JSON.stringify(data_hisWork),
+    };
+
+    const response = await axios.post(
+      'https://csm.thoviet.net/api/web/work-assignment/change-worker',
+      data
+    );
+    return response.data;
   }
 )
 
 const initialState = {
-  works: [],
+  assignedWorks: [],
+  unassignedWorks: [],
+  workers: [],
   selectedWorkerType: 'all',
   selectedDate: new Date().toISOString().split('T')[0],
   loading: false,
@@ -81,17 +114,67 @@ const workSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      .addCase(fetchWorks.pending, (state) => {
+      // Assigned Works
+      .addCase(fetchAssignedWorks.pending, (state) => {
         state.loading = true
         state.error = null
       })
-      .addCase(fetchWorks.fulfilled, (state, action) => {
+      .addCase(fetchAssignedWorks.fulfilled, (state, action) => {
         state.loading = false
-        state.works = action.payload
+        state.assignedWorks = action.payload
       })
-      .addCase(fetchWorks.rejected, (state, action) => {
+      .addCase(fetchAssignedWorks.rejected, (state, action) => {
         state.loading = false
-        state.error = action.payload
+        state.error = action.error.message
+      })
+      // Unassigned Works
+      .addCase(fetchUnassignedWorks.pending, (state) => {
+        state.loading = true
+        state.error = null
+      })
+      .addCase(fetchUnassignedWorks.fulfilled, (state, action) => {
+        state.loading = false
+        state.unassignedWorks = action.payload
+      })
+      .addCase(fetchUnassignedWorks.rejected, (state, action) => {
+        state.loading = false
+        state.error = action.error.message
+      })
+      // Workers
+      .addCase(fetchWorkers.pending, (state) => {
+        state.loading = true
+      })
+      .addCase(fetchWorkers.fulfilled, (state, action) => {
+        state.loading = false
+        state.workers = action.payload
+      })
+      .addCase(fetchWorkers.rejected, (state, action) => {
+        state.loading = false
+        state.error = action.error.message
+      })
+      // Assign Worker
+      .addCase(assignWorker.pending, (state) => {
+        state.loading = true
+        state.error = null
+      })
+      .addCase(assignWorker.fulfilled, (state, action) => {
+        state.loading = false
+      })
+      .addCase(assignWorker.rejected, (state, action) => {
+        state.loading = false
+        state.error = action.error.message
+      })
+      // Change Worker
+      .addCase(changeWorker.pending, (state) => {
+        state.loading = true
+        state.error = null
+      })
+      .addCase(changeWorker.fulfilled, (state, action) => {
+        state.loading = false
+      })
+      .addCase(changeWorker.rejected, (state, action) => {
+        state.loading = false
+        state.error = action.error.message
       })
   },
 })
@@ -99,7 +182,9 @@ const workSlice = createSlice({
 export const { setSelectedWorkerType, setSelectedDate, clearError } = workSlice.actions
 
 // Selectors
-export const selectWorks = (state) => state.work.works
+export const selectAssignedWorks = (state) => state.work.assignedWorks
+export const selectUnassignedWorks = (state) => state.work.unassignedWorks
+export const selectWorkers = (state) => state.work.workers
 export const selectSelectedWorkerType = (state) => state.work.selectedWorkerType
 export const selectSelectedDate = (state) => state.work.selectedDate
 export const selectLoading = (state) => state.work.loading
