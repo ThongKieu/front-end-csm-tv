@@ -1,26 +1,20 @@
 export const ROUTES = {
-  // Auth routes
+  HOME: '/',
   LOGIN: '/login',
-  REGISTER: '/register',
-  FORGOT_PASSWORD: '/forgot-password',
-
-  // Main routes
-  HOME: '/dashboard',
-  CUSTOMER: '/customer',
   PROFILE: '/profile',
-
-  // Admin routes
+  CHANGE_PASSWORD: '/change-password',
+  CUSTOMER: '/customer',
   ADMIN: {
-    ROOT: '/admin',
+    DASHBOARD: '/admin/dashboard',
     USERS: '/admin/users',
+    SCHEDULE: '/admin/schedule',
+    COMPANY: '/admin/company',
+    REPORTS: '/admin/reports',
+    DOCUMENTS: '/admin/documents',
     SETTINGS: '/admin/settings',
   },
-
-  // Accountant routes
   ACCOUNTANT: {
-    ROOT: '/accountant',
     TRANSACTIONS: '/accountant/transactions',
-    REPORTS: '/accountant/reports',
   },
 };
 
@@ -28,9 +22,9 @@ export const ROUTES = {
 export const getRoleBasedRoute = (role) => {
   switch (role) {
     case 'admin':
-      return ROUTES.ADMIN.ROOT;
+      return ROUTES.ADMIN.DASHBOARD;
     case 'accountant':
-      return ROUTES.ACCOUNTANT.ROOT;
+      return ROUTES.ACCOUNTANT.TRANSACTIONS;
     case 'user':
       return ROUTES.HOME;
     default:

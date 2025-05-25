@@ -6,6 +6,7 @@ import { logout } from '@/store/slices/authSlice'
 import { ROUTES } from '@/config/routes'
 import Link from 'next/link'
 import { LogOut, User } from 'lucide-react'
+import { UserMenu } from './UserMenu'
 
 export default function Header() {
   const router = useRouter()
@@ -14,7 +15,7 @@ export default function Header() {
 
   const handleLogout = () => {
     dispatch(logout())
-    router.push('/login')
+    router.push(ROUTES.LOGIN)
   }
 
   const menus = [
@@ -51,17 +52,7 @@ export default function Header() {
           </div>
 
           <div className="flex items-center space-x-4">
-            <div className="flex items-center space-x-2">
-              <User className="w-5 h-5 text-gray-500" />
-              <span className="text-sm font-medium text-gray-700">{user?.name}</span>
-            </div>
-            <button
-              onClick={handleLogout}
-              className="flex items-center px-3 py-1.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-            >
-              <LogOut className="w-4 h-4 mr-1.5" />
-              Đăng xuất
-            </button>
+            <UserMenu />
           </div>
         </div>
       </div>

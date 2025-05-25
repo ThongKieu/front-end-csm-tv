@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { usePathname } from 'next/navigation'
 import Link from 'next/link'
 import { useSelector } from 'react-redux'
-import { menuItems } from '@/data/mockData'
+import { ROUTES } from '@/config/routes'
 import {
   LayoutDashboard,
   Users,
@@ -29,6 +29,58 @@ export default function Sidebar() {
   const pathname = usePathname()
   const { user } = useSelector((state) => state.auth)
   const [isCollapsed, setIsCollapsed] = useState(false)
+
+  const menuItems = [
+    {
+      id: 1,
+      label: 'Dashboard',
+      icon: 'LayoutDashboard',
+      route: ROUTES.HOME,
+      roles: ['admin', 'manager', 'user']
+    },
+    {
+      id: 2,
+      label: 'Quản lý thợ',
+      icon: 'Users',
+      route: ROUTES.ADMIN.USERS,
+      roles: ['admin', 'manager']
+    },
+    {
+      id: 3,
+      label: 'Lịch làm việc',
+      icon: 'Calendar',
+      route: ROUTES.ADMIN.SCHEDULE,
+      roles: ['admin', 'manager', 'user']
+    },
+    {
+      id: 4,
+      label: 'Công ty',
+      icon: 'Building2',
+      route: ROUTES.ADMIN.COMPANY,
+      roles: ['admin']
+    },
+    {
+      id: 5,
+      label: 'Báo cáo',
+      icon: 'BarChart',
+      route: ROUTES.ADMIN.REPORTS,
+      roles: ['admin']
+    },
+    {
+      id: 6,
+      label: 'Tài liệu',
+      icon: 'FileText',
+      route: ROUTES.ADMIN.DOCUMENTS,
+      roles: ['admin']
+    },
+    {
+      id: 7,
+      label: 'Cài đặt',
+      icon: 'Settings',
+      route: ROUTES.ADMIN.SETTINGS,
+      roles: ['admin']
+    }
+  ]
 
   // Lọc menu items dựa trên role của user
   const filteredMenuItems = menuItems.filter(item => 

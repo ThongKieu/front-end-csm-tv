@@ -1,13 +1,14 @@
 import { NextResponse } from 'next/server'
+import { ROUTES } from '@/config/routes'
 
 // Các route không cần authentication
-const publicRoutes = ['/login', '/register', '/forgot-password']
+const publicRoutes = [ROUTES.LOGIN, '/register', '/forgot-password']
 
 // Các route theo role
 const roleRoutes = {
-  admin: ['/admin', '/customer'],
-  accountant: ['/accountant', '/customer'],
-  user: ['/customer']
+  admin: [ROUTES.ADMIN.DASHBOARD, ROUTES.CUSTOMER],
+  accountant: [ROUTES.ACCOUNTANT.TRANSACTIONS, ROUTES.CUSTOMER],
+  user: [ROUTES.CUSTOMER]
 }
 
 export function middleware(request) {
@@ -21,7 +22,7 @@ export function middleware(request) {
 
   // Kiểm tra token
   if (!token) {
-    const url = new URL('/login', request.url)
+    const url = new URL(ROUTES.LOGIN, request.url)
     url.searchParams.set('from', pathname)
     return NextResponse.redirect(url)
   }
@@ -40,7 +41,7 @@ export function middleware(request) {
     return NextResponse.next()
   } catch (error) {
     // Token không hợp lệ
-    const url = new URL('/login', request.url)
+    const url = new URL(ROUTES.LOGIN, request.url)
     url.searchParams.set('from', pathname)
     return NextResponse.redirect(url)
   }

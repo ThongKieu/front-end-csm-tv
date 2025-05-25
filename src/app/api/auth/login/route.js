@@ -61,7 +61,7 @@ export async function POST(request) {
       email: user.email
     })
       .setProtectedHeader({ alg: 'HS256' })
-      .setExpirationTime('1d')
+      .setExpirationTime('7d')
       .sign(secret)
 
     // Return user data and token

@@ -14,6 +14,7 @@ import {
   UserCog,
   Edit2,
   Settings,
+  DollarSign,
 } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -27,6 +28,7 @@ import { copyWorkSchedule } from "@/utils/copyUtils";
 import EditWorkModal from "./EditWorkModal";
 import axios from "axios";
 import { useSocket } from '@/hooks/useSocket';
+import EditAssignedWorkModal from "./EditAssignedWorkModal";
 
 const WorkTable = ({ works = [], workers = [] }) => {
   const dispatch = useDispatch();
@@ -38,6 +40,8 @@ const WorkTable = ({ works = [], workers = [] }) => {
   const [selectedWorkerType, setSelectedWorkerType] = useState("all");
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const auth = useSelector((state) => state.auth);
+  const [isEditAssignedModalOpen, setIsEditAssignedModalOpen] = useState(false);
+  const [selectedAssignedWork, setSelectedAssignedWork] = useState(null);
 
   // Add socket connection for real-time updates
   const { emit } = useSocket('workUpdate', (data) => {
@@ -110,42 +114,148 @@ const WorkTable = ({ works = [], workers = [] }) => {
         status_cus: editValue.status_cus || 0,
         kind_work: editValue.kind_work || 0,
       };
+      console.log(editValue.kind_work);
       
-      await axios.post("https://csm.thoviet.net/api/web/update/work", data);
+      // await axios.post("https://csm.thoviet.net/api/web/update/work", data);
       
-      // Emit socket event after successful update
-      emit('workUpdated', {
-        type: 'edit',
-        workId: editValue.id,
-        date: selectedDate
-      });
+      // // Emit socket event after successful update
+      // emit('workUpdated', {
+      //   type: 'edit',
+      //   workId: editValue.id,
+      //   date: selectedDate
+      // });
 
-      // Refresh data after edit
-      dispatch(fetchAssignedWorks(selectedDate));
-      dispatch(fetchUnassignedWorks(selectedDate));
-      handleCloseEditModal();
+      // // Refresh data after edit
+      // dispatch(fetchAssignedWorks(selectedDate));
+      // dispatch(fetchUnassignedWorks(selectedDate));
+      // handleCloseEditModal();
     } catch (error) {
       console.error("Error updating work:", error);
     }
   };
 
-  const getWorkTypeColor = (kindWorker) => {
-    const typeColors = {
-      1: "bg-blue-100 text-blue-800", // Điện nước
-      2: "bg-green-100 text-green-800", // Điện lạnh
-      3: "bg-yellow-100 text-yellow-800", // Điện
-      4: "bg-purple-100 text-purple-800", // Nước
-      5: "bg-red-100 text-red-800", // Sửa chữa
-      6: "bg-indigo-100 text-indigo-800", // Bảo trì
-      7: "bg-pink-100 text-pink-800", // Lắp đặt
-      default: "bg-gray-100 text-gray-800", // Khác
-    };
+  const getWorkTypeColor = (kindWork) => {
+    switch (kindWork) {
+      case 1:
+        return 'bg-blue-100 text-blue-800'; // Điện Nước
+      case 2:
+        return 'bg-green-100 text-green-800'; // Điện Lạnh
+      case 3:
+        return 'bg-yellow-100 text-yellow-800'; // Đồ gỗ
+      case 4:
+        return 'bg-orange-100 text-orange-800'; // Năng Lượng Mặt trời
+      case 5:
+        return 'bg-red-100 text-red-800'; // Xây Dựng
+      case 6:
+        return 'bg-purple-100 text-purple-800'; // Tài Xế
+      case 7:
+        return 'bg-indigo-100 text-indigo-800'; // Cơ Khí
+      case 8:
+        return 'bg-pink-100 text-pink-800'; // Điện - Điện Tử
+      case 9:
+        return 'bg-gray-100 text-gray-800'; // Văn Phòng
+      default:
+        return 'bg-gray-100 text-gray-800';
+    }
+  };
 
-    return typeColors[kindWorker?.id] || typeColors["default"];
+  const getWorkTypeName = (kindWork) => {
+    switch (kindWork) {
+      case 1:
+        return 'Điện Nước';
+      case 2:
+        return 'Điện Lạnh';
+      case 3:
+        return 'Đồ gỗ';
+      case 4:
+        return 'Năng Lượng Mặt trời';
+      case 5:
+        return 'Xây Dựng';
+      case 6:
+        return 'Tài Xế';
+      case 7:
+        return 'Cơ Khí';
+      case 8:
+        return 'Điện - Điện Tử';
+      case 9:
+        return 'Văn Phòng';
+      default:
+        return 'Chưa phân loại';
+    }
+  };
+
+  const getStatusColor = (status) => {
+    switch (status) {
+      case 0:
+        return 'bg-gray-100 text-gray-800'; // Chưa Phân
+      case 1:
+        return 'bg-yellow-100 text-yellow-800'; // Thuê Bao / Không nghe
+      case 2:
+        return 'bg-orange-100 text-orange-800'; // Khách Nhắc 1 lần
+      case 3:
+        return 'bg-red-100 text-red-800'; // Khách nhắc nhiều lần
+      case 4:
+        return 'bg-purple-100 text-purple-800'; // Lịch Gấp/Ưu tiên
+      case 5:
+        return 'bg-blue-100 text-blue-800'; // 
+      case 6:
+        return 'bg-green-100 text-green-800'; // Lịch đã phân
+      case 7:
+        return 'bg-red-200 text-red-900'; // Lịch Hủy
+      case 8:
+        return 'bg-gray-200 text-gray-900'; // KXL
+      default:
+        return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  const getStatusName = (status) => {
+    switch (status) {
+      case 0:
+        return 'Chưa Phân';
+      case 1:
+        return 'Thuê Bao / Không nghe';
+      case 2:
+        return 'Khách Nhắc 1 lần';
+      case 3:
+        return 'Khách nhắc nhiều lần';
+      case 4:
+        return 'Lịch Gấp/Ưu tiên';
+      case 5:
+        return 'Đang xử lý';
+      case 6:
+        return 'Lịch đã phân';
+      case 7:
+        return 'Lịch Hủy';
+      case 8:
+        return 'KXL';
+      default:
+        return 'Chưa xác định';
+    }
   };
 
   const handleWorkerTypeChange = (type) => {
     setSelectedWorkerType(type);
+  };
+
+  const handleEditAssignedWork = (work) => {
+    setSelectedAssignedWork(work);
+    setIsEditAssignedModalOpen(true);
+  };
+
+  const handleCloseEditAssignedModal = () => {
+    setIsEditAssignedModalOpen(false);
+    setSelectedAssignedWork(null);
+  };
+
+  const handleSaveAssignedWork = async (formData) => {
+    try {
+      await axios.post("https://csm.thoviet.net/api/web/update/work_ass", formData);
+      dispatch(fetchAssignedWorks(selectedDate));
+      handleCloseEditAssignedModal();
+    } catch (error) {
+      console.error("Error updating assigned work:", error);
+    }
   };
 
   const columns = useMemo(
@@ -171,6 +281,13 @@ const WorkTable = ({ works = [], workers = [] }) => {
                 const assignedWorker = workers.find(
                   (w) => w.id === work.id_worker
                 );
+                // Lấy thông tin công việc gốc từ work_detail
+                const originalWork = work.work_detail?.id_work ? {
+                  kind_work: work.work_detail.id_work.kind_work,
+                  work_content: work.work_detail.id_work.work_content,
+                  work_note: work.work_detail.id_work.work_note
+                } : work;
+
                 return (
                   <div
                     key={work.id}
@@ -179,39 +296,46 @@ const WorkTable = ({ works = [], workers = [] }) => {
                     <div className="flex items-start justify-between">
                       <div className="space-y-1.5 flex-1 min-w-0">
                         <div className="grid grid-cols-6 items-center space-x-2">
-                          {category.kind_worker && (
-                            <span
-                              className={`px-2 py-1 text-center col-span-1 text-xs font-medium rounded-full ${getWorkTypeColor(
-                                category.kind_worker
-                              )}`}
-                            >
-                              {category.kind_worker.nameKind == "Năng Lượng Mặt Trời" ? "NLMT" : category.kind_worker.nameKind ||
-                                "Chưa phân loại"}
-                            </span>
-                          )}{" "}
-                          <p className="font-medium  col-span-5 text-gray-900 break-words whitespace-pre-line">
-                            {work.work_content || "Không có nội dung"}
+                          <span
+                            className={`px-2 py-1 text-center col-span-1 text-xs font-medium rounded-full ${getWorkTypeColor(
+                              originalWork.kind_work
+                            )}`}
+                          >
+                            {getWorkTypeName(originalWork.kind_work)}
+                          </span>
+                          <p className="font-medium col-span-5 text-gray-900 break-words whitespace-pre-line">
+                            {originalWork.work_content || "Không có nội dung"}
                           </p>
                         </div>
 
                         <div className="space-y-1 text-sm">
                           <div className="flex flex-row justify-between items-center space-x-2">
-                            {" "}
-                            <p className="text-gray-600 truncate">
-                              <span className="font-medium text-gray-700">
-                                Khách hàng:
-                              </span>{" "}
-                              {work.name_cus || "Chưa có thông tin"}
-                            </p>
-                            <p className="text-gray-600 truncate">
-                              <span className="font-medium text-gray-700">
-                                SĐT:
-                              </span>{" "}
-                              {work.phone_number || "Chưa có thông tin"}
-                            </p>{" "}
-                            <p className="truncate border border-green-400 p-1 rounded-md text-green-400">
-                              {work.date_book}
-                            </p>
+                            <div className="flex items-center space-x-2">
+                              <p className="text-gray-600 truncate">
+                                <span className="font-medium text-gray-700">
+                                  Khách hàng:
+                                </span>{" "}
+                                {work.name_cus || "Chưa có thông tin"}
+                              </p>
+                              <p className="text-gray-600 truncate">
+                                <span className="font-medium text-gray-700">
+                                  SĐT:
+                                </span>{" "}
+                                {work.phone_number || "Chưa có thông tin"}
+                              </p>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <span
+                                className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(
+                                  work.status_cus
+                                )}`}
+                              >
+                                {getStatusName(work.status_cus)}
+                              </span>
+                              <p className="truncate border border-green-400 p-1 rounded-md text-green-400">
+                                {work.date_book}
+                              </p>
+                            </div>
                           </div>
                           <p className="text-gray-600 truncate break-words whitespace-pre-line">
                             <span className="font-medium text-gray-700">
@@ -223,7 +347,7 @@ const WorkTable = ({ works = [], workers = [] }) => {
                           </p>
 
                           <p className="font-medium text-gray-900 break-words whitespace-pre-line">
-                            {work.work_note || "Không có nội dung"}
+                            {originalWork.work_note || "Không có nội dung"}
                           </p>
                         </div>
                         {assignedWorker && (
@@ -254,16 +378,24 @@ const WorkTable = ({ works = [], workers = [] }) => {
                           <Copy className="w-5 h-5" />
                         </button>
                         {assignedWorker ? (
-                          <button
-                            onClick={() => handleChangeWorker(work)}
-                            className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 cursor-pointer rounded-full transition-colors"
-                            title="Đổi thợ"
-                          >
-                            <UserCog className="w-5 h-5" />
-                          </button>
+                          <>
+                            <button
+                              onClick={() => handleChangeWorker(work)}
+                              className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 cursor-pointer rounded-full transition-colors"
+                              title="Đổi thợ"
+                            >
+                              <UserCog className="w-5 h-5" />
+                            </button>
+                            <button
+                              onClick={() => handleEditAssignedWork(work)}
+                              className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-full transition-colors"
+                              title="Nhập thu chi"
+                            >
+                              <DollarSign className="w-5 h-5" />
+                            </button>
+                          </>
                         ) : (
                           <div>
-                            {" "}
                             <button
                               onClick={() => handleAssignWorker(work)}
                               className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-full transition-colors"
@@ -274,7 +406,7 @@ const WorkTable = ({ works = [], workers = [] }) => {
                             <button
                               onClick={() => handleEditWork(work)}
                               className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-full transition-colors"
-                              title="Phân công thợ"
+                              title="Chỉnh sửa"
                             >
                               <Settings className="w-5 h-5" />
                             </button>
@@ -398,6 +530,14 @@ const WorkTable = ({ works = [], workers = [] }) => {
           work={selectedWork}
           onClose={handleCloseEditModal}
           onSave={handleEdit}
+        />
+      )}
+
+      {isEditAssignedModalOpen && (
+        <EditAssignedWorkModal
+          work={selectedAssignedWork}
+          onClose={handleCloseEditAssignedModal}
+          onSave={handleSaveAssignedWork}
         />
       )}
     </div>

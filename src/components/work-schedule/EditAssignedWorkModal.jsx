@@ -1,12 +1,10 @@
 import { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
-import { useDispatch, useSelector } from 'react-redux';
-import { assignWorker } from '@/store/slices/workSlice';
-import Select from 'react-select';
+import { useDispatch } from 'react-redux';
+import axios from 'axios';
 
-const EditWorkModal = ({ work, onClose, onSave }) => {
+const EditAssignedWorkModal = ({ work, onClose, onSave }) => {
   const dispatch = useDispatch();
-  const workers = useSelector((state) => state.work.workers);
   const [formData, setFormData] = useState({
     id: '',
     work_content: '',
@@ -16,10 +14,21 @@ const EditWorkModal = ({ work, onClose, onSave }) => {
     phone_number: '',
     work_note: '',
     date_book: '',
-    kind_work: '',
-    id_worker: '',
-    id_phu: '',
+    status_cus: '',
+    income_total: 0,
+    spending_total: 0,
+    debt: 0,
+    vat: 0,
+    info_vat: '',
+    real_note: '',
+    status_work: 0,
+    flag_check: 0,
+    check_in: 0,
+    admin_check: 0,
+    status_admin_check: 0,
+    work_ass_tip: 0,
   });
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -34,9 +43,19 @@ const EditWorkModal = ({ work, onClose, onSave }) => {
         phone_number: work.phone_number || '',
         work_note: work.work_note || '',
         date_book: work.date_book || '',
-        kind_work: work.kind_work || '',
-        id_worker: work.id_worker || '',
-        id_phu: work.id_phu || '',
+        status_cus: work.status_cus || 0,
+        income_total: work.income_total || 0,
+        spending_total: work.spending_total || 0,
+        debt: work.debt || 0,
+        vat: work.vat || 0,
+        info_vat: work.info_vat || '',
+        real_note: work.real_note || '',
+        status_work: work.status_work || 0,
+        flag_check: work.flag_check || 0,
+        check_in: work.check_in || 0,
+        admin_check: work.admin_check || 0,
+        status_admin_check: work.status_admin_check || 0,
+        work_ass_tip: work.work_ass_tip || 0,
       });
     }
   }, [work]);
@@ -47,19 +66,9 @@ const EditWorkModal = ({ work, onClose, onSave }) => {
     setError(null);
 
     try {
-      // Save work details
+      // TODO: Implement API call to update work
       await onSave(formData);
-
-      // If worker is assigned, also assign the worker
-      if (formData.id_worker) {
-        await dispatch(assignWorker({
-          work: { id: formData.id },
-          worker: formData.id_worker,
-          extraWorker: formData.id_phu,
-          dateCheck: formData.date_book,
-          authId: 1, // TODO: Get from auth context
-        })).unwrap();
-      }
+      onClose();
     } catch (err) {
       setError(err.message || 'Có lỗi xảy ra khi cập nhật công việc');
     } finally {
@@ -68,51 +77,31 @@ const EditWorkModal = ({ work, onClose, onSave }) => {
   };
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
+    const { name, value, type } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: value
+      [name]: type === 'number' ? parseFloat(value) || 0 : value
     }));
   };
 
-  const handleWorkerChange = (selectedOption, { name }) => {
-    setFormData(prev => ({
-      ...prev,
-      [name]: selectedOption ? selectedOption.value : ''
-    }));
-  };
-
-  const workerOptions = workers.map(worker => ({
-    value: worker.id,
-    label: `${worker.worker_full_name} (${worker.worker_code})`,
-    phone: worker.worker_phone_company
-  }));
-
-  const customSelectStyles = {
-    control: (base) => ({
-      ...base,
-      minHeight: '42px',
-      borderColor: '#D1D5DB',
-      '&:hover': {
-        borderColor: '#9CA3AF'
-      }
-    }),
-    option: (base, state) => ({
-      ...base,
-      backgroundColor: state.isSelected ? '#2563EB' : state.isFocused ? '#EFF6FF' : 'white',
-      color: state.isSelected ? 'white' : '#1F2937',
-      '&:hover': {
-        backgroundColor: state.isSelected ? '#2563EB' : '#EFF6FF'
-      }
-    })
-  };
+  const getStatusOptions = () => [
+    { value: 0, label: 'Chưa Phân' },
+    { value: 1, label: 'Thuê Bao / Không nghe' },
+    { value: 2, label: 'Khách Nhắc 1 lần' },
+    { value: 3, label: 'Khách nhắc nhiều lần' },
+    { value: 4, label: 'Lịch Gấp/Ưu tiên' },
+    { value: 5, label: 'Đang xử lý' },
+    { value: 6, label: 'Lịch đã phân' },
+    { value: 7, label: 'Lịch Hủy' },
+    { value: 8, label: 'KXL' },
+  ];
 
   return (
     <div className="fixed inset-0 bg-black/25 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+      <div className="bg-white rounded-lg p-6 w-full max-w-4xl max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-xl font-semibold text-gray-900">
-            Chỉnh sửa công việc
+            Chỉnh sửa lịch đã phân công
           </h2>
           <button
             onClick={onClose}
@@ -126,7 +115,7 @@ const EditWorkModal = ({ work, onClose, onSave }) => {
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Nội dung công việc <span className="text-red-500">*</span>
+                Nội dung công việc
               </label>
               <textarea
                 name="work_content"
@@ -134,31 +123,25 @@ const EditWorkModal = ({ work, onClose, onSave }) => {
                 onChange={handleChange}
                 className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 rows="3"
-                required
+                readOnly
               />
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Loại công việc <span className="text-red-500">*</span>
+                Trạng thái
               </label>
               <select
-                name="kind_work"
-                value={formData.kind_work}
+                name="status_cus"
+                value={formData.status_cus}
                 onChange={handleChange}
                 className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                required
               >
-                <option value="">Chọn loại công việc</option>
-                <option value="1">Điện Nước</option>
-                <option value="2">Điện Lạnh</option>
-                <option value="3">Đồ gỗ</option>
-                <option value="4">Năng Lượng Mặt trời</option>
-                <option value="5">Xây Dựng</option>
-                <option value="6">Tài Xế</option>
-                <option value="7">Cơ Khí</option>
-                <option value="8">Điện - Điện Tử</option>
-                <option value="9">Văn Phòng</option>
+                {getStatusOptions().map(option => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
               </select>
             </div>
           </div>
@@ -166,7 +149,7 @@ const EditWorkModal = ({ work, onClose, onSave }) => {
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Tên khách hàng <span className="text-red-500">*</span>
+                Tên khách hàng
               </label>
               <input
                 type="text"
@@ -174,13 +157,13 @@ const EditWorkModal = ({ work, onClose, onSave }) => {
                 value={formData.name_cus}
                 onChange={handleChange}
                 className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                required
+                readOnly
               />
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Số điện thoại <span className="text-red-500">*</span>
+                Số điện thoại
               </label>
               <input
                 type="tel"
@@ -188,7 +171,7 @@ const EditWorkModal = ({ work, onClose, onSave }) => {
                 value={formData.phone_number}
                 onChange={handleChange}
                 className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                required
+                readOnly
               />
             </div>
           </div>
@@ -196,7 +179,7 @@ const EditWorkModal = ({ work, onClose, onSave }) => {
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Đường <span className="text-red-500">*</span>
+                Đường
               </label>
               <input
                 type="text"
@@ -204,13 +187,13 @@ const EditWorkModal = ({ work, onClose, onSave }) => {
                 value={formData.street}
                 onChange={handleChange}
                 className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                required
+                readOnly
               />
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Quận/Huyện <span className="text-red-500">*</span>
+                Quận/Huyện
               </label>
               <input
                 type="text"
@@ -218,79 +201,112 @@ const EditWorkModal = ({ work, onClose, onSave }) => {
                 value={formData.district}
                 onChange={handleChange}
                 className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                required
+                readOnly
               />
             </div>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Ngày đặt <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="date"
-              name="date_book"
-              value={formData.date_book}
-              onChange={handleChange}
-              className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              required
-            />
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Thợ chính
+                Thu nhập
               </label>
-              <Select
-                name="id_worker"
-                value={workerOptions.find(option => option.value === formData.id_worker)}
-                onChange={(option) => handleWorkerChange(option, { name: 'id_worker' })}
-                options={workerOptions}
-                isClearable
-                placeholder="Tìm kiếm thợ chính..."
-                styles={customSelectStyles}
-                formatOptionLabel={option => (
-                  <div>
-                    <div>{option.label}</div>
-                    <div className="text-sm text-gray-500">SĐT: {option.phone}</div>
-                  </div>
-                )}
+              <input
+                type="number"
+                name="income_total"
+                value={formData.income_total}
+                onChange={handleChange}
+                className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                min="0"
               />
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Thợ phụ
+                Chi phí
               </label>
-              <Select
-                name="id_phu"
-                value={workerOptions.find(option => option.value === formData.id_phu)}
-                onChange={(option) => handleWorkerChange(option, { name: 'id_phu' })}
-                options={workerOptions}
-                isClearable
-                placeholder="Tìm kiếm thợ phụ..."
-                styles={customSelectStyles}
-                formatOptionLabel={option => (
-                  <div>
-                    <div>{option.label}</div>
-                    <div className="text-sm text-gray-500">SĐT: {option.phone}</div>
-                  </div>
-                )}
+              <input
+                type="number"
+                name="spending_total"
+                value={formData.spending_total}
+                onChange={handleChange}
+                className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                min="0"
               />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                VAT
+              </label>
+              <input
+                type="number"
+                name="vat"
+                value={formData.vat}
+                onChange={handleChange}
+                className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                min="0"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Thông tin VAT
+              </label>
+              <input
+                type="text"
+                name="info_vat"
+                value={formData.info_vat}
+                onChange={handleChange}
+                className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Công nợ
+              </label>
+              <select
+                name="debt"
+                value={formData.debt}
+                onChange={handleChange}
+                className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value={0}>Không có công nợ</option>
+                <option value={1}>Có công nợ</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Trạng thái công việc
+              </label>
+              <select
+                name="status_work"
+                value={formData.status_work}
+                onChange={handleChange}
+                className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value={0}>Chưa hoàn thành</option>
+                <option value={1}>Đã hoàn thành</option>
+              </select>
             </div>
           </div>
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Ghi chú
+              Ghi chú thực tế
             </label>
             <textarea
-              name="work_note"
-              value={formData.work_note}
+              name="real_note"
+              value={formData.real_note}
               onChange={handleChange}
               className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              rows="2"
+              rows="3"
             />
           </div>
 
@@ -322,4 +338,4 @@ const EditWorkModal = ({ work, onClose, onSave }) => {
   );
 };
 
-export default EditWorkModal; 
+export default EditAssignedWorkModal; 

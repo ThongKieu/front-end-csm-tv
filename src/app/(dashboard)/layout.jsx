@@ -2,36 +2,19 @@
 
 import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { useSelector, useDispatch } from 'react-redux'
+import { useSelector } from 'react-redux'
 import { ROUTES } from '@/config/routes'
-import { verifyToken } from '@/store/slices/authSlice'
 import HeaderOnlyLayout from '@/components/layout/HeaderOnlyLayout'
 
 export default function DashboardLayout({ children }) {
   const router = useRouter()
-  const dispatch = useDispatch()
-  const { isAuthenticated, isLoading } = useSelector((state) => state.auth)
+  const { isAuthenticated } = useSelector((state) => state.auth)
 
   useEffect(() => {
     if (!isAuthenticated) {
-      dispatch(verifyToken())
-        .unwrap()
-        .catch(() => {
-          router.push(ROUTES.LOGIN)
-        })
+      router.push(ROUTES.LOGIN)
     }
-  }, [isAuthenticated, router, dispatch])
-
-  if (isLoading) {
-    return (
-      <div className="flex h-screen items-center justify-center bg-gray-100">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Đang tải...</p>
-        </div>
-      </div>
-    )
-  }
+  }, [isAuthenticated, router])
 
   if (!isAuthenticated) {
     return null
