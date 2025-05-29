@@ -6,9 +6,42 @@ const publicRoutes = [ROUTES.LOGIN, '/register', '/forgot-password']
 
 // Các route theo role
 const roleRoutes = {
-  admin: [ROUTES.ADMIN.DASHBOARD, ROUTES.CUSTOMER],
-  accountant: [ROUTES.ACCOUNTANT.TRANSACTIONS, ROUTES.CUSTOMER],
-  user: [ROUTES.CUSTOMER]
+  admin: [
+    '/', // Trang chủ
+    '/dashboard', // Dashboard chính
+    ROUTES.ADMIN.DASHBOARD,
+    ROUTES.ADMIN.USERS,
+    ROUTES.ADMIN.SCHEDULE,
+    ROUTES.ADMIN.COMPANY,
+    ROUTES.ADMIN.REPORTS,
+    ROUTES.ADMIN.DOCUMENTS,
+    ROUTES.ADMIN.SETTINGS,
+    ROUTES.ADMIN.ZNS,
+    ROUTES.CUSTOMER,
+    ROUTES.WORK_SCHEDULE
+  ],
+  manager: [
+    '/', // Trang chủ
+    '/dashboard', // Dashboard chính
+    ROUTES.ADMIN.DASHBOARD,
+    ROUTES.ADMIN.USERS,
+    ROUTES.ADMIN.SCHEDULE,
+    ROUTES.CUSTOMER,
+    ROUTES.WORK_SCHEDULE
+  ],
+  accountant: [
+    '/', // Trang chủ
+    '/dashboard', // Dashboard chính
+    ROUTES.ACCOUNTANT.TRANSACTIONS,
+    ROUTES.CUSTOMER,
+    ROUTES.WORK_SCHEDULE
+  ],
+  user: [
+    '/', // Trang chủ
+    '/dashboard', // Dashboard chính
+    ROUTES.CUSTOMER,
+    ROUTES.WORK_SCHEDULE
+  ]
 }
 
 export function middleware(request) {
@@ -33,8 +66,13 @@ export function middleware(request) {
     const userRole = payload.role
 
     // Kiểm tra quyền truy cập theo role
-    const hasAccess = roleRoutes[userRole]?.some(route => pathname.startsWith(route))
-    if (!hasAccess && !pathname.startsWith('/dashboard')) {
+    const hasAccess = roleRoutes[userRole]?.some(route => {
+      // Kiểm tra chính xác route hoặc route con
+      return pathname === route || pathname.startsWith(route + '/')
+    })
+    
+    if (!hasAccess) {
+      // Nếu không có quyền, chuyển hướng về trang dashboard chính
       return NextResponse.redirect(new URL('/dashboard', request.url))
     }
 

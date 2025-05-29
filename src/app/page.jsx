@@ -7,7 +7,7 @@ import { ROUTES } from '@/config/routes'
 
 export default function Home() {
   const router = useRouter()
-  const { user, isLoading } = useSelector((state) => state.auth)
+  const { user, isAuthenticated } = useSelector((state) => state.auth)
   const [isClient, setIsClient] = useState(false)
 
   useEffect(() => {
@@ -15,17 +15,17 @@ export default function Home() {
   }, [])
 
   useEffect(() => {
-    if (!isLoading) {
-      if (!user) {
+    if (isClient) {
+      if (isAuthenticated && user) {
+        router.push('/dashboard')
+      } else if (!isAuthenticated) {
         router.push(ROUTES.LOGIN)
-      } else {
-        router.push(ROUTES.HOME)
       }
     }
-  }, [user, isLoading, router])
+  }, [isClient, isAuthenticated, user, router])
 
   // Hiển thị loading state
-  if (!isClient || isLoading) {
+  if (!isClient) {
     return (
       <div className="flex h-screen items-center justify-center bg-gray-100">
         <div className="text-center">

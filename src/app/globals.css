@@ -27,4 +27,13 @@ body {
 
 input, textarea, select {
   color: black;
+  /* padding: 5px; */
+}
+
+button {
+  pointer-events: auto;
+  cursor: pointer;
+  border: none;
+  font: inherit;
+  text-decoration: none;
 }

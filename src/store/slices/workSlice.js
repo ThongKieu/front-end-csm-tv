@@ -111,6 +111,80 @@ const workSlice = createSlice({
     clearError: (state) => {
       state.error = null
     },
+    updateAssignedWork: (state, action) => {
+      const { workId, data } = action.payload;
+      const categoryIndex = state.assignedWorks.findIndex(
+        category => category.data.some(work => work.id === workId)
+      );
+      if (categoryIndex !== -1) {
+        const workIndex = state.assignedWorks[categoryIndex].data.findIndex(
+          work => work.id === workId
+        );
+        if (workIndex !== -1) {
+          state.assignedWorks[categoryIndex].data[workIndex] = {
+            ...state.assignedWorks[categoryIndex].data[workIndex],
+            ...data
+          };
+        }
+      }
+    },
+    updateUnassignedWork: (state, action) => {
+      const { workId, data } = action.payload;
+      const categoryIndex = state.unassignedWorks.findIndex(
+        category => category.data.some(work => work.id === workId)
+      );
+      if (categoryIndex !== -1) {
+        const workIndex = state.unassignedWorks[categoryIndex].data.findIndex(
+          work => work.id === workId
+        );
+        if (workIndex !== -1) {
+          state.unassignedWorks[categoryIndex].data[workIndex] = {
+            ...state.unassignedWorks[categoryIndex].data[workIndex],
+            ...data
+          };
+        }
+      }
+    },
+    removeAssignedWork: (state, action) => {
+      const workId = action.payload;
+      state.assignedWorks = state.assignedWorks.map(category => ({
+        ...category,
+        data: category.data.filter(work => work.id !== workId)
+      }));
+    },
+    removeUnassignedWork: (state, action) => {
+      const workId = action.payload;
+      state.unassignedWorks = state.unassignedWorks.map(category => ({
+        ...category,
+        data: category.data.filter(work => work.id !== workId)
+      }));
+    },
+    moveWorkToAssigned: (state, action) => {
+      const { work, categoryId } = action.payload;
+      state.unassignedWorks = state.unassignedWorks.map(category => ({
+        ...category,
+        data: category.data.filter(w => w.id !== work.id)
+      }));
+      const categoryIndex = state.assignedWorks.findIndex(
+        cat => cat.kind_worker.id === categoryId
+      );
+      if (categoryIndex !== -1) {
+        state.assignedWorks[categoryIndex].data.push(work);
+      }
+    },
+    moveWorkToUnassigned: (state, action) => {
+      const { work, categoryId } = action.payload;
+      state.assignedWorks = state.assignedWorks.map(category => ({
+        ...category,
+        data: category.data.filter(w => w.id !== work.id)
+      }));
+      const categoryIndex = state.unassignedWorks.findIndex(
+        cat => cat.kind_worker.id === categoryId
+      );
+      if (categoryIndex !== -1) {
+        state.unassignedWorks[categoryIndex].data.push(work);
+      }
+    }
   },
   extraReducers: (builder) => {
     builder
@@ -179,7 +253,17 @@ const workSlice = createSlice({
   },
 })
 
-export const { setSelectedWorkerType, setSelectedDate, clearError } = workSlice.actions
+export const { 
+  setSelectedWorkerType, 
+  setSelectedDate, 
+  clearError,
+  updateAssignedWork,
+  updateUnassignedWork,
+  removeAssignedWork,
+  removeUnassignedWork,
+  moveWorkToAssigned,
+  moveWorkToUnassigned
+} = workSlice.actions
 
 // Selectors
 export const selectAssignedWorks = (state) => state.work.assignedWorks

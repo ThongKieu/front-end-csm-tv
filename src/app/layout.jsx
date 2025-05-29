@@ -2,6 +2,8 @@
 
 import { Provider } from 'react-redux'
 import store from '@/store/store'
+import { SocketProvider } from '@/providers/SocketProvider'
+import { AuthProvider } from '@/providers/AuthProvider'
 import './globals.css'
 
 export default function RootLayout({ children }) {
@@ -9,7 +11,11 @@ export default function RootLayout({ children }) {
     <html lang="vi">
       <body>
         <Provider store={store}>
-          {children}
+          <AuthProvider>
+            <SocketProvider>
+              {children}
+            </SocketProvider>
+          </AuthProvider>
         </Provider>
       </body>
     </html>

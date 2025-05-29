@@ -1,11 +1,10 @@
 import { useEffect, useCallback } from 'react';
-import { socketService } from '@/utils/socket';
+import { useSocketContext } from '@/providers/SocketProvider';
 
 export const useSocket = (event, callback) => {
-  useEffect(() => {
-    // Connect to socket when component mounts
-    const socket = socketService.connect();
+  const socketService = useSocketContext();
 
+  useEffect(() => {
     // Subscribe to event
     if (event && callback) {
       socketService.on(event, callback);
@@ -17,11 +16,11 @@ export const useSocket = (event, callback) => {
         socketService.off(event, callback);
       }
     };
-  }, [event, callback]);
+  }, [event, callback, socketService]);
 
   const emit = useCallback((event, data) => {
     socketService.emit(event, data);
-  }, []);
+  }, [socketService]);
 
   return { emit };
 }; 

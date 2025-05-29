@@ -8,26 +8,24 @@ import {
 import {
   ChevronDown,
   ChevronUp,
-  Filter,
   UserPlus,
   Copy,
   UserCog,
-  Edit2,
   Settings,
   DollarSign,
 } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import {
-  setSelectedWorkerType,
   selectSelectedDate,
   fetchAssignedWorks,
   fetchUnassignedWorks,
+  assignWorker,
 } from "@/store/slices/workSlice";
 import AssignWorkerModal from "./AssignWorkerModal";
 import { copyWorkSchedule } from "@/utils/copyUtils";
 import EditWorkModal from "./EditWorkModal";
 import axios from "axios";
-import { useSocket } from '@/hooks/useSocket';
+import { useWorkSocket } from '@/hooks/useWorkSocket';
 import EditAssignedWorkModal from "./EditAssignedWorkModal";
 
 const WorkTable = ({ works = [], workers = [] }) => {
@@ -43,13 +41,14 @@ const WorkTable = ({ works = [], workers = [] }) => {
   const [isEditAssignedModalOpen, setIsEditAssignedModalOpen] = useState(false);
   const [selectedAssignedWork, setSelectedAssignedWork] = useState(null);
 
-  // Add socket connection for real-time updates
-  const { emit } = useSocket('workUpdate', (data) => {
-    // Refresh data when receiving updates
-    dispatch(fetchAssignedWorks(selectedDate));
-    dispatch(fetchUnassignedWorks(selectedDate));
-  });
-
+  // Use the work socket hook
+  const { 
+    emitTableUpdate, 
+    emitWorkAssignment, 
+    emitWorkDelete, 
+    emitAssignedWorkDelete 
+  } = useWorkSocket();
+  
   const handleAssignWorker = (work) => {
     setSelectedWork(work);
     setIsChangingWorker(false);
@@ -91,17 +90,36 @@ const WorkTable = ({ works = [], workers = [] }) => {
   };
 
   const handleAssign = async (work) => {
-    // Emit socket event after successful assignment
-    emit('workUpdated', {
-      type: 'assign',
-      workId: work.id,
-      date: selectedDate
-    });
+    try {
+      // Call API to update server
+      await dispatch(assignWorker({
+        work,
+        worker: work.id_worker,
+        extraWorker: work.id_phu,
+        dateCheck: selectedDate,
+        authId: auth.user.id
+      })).unwrap();
 
-    // Refresh data after assignment
-    dispatch(fetchAssignedWorks(selectedDate));
-    dispatch(fetchUnassignedWorks(selectedDate));
-    handleCloseModal();
+      // Emit socket event for table update
+      emitTableUpdate({
+        type: 'assign',
+        workId: work.id,
+        date: selectedDate,
+        work: work,
+        categoryId: work.kind_work,
+        isLocalUpdate: true
+      });
+
+      // Refresh data after successful assignment
+      await Promise.all([
+        dispatch(fetchAssignedWorks(selectedDate)),
+        dispatch(fetchUnassignedWorks(selectedDate))
+      ]);
+
+      handleCloseModal();
+    } catch (error) {
+      console.error("Error assigning work:", error);
+    }
   };
 
   const handleEdit = async (editValue) => {
@@ -113,22 +131,27 @@ const WorkTable = ({ works = [], workers = [] }) => {
         from_cus: editValue.from_cus || 0,
         status_cus: editValue.status_cus || 0,
         kind_work: editValue.kind_work || 0,
-      };
-      console.log(editValue.kind_work);
+      };      
+      // Call API to update server
+      await axios.post("https://csm.thoviet.net/api/web/update/work", data);
       
-      // await axios.post("https://csm.thoviet.net/api/web/update/work", data);
-      
-      // // Emit socket event after successful update
-      // emit('workUpdated', {
-      //   type: 'edit',
-      //   workId: editValue.id,
-      //   date: selectedDate
-      // });
+      // Emit socket event for table update
+      emitTableUpdate({
+        type: 'edit',
+        workId: editValue.id,
+        date: selectedDate,
+        data: data,
+        isAssigned: false,
+        isLocalUpdate: true
+      });
 
-      // // Refresh data after edit
-      // dispatch(fetchAssignedWorks(selectedDate));
-      // dispatch(fetchUnassignedWorks(selectedDate));
-      // handleCloseEditModal();
+      // Refresh data after successful edit
+      await Promise.all([
+        dispatch(fetchAssignedWorks(selectedDate)),
+        dispatch(fetchUnassignedWorks(selectedDate))
+      ]);
+
+      handleCloseEditModal();
     } catch (error) {
       console.error("Error updating work:", error);
     }
@@ -162,25 +185,25 @@ const WorkTable = ({ works = [], workers = [] }) => {
   const getWorkTypeName = (kindWork) => {
     switch (kindWork) {
       case 1:
-        return 'Điện Nước';
+        return 'ĐN'; // Điện Nước
       case 2:
-        return 'Điện Lạnh';
+        return 'ĐL'; // Điện Lạnh
       case 3:
-        return 'Đồ gỗ';
+        return 'ĐG'; // Đồ gỗ
       case 4:
-        return 'Năng Lượng Mặt trời';
+        return 'NLMT'; // Năng Lượng Mặt trời
       case 5:
-        return 'Xây Dựng';
+        return 'XD'; // Xây Dựng
       case 6:
-        return 'Tài Xế';
+        return 'TX'; // Tài Xế
       case 7:
-        return 'Cơ Khí';
+        return 'CK'; // Cơ Khí
       case 8:
-        return 'Điện - Điện Tử';
+        return 'ĐĐT'; // Điện - Điện Tử
       case 9:
-        return 'Văn Phòng';
+        return 'VP'; // Văn Phòng
       default:
-        return 'Chưa phân loại';
+        return 'CPL'; // Chưa phân loại
     }
   };
 
@@ -250,8 +273,21 @@ const WorkTable = ({ works = [], workers = [] }) => {
 
   const handleSaveAssignedWork = async (formData) => {
     try {
+      // Call API to update server
       await axios.post("https://csm.thoviet.net/api/web/update/work_ass", formData);
-      dispatch(fetchAssignedWorks(selectedDate));
+      
+      // Emit socket event for work assignment update
+      emitWorkAssignment({
+        type: 'update_assigned',
+        workId: formData.id,
+        date: selectedDate,
+        data: formData,
+        isLocalUpdate: true
+      });
+
+      // Refresh data after successful save
+      await dispatch(fetchAssignedWorks(selectedDate));
+
       handleCloseEditAssignedModal();
     } catch (error) {
       console.error("Error updating assigned work:", error);
@@ -266,7 +302,8 @@ const WorkTable = ({ works = [], workers = [] }) => {
         cell: (info) => {
           const category = info.row.original;
           const works = category.data || [];
-
+          console.log(works);
+          
           if (works.length === 0) {
             return (
               <div className="p-4 text-center text-gray-500">
@@ -281,13 +318,7 @@ const WorkTable = ({ works = [], workers = [] }) => {
                 const assignedWorker = workers.find(
                   (w) => w.id === work.id_worker
                 );
-                // Lấy thông tin công việc gốc từ work_detail
-                const originalWork = work.work_detail?.id_work ? {
-                  kind_work: work.work_detail.id_work.kind_work,
-                  work_content: work.work_detail.id_work.work_content,
-                  work_note: work.work_detail.id_work.work_note
-                } : work;
-
+                  
                 return (
                   <div
                     key={work.id}
@@ -298,13 +329,13 @@ const WorkTable = ({ works = [], workers = [] }) => {
                         <div className="grid grid-cols-6 items-center space-x-2">
                           <span
                             className={`px-2 py-1 text-center col-span-1 text-xs font-medium rounded-full ${getWorkTypeColor(
-                              originalWork.kind_work
+                              category.kind_worker.id
                             )}`}
                           >
-                            {getWorkTypeName(originalWork.kind_work)}
+                            {getWorkTypeName(category.kind_worker.id)}
                           </span>
                           <p className="font-medium col-span-5 text-gray-900 break-words whitespace-pre-line">
-                            {originalWork.work_content || "Không có nội dung"}
+                            {work.work_content || "Không có nội dung"}
                           </p>
                         </div>
 
@@ -327,10 +358,10 @@ const WorkTable = ({ works = [], workers = [] }) => {
                             <div className="flex items-center space-x-2">
                               <span
                                 className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(
-                                  work.status_cus
+                                  work.status_work
                                 )}`}
                               >
-                                {getStatusName(work.status_cus)}
+                                {getStatusName(work.status_work)}
                               </span>
                               <p className="truncate border border-green-400 p-1 rounded-md text-green-400">
                                 {work.date_book}
@@ -346,9 +377,11 @@ const WorkTable = ({ works = [], workers = [] }) => {
                               : "Chưa có thông tin"}
                           </p>
 
-                          <p className="font-medium text-gray-900 break-words whitespace-pre-line">
-                            {originalWork.work_note || "Không có nội dung"}
-                          </p>
+                          {work.work_note && (
+                            <p className="font-medium text-gray-900 break-words whitespace-pre-line">
+                              {work.work_note}
+                            </p>
+                          )}
                         </div>
                         {assignedWorker && (
                           <div className="mt-2 p-2 bg-blue-50 rounded-md border border-blue-100">
@@ -356,11 +389,10 @@ const WorkTable = ({ works = [], workers = [] }) => {
                               Thợ đã phân công:
                             </p>
                             <p className="text-sm text-blue-600 truncate">
-                              {assignedWorker.worker_full_name} (
-                              {assignedWorker.worker_code || "Không có mã"})
+                              {work.worker_full_name} ({work.worker_code})
                             </p>
                             <p className="text-sm text-blue-600 truncate">
-                              SĐT: {assignedWorker.worker_phone_company}
+                              SĐT: {work.worker_phone_company || "Chưa có thông tin"}
                             </p>
                           </div>
                         )}
@@ -446,7 +478,7 @@ const WorkTable = ({ works = [], workers = [] }) => {
       <div className="flex items-center gap-2 justify-end mb-4">
         <button
           onClick={() => handleWorkerTypeChange("all")}
-          className={`px-3 cursor-pointer py-1.5 text-sm font-medium rounded-full transition-all duration-200 ${
+          className={`p-1 text-sm font-medium rounded-full transition-all duration-200 ${
             selectedWorkerType === "all"
               ? "bg-blue-600 text-white shadow-md"
               : "bg-gray-100 text-gray-700 hover:bg-gray-200"
@@ -459,13 +491,13 @@ const WorkTable = ({ works = [], workers = [] }) => {
             <button
               key={category.kind_worker?.id}
               onClick={() => handleWorkerTypeChange(category.kind_worker?.id)}
-              className={`px-3 py-1.5 text-sm font-medium cursor-pointer rounded-full transition-all duration-200 ${
+              className={`p-1 text-sm font-medium cursor-pointer rounded-full transition-all duration-200 ${
                 selectedWorkerType === category.kind_worker?.id
                   ? "ring-2 ring-offset-2 ring-blue-500 shadow-md"
                   : ""
-              } ${getWorkTypeColor(category.kind_worker)}`}
+              } ${getWorkTypeColor(category.kind_worker?.id)}`}
             >
-              {category.kind_worker?.nameKind || "Chưa phân loại"}
+              {getWorkTypeName(category.kind_worker?.id)}
               <span className="ml-1 text-xs opacity-75">
                 ({category.kind_worker?.numberOfWork || 0})
               </span>

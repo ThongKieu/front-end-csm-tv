@@ -24,18 +24,23 @@ export default function DashboardPage() {
   const workers = useSelector(selectWorkers)
   const loading = useSelector(selectLoading)
 
+  const fetchData = useCallback((date) => {
+    dispatch(fetchAssignedWorks(date))
+    dispatch(fetchUnassignedWorks(date))
+  }, [dispatch])
+
   const handleDateChange = useCallback((e) => {
     const newDate = e.target.value
     dispatch(setSelectedDate(newDate))
-    dispatch(fetchAssignedWorks(newDate))
-    dispatch(fetchUnassignedWorks(newDate))
-  }, [dispatch])
+    fetchData(newDate)
+  }, [dispatch, fetchData])
 
   useEffect(() => {
-    dispatch(fetchAssignedWorks(selectedDate))
-    dispatch(fetchUnassignedWorks(selectedDate))
+    // Only fetch workers once on mount
     dispatch(fetchWorkers())
-  }, []) // Empty dependency array
+    // Fetch initial data
+    fetchData(selectedDate)
+  }, [dispatch, fetchData, selectedDate])
 
   if (loading) {
     return (
@@ -44,6 +49,7 @@ export default function DashboardPage() {
       </div>
     )
   }
+
   return (
     <div className="h-[calc(100vh-65px)] bg-gradient-to-br from-blue-50 to-indigo-50">
       <div className="h-full max-w-[1920px] mx-auto flex flex-col p-4">

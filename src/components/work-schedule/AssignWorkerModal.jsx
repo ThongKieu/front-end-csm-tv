@@ -2,21 +2,37 @@ import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { assignWorker, changeWorker, selectSelectedDate } from '@/store/slices/workSlice';
 import { X } from 'lucide-react';
+import Select from 'react-select';
 
 const AssignWorkerModal = ({ work, workers = [], onClose, onAssign, isChanging = false }) => {
   const dispatch = useDispatch();
   const selectedDate = useSelector(selectSelectedDate);
-  const [selectedWorker, setSelectedWorker] = useState('');
-  const [selectedExtraWorker, setSelectedExtraWorker] = useState('');
+  const [selectedWorker, setSelectedWorker] = useState(null);
+  const [selectedExtraWorker, setSelectedExtraWorker] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
+  const workerOptions = workers.map(worker => ({
+    value: worker.id,
+    label: `${worker.worker_full_name} (${worker.worker_code})`
+  }));
+
   useEffect(() => {
     if (isChanging && work) {
-      setSelectedWorker(work.id_worker || '');
-      setSelectedExtraWorker(work.id_phu || '');
+      const mainWorker = workers.find(w => w.id === work.id_worker);
+      const extraWorker = workers.find(w => w.id === work.id_phu);
+      
+      setSelectedWorker(mainWorker ? {
+        value: mainWorker.id,
+        label: `${mainWorker.worker_full_name} (${mainWorker.worker_code})`
+      } : null);
+      
+      setSelectedExtraWorker(extraWorker ? {
+        value: extraWorker.id,
+        label: `${extraWorker.worker_full_name} (${extraWorker.worker_code})`
+      } : null);
     }
-  }, [work, isChanging]);
+  }, [work, isChanging, workers]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -27,15 +43,15 @@ const AssignWorkerModal = ({ work, workers = [], onClose, onAssign, isChanging =
       if (isChanging) {
         await dispatch(changeWorker({
           workAssignment: work,
-          worker: selectedWorker,
-          extraWorker: selectedExtraWorker,
+          worker: selectedWorker?.value || '',
+          extraWorker: selectedExtraWorker?.value || '',
           authId: 1, // TODO: Get from auth context
         })).unwrap();
       } else {
         await dispatch(assignWorker({
           work,
-          worker: selectedWorker,
-          extraWorker: selectedExtraWorker,
+          worker: selectedWorker?.value || '',
+          extraWorker: selectedExtraWorker?.value || '',
           dateCheck: selectedDate,
           authId: 1, // TODO: Get from auth context
         })).unwrap();
@@ -49,15 +65,15 @@ const AssignWorkerModal = ({ work, workers = [], onClose, onAssign, isChanging =
   };
 
   return (
-    <div className="fixed inset-0 bg-black/25 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg p-6 w-full max-w-md">
+    <div className="fixed inset-0 bg-black/25 flex items-center justify-center z-50" onClick={onClose} >
+      <div className="bg-white rounded-lg p-6 w-full max-w-md" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-xl font-semibold text-gray-900">
             {isChanging ? 'Đổi thợ' : 'Phân công thợ'}
           </h2>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-500 focus:outline-none"
+            className="text-gray-400  hover:text-gray-500 focus:outline-none"
           >
             <X className="w-5 h-5" />
           </button>
@@ -89,40 +105,36 @@ const AssignWorkerModal = ({ work, workers = [], onClose, onAssign, isChanging =
         
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-black mb-1">
               Thợ chính <span className="text-red-500">*</span>
             </label>
-            <select
+            <Select
               value={selectedWorker}
-              onChange={(e) => setSelectedWorker(e.target.value)}
-              className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              onChange={setSelectedWorker}
+              options={workerOptions}
+              placeholder="Chọn thợ chính"
+              isClearable
+              isSearchable
               required
-            >
-              <option value="">Chọn thợ chính</option>
-              {workers.map((worker) => (
-                <option key={worker.id} value={worker.id}>
-                  {worker.worker_full_name} ({worker.worker_code})
-                </option>
-              ))}
-            </select>
+              className="react-select-container text-black"
+              classNamePrefix="react-select"
+            />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-black mb-1">
               Thợ phụ
             </label>
-            <select
+            <Select
               value={selectedExtraWorker}
-              onChange={(e) => setSelectedExtraWorker(e.target.value)}
-              className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="">Chọn thợ phụ (không bắt buộc)</option>
-              {workers.map((worker) => (
-                <option key={worker.id} value={worker.id}>
-                  {worker.worker_full_name} ({worker.worker_code})
-                </option>
-              ))}
-            </select>
+              onChange={setSelectedExtraWorker}
+              options={workerOptions}
+              placeholder="Chọn thợ phụ (không bắt buộc)"
+              isClearable
+              isSearchable
+              className="react-select-container text-black"
+              classNamePrefix="react-select"
+            />
           </div>
 
           {error && (

@@ -1,6 +1,6 @@
 import { io } from 'socket.io-client';
 
-const SOCKET_URL = 'https://csm.thoviet.net';
+const SOCKET_URL = 'https://csm.thoviet.net:3000';
 
 class SocketService {
   constructor() {
@@ -11,16 +11,28 @@ class SocketService {
   connect() {
     if (!this.socket) {
       this.socket = io(SOCKET_URL, {
-        transports: ['websocket'],
+        transports: ['websocket', 'polling'],
         autoConnect: true,
         reconnection: true,
         reconnectionAttempts: 5,
         reconnectionDelay: 1000,
+        withCredentials: true,
+        secure: true,
+        rejectUnauthorized: false,
+        path: '/socket.io/',
+        extraHeaders: {
+          'Access-Control-Allow-Origin': '*'
+        }
       });
 
       this.socket.on('connect', () => {
         console.log('Socket connected');
         this.isConnected = true;
+      });
+
+      this.socket.on('connect_error', (error) => {
+        console.error('Socket connection error:', error);
+        this.isConnected = false;
       });
 
       this.socket.on('disconnect', () => {
