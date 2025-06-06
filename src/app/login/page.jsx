@@ -52,7 +52,9 @@ export default function LoginPage() {
       Cookies.set("token", data.token, { expires: 7 }); // Hết hạn sau 7 ngày
 
       dispatch(login(data));
-      router.push(ROUTES.HOME);
+      
+      // Tất cả các role đều vào dashboard
+      router.push('/dashboard');
     } catch (err) {
       setError(err.message);
     } finally {

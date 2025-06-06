@@ -1,9 +1,9 @@
 'use client'
 
-import { useEffect, useCallback } from 'react'
+import { useEffect, useCallback, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import WorkTable from '@/components/work-schedule/WorkTable'
-import { Calendar } from 'lucide-react'
+import { Calendar, AlertCircle } from 'lucide-react'
 import { 
   fetchAssignedWorks,
   fetchUnassignedWorks,
@@ -23,10 +23,19 @@ export default function DashboardPage() {
   const unassignedWorks = useSelector(selectUnassignedWorks)
   const workers = useSelector(selectWorkers)
   const loading = useSelector(selectLoading)
+  const [error, setError] = useState(null)
 
-  const fetchData = useCallback((date) => {
-    dispatch(fetchAssignedWorks(date))
-    dispatch(fetchUnassignedWorks(date))
+  const fetchData = useCallback(async (date) => {
+    try {
+      setError(null)
+      await Promise.all([
+        dispatch(fetchAssignedWorks(date)),
+        dispatch(fetchUnassignedWorks(date))
+      ])
+    } catch (err) {
+      console.error('Error fetching data:', err)
+      setError('Không thể tải dữ liệu. Vui lòng thử lại sau.')
+    }
   }, [dispatch])
 
   const handleDateChange = useCallback((e) => {
@@ -36,16 +45,46 @@ export default function DashboardPage() {
   }, [dispatch, fetchData])
 
   useEffect(() => {
-    // Only fetch workers once on mount
-    dispatch(fetchWorkers())
-    // Fetch initial data
-    fetchData(selectedDate)
+    const initializeData = async () => {
+      try {
+        setError(null)
+        // Fetch workers first
+        await dispatch(fetchWorkers())
+        // Then fetch initial data
+        await fetchData(selectedDate)
+      } catch (err) {
+        console.error('Error initializing data:', err)
+        setError('Không thể tải dữ liệu. Vui lòng thử lại sau.')
+      }
+    }
+
+    initializeData()
   }, [dispatch, fetchData, selectedDate])
 
   if (loading) {
     return (
       <div className="flex items-center justify-center h-[calc(100vh-64px)] bg-gradient-to-br from-blue-50 to-indigo-50">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center h-[calc(100vh-64px)] bg-gradient-to-br from-blue-50 to-indigo-50">
+        <div className="bg-white p-6 rounded-lg shadow-md max-w-md w-full">
+          <div className="flex items-center space-x-3 text-red-600 mb-4">
+            <AlertCircle className="w-6 h-6" />
+            <h2 className="text-lg font-semibold">Đã xảy ra lỗi</h2>
+          </div>
+          <p className="text-gray-600 mb-4">{error}</p>
+          <button
+            onClick={() => fetchData(selectedDate)}
+            className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors"
+          >
+            Thử lại
+          </button>
+        </div>
       </div>
     )
   }

@@ -7,8 +7,8 @@ const publicRoutes = [ROUTES.LOGIN, '/register', '/forgot-password']
 // Các route theo role
 const roleRoutes = {
   admin: [
-    '/', // Trang chủ
-    '/dashboard', // Dashboard chính
+    ROUTES.HOME,
+    '/dashboard',
     ROUTES.ADMIN.DASHBOARD,
     ROUTES.ADMIN.USERS,
     ROUTES.ADMIN.SCHEDULE,
@@ -21,8 +21,8 @@ const roleRoutes = {
     ROUTES.WORK_SCHEDULE
   ],
   manager: [
-    '/', // Trang chủ
-    '/dashboard', // Dashboard chính
+    ROUTES.HOME,
+    '/dashboard',
     ROUTES.ADMIN.DASHBOARD,
     ROUTES.ADMIN.USERS,
     ROUTES.ADMIN.SCHEDULE,
@@ -30,15 +30,15 @@ const roleRoutes = {
     ROUTES.WORK_SCHEDULE
   ],
   accountant: [
-    '/', // Trang chủ
-    '/dashboard', // Dashboard chính
+    ROUTES.HOME,
+    '/dashboard',
     ROUTES.ACCOUNTANT.TRANSACTIONS,
     ROUTES.CUSTOMER,
     ROUTES.WORK_SCHEDULE
   ],
   user: [
-    '/', // Trang chủ
-    '/dashboard', // Dashboard chính
+    ROUTES.HOME,
+    '/dashboard',
     ROUTES.CUSTOMER,
     ROUTES.WORK_SCHEDULE
   ]
@@ -72,7 +72,7 @@ export function middleware(request) {
     })
     
     if (!hasAccess) {
-      // Nếu không có quyền, chuyển hướng về trang dashboard chính
+      // Nếu không có quyền, chuyển hướng về dashboard
       return NextResponse.redirect(new URL('/dashboard', request.url))
     }
 
@@ -82,6 +82,22 @@ export function middleware(request) {
     const url = new URL(ROUTES.LOGIN, request.url)
     url.searchParams.set('from', pathname)
     return NextResponse.redirect(url)
+  }
+}
+
+// Helper function để lấy route dựa vào role
+function getRoleBasedRoute(role) {
+  switch (role) {
+    case 'admin':
+      return ROUTES.ADMIN.DASHBOARD;
+    case 'manager':
+      return ROUTES.ADMIN.DASHBOARD;
+    case 'accountant':
+      return ROUTES.ACCOUNTANT.TRANSACTIONS;
+    case 'user':
+      return ROUTES.HOME;
+    default:
+      return ROUTES.HOME;
   }
 }
 

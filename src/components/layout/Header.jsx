@@ -5,7 +5,7 @@ import { useSelector, useDispatch } from 'react-redux'
 import { logout } from '@/store/slices/authSlice'
 import { ROUTES } from '@/config/routes'
 import Link from 'next/link'
-import { LogOut, User, Home, Users, DollarSign, Calendar, Settings, UserCog, LayoutDashboard, Bell } from 'lucide-react'
+import { LogOut, User, Home, Users, DollarSign, Calendar, Settings, UserCog, LayoutDashboard, Bell, MessageSquare } from 'lucide-react'
 import { UserMenu } from './UserMenu'
 import { NotificationMenu } from './NotificationMenu'
 
@@ -36,14 +36,20 @@ export default function Header() {
       { 
         id: 'home',
         label: 'Trang chủ', 
-        route: ROUTES.HOME,
+        route: '/dashboard',
         icon: <Home className="w-4 h-4" />
       },
       { 
-        id: 'schedule',
+        id: 'works',
         label: 'Lịch làm việc', 
-        route: ROUTES.WORK_SCHEDULE,
+        route: '/works',
         icon: <Calendar className="w-4 h-4" />
+      },
+      { 
+        id: 'customers',
+        label: 'Khách hàng', 
+        route: '/customer',
+        icon: <Users className="w-4 h-4" />
       }
     ]
 
@@ -54,64 +60,78 @@ export default function Header() {
         { 
           id: 'dashboard',
           label: 'Dashboard', 
-          route: ROUTES.ADMIN.DASHBOARD,
+          route: '/admin/dashboard',
           icon: <LayoutDashboard className="w-4 h-4" />
         },
         { 
-          id: 'customers',
-          label: 'Khách hàng cũ', 
-          route: ROUTES.CUSTOMER,
-          icon: <Users className="w-4 h-4" />
-        },
-        { 
-          id: 'users',
-          label: 'Quản lý người dùng', 
-          route: ROUTES.ADMIN.USERS,
+          id: 'workers',
+          label: 'Quản lý thợ', 
+          route: '/admin/workers',
           icon: <UserCog className="w-4 h-4" />
         },
         { 
-          id: 'transactions',
-          label: 'Giao dịch', 
-          route: ROUTES.ACCOUNTANT.TRANSACTIONS,
-          icon: <DollarSign className="w-4 h-4" />
+          id: 'zns',
+          label: 'Gửi ZNS', 
+          route: '/admin/zns',
+          icon: <MessageSquare className="w-4 h-4" />
         },
         { 
           id: 'settings',
           label: 'Cài đặt', 
-          route: ROUTES.ADMIN.SETTINGS,
+          route: '/profile',
           icon: <Settings className="w-4 h-4" />
         }
       ]
     }
 
-    // Menu cho kế toán
+    // Menu cho manager
+    if (user?.role === 'manager') {
+      return [
+        ...baseMenus,
+        { 
+          id: 'dashboard',
+          label: 'Dashboard', 
+          route: '/admin/dashboard',
+          icon: <LayoutDashboard className="w-4 h-4" />
+        },
+        { 
+          id: 'workers',
+          label: 'Quản lý thợ', 
+          route: '/admin/workers',
+          icon: <UserCog className="w-4 h-4" />
+        },
+        { 
+          id: 'settings',
+          label: 'Cài đặt', 
+          route: '/profile',
+          icon: <Settings className="w-4 h-4" />
+        }
+      ]
+    }
+
+    // Menu cho accountant
     if (user?.role === 'accountant') {
       return [
         ...baseMenus,
         { 
-          id: 'transactions',
-          label: 'Giao dịch', 
-          route: ROUTES.ACCOUNTANT.TRANSACTIONS,
-          icon: <DollarSign className="w-4 h-4" />
+          id: 'settings',
+          label: 'Cài đặt', 
+          route: '/profile',
+          icon: <Settings className="w-4 h-4" />
         }
       ]
     }
 
-    // Menu cho thợ
-    if (user?.role === 'worker') {
-      return [
-        ...baseMenus,
-        { 
-          id: 'my-works',
-          label: 'Công việc của tôi', 
-          route: ROUTES.WORKER.MY_WORKS,
-          icon: <Calendar className="w-4 h-4" />
-        }
-      ]
-    }
-
-    // Menu mặc định cho các role khác
-    return baseMenus
+    // Menu cho user
+    return [
+      ...baseMenus,
+      { 
+        id: 'settings',
+        label: 'Cài đặt', 
+        route: '/profile',
+        icon: <Settings className="w-4 h-4" />
+      }
+    ]
   }
 
   return (

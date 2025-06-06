@@ -19,6 +19,14 @@ export default function UsersPage() {
   const [loading, setLoading] = useState(true);
   const [selectedWorker, setSelectedWorker] = useState(null);
   const [workerLocations, setWorkerLocations] = useState({});
+  const [isCreateScheduleModalOpen, setIsCreateScheduleModalOpen] = useState(false);
+  const [scheduleData, setScheduleData] = useState({
+    workerId: '',
+    date: '',
+    startTime: '',
+    endTime: '',
+    task: '',
+  });
 
   useEffect(() => {
     // Kiểm tra quyền truy cập
@@ -45,6 +53,25 @@ export default function UsersPage() {
     }
   }, [user]);
 
+  const handleCreateSchedule = async (e) => {
+    e.preventDefault();
+    try {
+      await axios.post('/api/schedules', scheduleData);
+      setIsCreateScheduleModalOpen(false);
+      setScheduleData({
+        workerId: '',
+        date: '',
+        startTime: '',
+        endTime: '',
+        task: '',
+      });
+      // Có thể thêm thông báo thành công ở đây
+    } catch (error) {
+      console.error('Error creating schedule:', error);
+      // Có thể thêm thông báo lỗi ở đây
+    }
+  };
+
   // Hiển thị loading khi đang kiểm tra quyền hoặc đang tải dữ liệu
   if (!user || loading) {
     return (
@@ -63,12 +90,106 @@ export default function UsersPage() {
 
   return (
     <div className="p-6">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Quản lý thợ</h1>
-        <p className="mt-1 text-sm text-gray-500">
-          Quản lý thông tin và trạng thái của đội ngũ thợ
-        </p>
+      <div className="mb-6 flex justify-between items-center">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">Quản lý thợ</h1>
+          <p className="mt-1 text-sm text-gray-500">
+            Quản lý thông tin và trạng thái của đội ngũ thợ
+          </p>
+        </div>
+        <button
+          onClick={() => setIsCreateScheduleModalOpen(true)}
+          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+        >
+          Tạo lịch làm việc
+        </button>
       </div>
+
+      {/* Modal tạo lịch */}
+      {isCreateScheduleModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 w-full max-w-md">
+            <h2 className="text-xl font-semibold mb-4">Tạo lịch làm việc</h2>
+            <form onSubmit={handleCreateSchedule}>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Chọn thợ</label>
+                  <select
+                    value={scheduleData.workerId}
+                    onChange={(e) => setScheduleData({ ...scheduleData, workerId: e.target.value })}
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                    required
+                  >
+                    <option value="">Chọn thợ</option>
+                    {workers.map((worker) => (
+                      <option key={worker.id} value={worker.id}>
+                        {worker.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Ngày</label>
+                  <input
+                    type="date"
+                    value={scheduleData.date}
+                    onChange={(e) => setScheduleData({ ...scheduleData, date: e.target.value })}
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                    required
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Giờ bắt đầu</label>
+                    <input
+                      type="time"
+                      value={scheduleData.startTime}
+                      onChange={(e) => setScheduleData({ ...scheduleData, startTime: e.target.value })}
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Giờ kết thúc</label>
+                    <input
+                      type="time"
+                      value={scheduleData.endTime}
+                      onChange={(e) => setScheduleData({ ...scheduleData, endTime: e.target.value })}
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                      required
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Công việc</label>
+                  <textarea
+                    value={scheduleData.task}
+                    onChange={(e) => setScheduleData({ ...scheduleData, task: e.target.value })}
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                    rows="3"
+                    required
+                  />
+                </div>
+              </div>
+              <div className="mt-6 flex justify-end space-x-3">
+                <button
+                  type="button"
+                  onClick={() => setIsCreateScheduleModalOpen(false)}
+                  className="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+                >
+                  Hủy
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                >
+                  Tạo lịch
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       <div className="bg-white rounded-lg shadow">
         <div className="p-6">

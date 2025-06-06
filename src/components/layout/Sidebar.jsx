@@ -46,64 +46,50 @@ export default function Sidebar() {
       id: 0,
       label: 'Trang chủ',
       icon: 'Home',
-      route: ROUTES.HOME,
+      route: '/dashboard',
       roles: ['admin', 'manager', 'accountant', 'user']
     },
     {
       id: 1,
       label: 'Dashboard Admin',
       icon: 'LayoutDashboard',
-      route: ROUTES.ADMIN.DASHBOARD,
+      route: '/admin/dashboard',
       roles: ['admin', 'manager']
     },
     {
       id: 2,
       label: 'Quản lý thợ',
       icon: 'Users',
-      route: ROUTES.ADMIN.USERS,
+      route: '/admin/workers',
       roles: ['admin', 'manager']
     },
     {
       id: 3,
       label: 'Lịch làm việc',
       icon: 'Calendar',
-      route: ROUTES.ADMIN.SCHEDULE,
-      roles: ['admin', 'manager']
+      route: '/works',
+      roles: ['admin', 'manager', 'user']
     },
     {
       id: 4,
-      label: 'Công ty',
+      label: 'Khách hàng',
       icon: 'Building2',
-      route: ROUTES.ADMIN.COMPANY,
-      roles: ['admin']
+      route: '/customer',
+      roles: ['admin', 'manager', 'accountant', 'user']
     },
     {
       id: 5,
-      label: 'Báo cáo',
-      icon: 'BarChart',
-      route: ROUTES.ADMIN.REPORTS,
-      roles: ['admin']
-    },
-    {
-      id: 6,
-      label: 'Tài liệu',
-      icon: 'FileText',
-      route: ROUTES.ADMIN.DOCUMENTS,
-      roles: ['admin']
-    },
-    {
-      id: 7,
       label: 'Gửi ZNS',
       icon: 'MessageSquare',
       route: '/admin/zns',
       roles: ['admin']
     },
     {
-      id: 8,
+      id: 6,
       label: 'Cài đặt',
       icon: 'Settings',
-      route: ROUTES.ADMIN.SETTINGS,
-      roles: ['admin']
+      route: '/profile',
+      roles: ['admin', 'manager', 'accountant', 'user']
     }
   ]
 

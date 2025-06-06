@@ -17,6 +17,7 @@ export default function Home() {
   useEffect(() => {
     if (isClient) {
       if (isAuthenticated && user) {
+        // Tất cả các role đều vào dashboard
         router.push('/dashboard')
       } else if (!isAuthenticated) {
         router.push(ROUTES.LOGIN)

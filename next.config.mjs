@@ -27,7 +27,9 @@ const nextConfig = {
   },
   // Tắt caching cho các route động
   experimental: {
-    serverActions: true,
+    serverActions: {
+      allowedOrigins: ['*']
+    },
   },
   async rewrites() {
     return [
