@@ -1,28 +1,38 @@
 'use client';
 
 import { useSchedule } from '@/contexts/ScheduleContext';
+import { usePathname } from 'next/navigation';
+import { CalendarPlus, Sparkles } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 export default function CreateScheduleButton() {
   const { setIsCreateScheduleModalOpen } = useSchedule();
+  const pathname = usePathname();
+
+  // Ẩn nút ở trang login
+  if (pathname === '/login') return null;
 
   return (
-    <button
+    <motion.button
       onClick={() => setIsCreateScheduleModalOpen(true)}
-      className="fixed bottom-6 right-6 px-4 py-2 bg-blue-600 text-white rounded-full shadow-lg hover:bg-blue-700 transition-colors flex items-center space-x-2"
+      className="fixed left-1/2 -translate-x-1/2 bottom-4 group z-10"
+      whileHover={{ scale: 1.05 }}
+      whileTap={{ scale: 0.95 }}
     >
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        className="h-5 w-5"
-        viewBox="0 0 20 20"
-        fill="currentColor"
-      >
-        <path
-          fillRule="evenodd"
-          d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
-          clipRule="evenodd"
-        />
-      </svg>
-      <span>Tạo lịch</span>
-    </button>
+      <div className="relative">
+        {/* Background gradient */}
+        <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full blur-lg opacity-75 group-hover:opacity-100 transition-opacity" />
+        
+        {/* Button content */}
+        <div className="relative flex items-center space-x-1.5 px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300">
+          <Sparkles className="w-4 h-4 animate-pulse" />
+          <span className="text-sm font-medium">Tạo lịch</span>
+          <CalendarPlus className="w-4 h-4" />
+        </div>
+
+        {/* Hover effect */}
+        <div className="absolute inset-0 rounded-full bg-white opacity-0 group-hover:opacity-10 transition-opacity" />
+      </div>
+    </motion.button>
   );
 } 
