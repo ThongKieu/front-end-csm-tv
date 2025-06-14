@@ -10,6 +10,8 @@ import { ScheduleProvider } from '@/contexts/ScheduleContext'
 import CreateScheduleButton from '@/components/layout/CreateScheduleButton'
 import CreateScheduleModal from '@/components/layout/CreateScheduleModal'
 import { useSchedule } from '@/contexts/ScheduleContext'
+import { SettingsProvider } from '@/contexts/SettingsContext'
+import { ToastContainer } from '@/components/ui/toast'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -22,13 +24,16 @@ function LayoutContent({ children }) {
         <Provider store={store}>
           <AuthProvider>
             <SocketProvider>
-              {children}
-              <CreateScheduleButton />
-              <CreateScheduleModal
-                isOpen={isCreateScheduleModalOpen}
-                onClose={() => setIsCreateScheduleModalOpen(false)}
-                workers={workers}
-              />
+              <SettingsProvider>
+                {children}
+                <CreateScheduleButton />
+                <CreateScheduleModal
+                  isOpen={isCreateScheduleModalOpen}
+                  onClose={() => setIsCreateScheduleModalOpen(false)}
+                  workers={workers}
+                />
+                <ToastContainer />
+              </SettingsProvider>
             </SocketProvider>
           </AuthProvider>
         </Provider>
@@ -43,4 +48,9 @@ export default function RootLayout({ children }) {
       <LayoutContent>{children}</LayoutContent>
     </ScheduleProvider>
   )
-} 
+}
+
+// export const metadata = {
+//   title: 'CSM TV',
+//   description: 'Customer Service Management System',
+// } 

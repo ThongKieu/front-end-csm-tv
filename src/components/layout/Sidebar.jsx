@@ -67,7 +67,7 @@ export default function Sidebar() {
       id: 3,
       label: 'Lịch làm việc',
       icon: 'Calendar',
-      route: '/works',
+      route: ROUTES.WORKS,
       roles: ['admin', 'manager', 'user']
     },
     {

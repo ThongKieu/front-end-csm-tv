@@ -5,8 +5,10 @@ export const metadata = {
 }
 export default function DashboardPage() {
   return (
-    <div className="h-[calc(100vh-65px)] bg-gradient-to-br from-blue-50 to-indigo-50">
-     <DashboardClient />
+    <div className="h-screen flex flex-col pt-16 bg-gradient-to-br from-blue-50 to-indigo-50">
+     <div className="flex-1 overflow-hidden">
+       <DashboardClient />
+     </div>
     </div>
   )
 } 

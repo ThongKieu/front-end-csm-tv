@@ -141,201 +141,205 @@ export default function AdminDashboard() {
   };
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
-          <p className="text-sm text-gray-500 mt-1">
-            Tổng quan về hoạt động của hệ thống
-          </p>
-        </div>
-        <div className="text-sm text-gray-500 bg-white px-4 py-2 rounded-lg shadow-sm border border-gray-100">
-          Cập nhật lần cuối: {lastUpdated}
-        </div>
-      </div>
-
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <StatCard
-          title="Tổng số lịch hẹn"
-          value={stats.totalAppointments}
-          icon={Calendar}
-          trend="so với tuần trước"
-          trendValue="+20%"
-          trendType="up"
-          description="Tăng 20% so với tuần trước"
-        />
-        <StatCard
-          title="Tổng số cuộc gọi"
-          value={stats.totalCalls}
-          icon={Phone}
-          trend="so với tuần trước"
-          trendValue="+15%"
-          trendType="up"
-          description="Tăng 15% so với tuần trước"
-        />
-        <StatCard
-          title="Doanh thu"
-          value={formatCurrency(stats.totalRevenue)}
-          icon={DollarSign}
-          trend="so với tuần trước"
-          trendValue="+25%"
-          trendType="up"
-          description="Tăng 25% so với tuần trước"
-        />
-        <StatCard
-          title="Dự án đang thực hiện"
-          value={stats.totalProjects}
-          icon={Briefcase}
-          trend="so với tuần trước"
-          trendValue="+5"
-          trendType="up"
-          description="Tăng 5 dự án so với tuần trước"
-        />
-      </div>
-
-      {/* Charts */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Revenue Chart */}
-        <Card className="shadow-lg">
-          <CardHeader>
-            <CardTitle className="text-xl text-black">Doanh thu tuần</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="h-[300px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={chartData}>
-                  <defs>
-                    <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.8}/>
-                      <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" className="stroke-gray-200" />
-                  <XAxis 
-                    dataKey="name" 
-                    className="text-sm"
-                    tick={{ fill: '#6B7280' }}
-                  />
-                  <YAxis 
-                    className="text-sm"
-                    tick={{ fill: '#6B7280' }}
-                    tickFormatter={(value) => formatCurrency(value)}
-                  />
-                  <Tooltip 
-                    contentStyle={{ 
-                      backgroundColor: 'white',
-                      border: '1px solid #E5E7EB',
-                      borderRadius: '0.5rem',
-                      boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
-                    }}
-                    formatter={(value) => formatCurrency(value)}
-                  />
-                  <Area
-                    type="monotone"
-                    dataKey="revenue"
-                    stroke="#3b82f6"
-                    fillOpacity={1}
-                    fill="url(#colorRevenue)"
-                  />
-                </AreaChart>
-              </ResponsiveContainer>
+    <div className="min-h-screen pt-16 bg-gradient-to-br from-blue-50 to-indigo-50">
+      <div className="h-full flex flex-col p-6">
+        <div className="space-y-6">
+          {/* Header */}
+          <div className="flex justify-between items-center">
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
+              <p className="text-sm text-gray-500 mt-1">
+                Tổng quan về hoạt động của hệ thống
+              </p>
             </div>
-          </CardContent>
-        </Card>
-
-        {/* Activity Chart */}
-        <Card className="shadow-lg">
-          <CardHeader>
-            <CardTitle className="text-xl text-black">Hoạt động tuần</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="h-[300px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={chartData}>
-                  <CartesianGrid strokeDasharray="3 3" className="stroke-gray-200" />
-                  <XAxis 
-                    dataKey="name" 
-                    className="text-sm"
-                    tick={{ fill: '#6B7280' }}
-                  />
-                  <YAxis 
-                    className="text-sm"
-                    tick={{ fill: '#6B7280' }}
-                  />
-                  <Tooltip 
-                    contentStyle={{ 
-                      backgroundColor: 'white',
-                      border: '1px solid #E5E7EB',
-                      borderRadius: '0.5rem',
-                      boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
-                    }}
-                  />
-                  <Legend />
-                  <Line
-                    type="monotone"
-                    dataKey="appointments"
-                    stroke="#3b82f6"
-                    name="Lịch hẹn"
-                    strokeWidth={2}
-                    dot={{ r: 4 }}
-                    activeDot={{ r: 6 }}
-                  />
-                  <Line
-                    type="monotone"
-                    dataKey="calls"
-                    stroke="#22c55e"
-                    name="Cuộc gọi"
-                    strokeWidth={2}
-                    dot={{ r: 4 }}
-                    activeDot={{ r: 6 }}
-                  />
-                  <Line
-                    type="monotone"
-                    dataKey="sources"
-                    stroke="#a855f7"
-                    name="Nguồn"
-                    strokeWidth={2}
-                    dot={{ r: 4 }}
-                    activeDot={{ r: 6 }}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
+            <div className="text-sm text-gray-500 bg-white px-4 py-2 rounded-lg shadow-sm border border-gray-100">
+              Cập nhật lần cuối: {lastUpdated}
             </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Recent Activity */}
-      <Card className="shadow-lg">
-        <CardHeader>
-          <CardTitle className="text-xl text-black">Hoạt động gần đây</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {stats.recentActivity.map((activity, index) => (
-              <div
-                key={index}
-                className="flex items-center justify-between p-4 bg-white rounded-lg border border-gray-100 hover:bg-gray-50 transition-colors duration-200"
-              >
-                <div className="flex items-center space-x-4">
-                  <div className="p-2 bg-gray-50 rounded-full">
-                    <ActivityIcon type={activity.type} />
-                  </div>
-                  <div>
-                    <p className="font-medium text-gray-900">{activity.title}</p>
-                    <p className="text-sm text-gray-500">{activity.description}</p>
-                  </div>
-                </div>
-                <div className="text-sm text-gray-500 bg-gray-50 px-3 py-1 rounded-full">
-                  {formatDate(activity.timestamp)}
-                </div>
-              </div>
-            ))}
           </div>
-        </CardContent>
-      </Card>
+
+          {/* Stats Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <StatCard
+              title="Tổng số lịch hẹn"
+              value={stats.totalAppointments}
+              icon={Calendar}
+              trend="so với tuần trước"
+              trendValue="+20%"
+              trendType="up"
+              description="Tăng 20% so với tuần trước"
+            />
+            <StatCard
+              title="Tổng số cuộc gọi"
+              value={stats.totalCalls}
+              icon={Phone}
+              trend="so với tuần trước"
+              trendValue="+15%"
+              trendType="up"
+              description="Tăng 15% so với tuần trước"
+            />
+            <StatCard
+              title="Doanh thu"
+              value={formatCurrency(stats.totalRevenue)}
+              icon={DollarSign}
+              trend="so với tuần trước"
+              trendValue="+25%"
+              trendType="up"
+              description="Tăng 25% so với tuần trước"
+            />
+            <StatCard
+              title="Dự án đang thực hiện"
+              value={stats.totalProjects}
+              icon={Briefcase}
+              trend="so với tuần trước"
+              trendValue="+5"
+              trendType="up"
+              description="Tăng 5 dự án so với tuần trước"
+            />
+          </div>
+
+          {/* Charts */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Revenue Chart */}
+            <Card className="shadow-lg">
+              <CardHeader>
+                <CardTitle className="text-xl text-black">Doanh thu tuần</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="h-[300px]">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <AreaChart data={chartData}>
+                      <defs>
+                        <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.8}/>
+                          <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
+                        </linearGradient>
+                      </defs>
+                      <CartesianGrid strokeDasharray="3 3" className="stroke-gray-200" />
+                      <XAxis 
+                        dataKey="name" 
+                        className="text-sm"
+                        tick={{ fill: '#6B7280' }}
+                      />
+                      <YAxis 
+                        className="text-sm"
+                        tick={{ fill: '#6B7280' }}
+                        tickFormatter={(value) => formatCurrency(value)}
+                      />
+                      <Tooltip 
+                        contentStyle={{ 
+                          backgroundColor: 'white',
+                          border: '1px solid #E5E7EB',
+                          borderRadius: '0.5rem',
+                          boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                        }}
+                        formatter={(value) => formatCurrency(value)}
+                      />
+                      <Area
+                        type="monotone"
+                        dataKey="revenue"
+                        stroke="#3b82f6"
+                        fillOpacity={1}
+                        fill="url(#colorRevenue)"
+                      />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Activity Chart */}
+            <Card className="shadow-lg">
+              <CardHeader>
+                <CardTitle className="text-xl text-black">Hoạt động tuần</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="h-[300px]">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart data={chartData}>
+                      <CartesianGrid strokeDasharray="3 3" className="stroke-gray-200" />
+                      <XAxis 
+                        dataKey="name" 
+                        className="text-sm"
+                        tick={{ fill: '#6B7280' }}
+                      />
+                      <YAxis 
+                        className="text-sm"
+                        tick={{ fill: '#6B7280' }}
+                      />
+                      <Tooltip 
+                        contentStyle={{ 
+                          backgroundColor: 'white',
+                          border: '1px solid #E5E7EB',
+                          borderRadius: '0.5rem',
+                          boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                        }}
+                      />
+                      <Legend />
+                      <Line
+                        type="monotone"
+                        dataKey="appointments"
+                        stroke="#3b82f6"
+                        name="Lịch hẹn"
+                        strokeWidth={2}
+                        dot={{ r: 4 }}
+                        activeDot={{ r: 6 }}
+                      />
+                      <Line
+                        type="monotone"
+                        dataKey="calls"
+                        stroke="#22c55e"
+                        name="Cuộc gọi"
+                        strokeWidth={2}
+                        dot={{ r: 4 }}
+                        activeDot={{ r: 6 }}
+                      />
+                      <Line
+                        type="monotone"
+                        dataKey="sources"
+                        stroke="#a855f7"
+                        name="Nguồn"
+                        strokeWidth={2}
+                        dot={{ r: 4 }}
+                        activeDot={{ r: 6 }}
+                      />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Recent Activity */}
+          <Card className="shadow-lg">
+            <CardHeader>
+              <CardTitle className="text-xl text-black">Hoạt động gần đây</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {stats.recentActivity.map((activity, index) => (
+                  <div
+                    key={index}
+                    className="flex items-center justify-between p-4 bg-white rounded-lg border border-gray-100 hover:bg-gray-50 transition-colors duration-200"
+                  >
+                    <div className="flex items-center space-x-4">
+                      <div className="p-2 bg-gray-50 rounded-full">
+                        <ActivityIcon type={activity.type} />
+                      </div>
+                      <div>
+                        <p className="font-medium text-gray-900">{activity.title}</p>
+                        <p className="text-sm text-gray-500">{activity.description}</p>
+                      </div>
+                    </div>
+                    <div className="text-sm text-gray-500 bg-gray-50 px-3 py-1 rounded-full">
+                      {formatDate(activity.timestamp)}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
     </div>
   );
 } 

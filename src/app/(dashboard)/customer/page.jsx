@@ -6,8 +6,10 @@ export const metadata = {
 
 export default function CustomerPage() {
   return (
-    <div className="w-full h-full flex flex-col items-center justify-center">
-      <CustomerClient />
+    <div className="min-h-screen pt-16 bg-gradient-to-br from-blue-50 to-indigo-50">
+      <div className="h-full flex flex-col p-3">
+        <CustomerClient />
+      </div>
     </div>
   )
 } 

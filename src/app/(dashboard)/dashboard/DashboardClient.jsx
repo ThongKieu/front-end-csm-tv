@@ -3,7 +3,19 @@
 import { useEffect, useCallback, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import WorkTable from "@/components/work-schedule/WorkTable";
-import { Calendar, AlertCircle } from "lucide-react";
+import {
+  LayoutDashboard,
+  Calendar,
+  Users,
+  Wrench,
+  BarChart,
+  Settings,
+  LogOut,
+  Menu,
+  X,
+  ChevronDown,
+  AlertCircle,
+} from "lucide-react";
 import {
   fetchAssignedWorks,
   fetchUnassignedWorks,
