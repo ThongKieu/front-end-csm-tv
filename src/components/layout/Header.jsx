@@ -22,6 +22,7 @@ import {
   User,
   Lock,
   Shield,
+  Crown,
 } from "lucide-react";
 
 export default function Header() {
@@ -87,6 +88,12 @@ export default function Header() {
       route: ROUTES.SETTINGS,
       icon: <Settings className="w-4 h-4" />,
     },
+    ...(user?.role === 'admin' ? [{
+      id: "admin",
+      label: "Admin",
+      route: ROUTES.ADMIN.DASHBOARD,
+      icon: <Crown className="w-4 h-4" />,
+    }] : []),
   ];
 
   return (
@@ -97,19 +104,19 @@ export default function Header() {
           : "bg-white"
       }`}
     >
-      <div className="container mx-auto px-4">
+      <div className="container px-4 mx-auto">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link href="/" className="flex items-center space-x-2">
             <img
               src="https://thoviet.com.vn/wp-content/uploads/2025/05/logo-thoviet.png"
               alt="CSM TV Logo"
-              className="h-8 w-auto"
+              className="w-auto h-8"
             />
           </Link>
 
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center space-x-1">
+          <nav className="items-center hidden space-x-1 md:flex">
             {menuItems.map((item) => (
               <Link
                 key={item.id}
@@ -129,23 +136,23 @@ export default function Header() {
           </nav>
 
           {/* Right Section */}
-          <div className="hidden md:flex items-center space-x-4">
+          <div className="items-center hidden space-x-4 md:flex">
             {/* Search */}
             <div className="relative">
               <button
                 onClick={() => setIsSearchOpen(!isSearchOpen)}
-                className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-full transition-colors"
+                className="p-2 text-gray-600 transition-colors rounded-full hover:text-gray-900 hover:bg-gray-100"
               >
                 <Search className="w-5 h-5" />
               </button>
               {isSearchOpen && (
-                <div className="absolute right-0 mt-2 w-72 bg-white rounded-lg shadow-lg border p-2">
-                  <div className="flex items-center space-x-2">
+                <div className="absolute right-0 p-2 mt-2 bg-white border rounded-lg shadow-lg w-72" onClick={() => setIsSearchOpen(false)}>
+                  <div className="flex items-center space-x-2" onClick={(e) => e.stopPropagation()}>
                     <Search className="w-4 h-4 text-gray-400" />
                     <input
                       type="text"
                       placeholder="Tìm kiếm..."
-                      className="flex-1 outline-none text-sm"
+                      className="flex-1 text-sm outline-none"
                     />
                   </div>
                 </div>
@@ -153,18 +160,18 @@ export default function Header() {
             </div>
 
             {/* Notifications */}
-            <button className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-full transition-colors relative">
+            <button className="relative p-2 text-gray-600 transition-colors rounded-full hover:text-gray-900 hover:bg-gray-100">
               <Bell className="w-5 h-5" />
-              <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+              <span className="absolute w-2 h-2 bg-red-500 rounded-full top-1 right-1"></span>
             </button>
 
             {/* User Menu */}
             <div className="relative">
               <button
                 onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-                className="flex items-center space-x-2 text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md hover:bg-gray-50 transition-colors"
+                className="flex items-center px-3 py-2 space-x-2 text-gray-600 transition-colors rounded-md hover:text-gray-900 hover:bg-gray-50"
               >
-                <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
+                <div className="flex items-center justify-center w-8 h-8 bg-blue-100 rounded-full">
                   <span className="text-sm font-medium text-blue-600">
                     {user?.name?.[0] || "U"}
                   </span>
@@ -174,7 +181,7 @@ export default function Header() {
               </button>
 
               {isUserMenuOpen && (
-                <div className="absolute right-0 mt-2 w-48 rounded-lg shadow-lg bg-white ring-1 ring-black ring-opacity-5 overflow-hidden">
+                <div className="absolute right-0 w-48 mt-2 overflow-hidden bg-white rounded-lg shadow-lg ring-1 ring-black ring-opacity-5">
                   <div className="py-1">
                     <Link
                       href={ROUTES.PROFILE}
@@ -215,7 +222,7 @@ export default function Header() {
                         handleLogout();
                         setIsUserMenuOpen(false);
                       }}
-                      className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                      className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
                     >
                       <LogOut className="w-4 h-4 mr-2" />
                       Đăng xuất
@@ -228,7 +235,7 @@ export default function Header() {
 
           {/* Mobile Menu Button */}
           <button
-            className="md:hidden p-2 rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+            className="p-2 text-gray-600 rounded-md md:hidden hover:text-gray-900 hover:bg-gray-100"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
           >
             {isMenuOpen ? (
@@ -263,7 +270,7 @@ export default function Header() {
               <div className="pt-4 pb-3 border-t border-gray-200">
                 <div className="flex items-center px-5">
                   <div className="flex-shrink-0">
-                    <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
+                    <div className="flex items-center justify-center w-10 h-10 bg-blue-100 rounded-full">
                       <span className="text-lg font-medium text-blue-600">
                         {user?.name?.[0] || "U"}
                       </span>
@@ -278,10 +285,10 @@ export default function Header() {
                     </div>
                   </div>
                 </div>
-                <div className="mt-3 px-2 space-y-1">
+                <div className="px-2 mt-3 space-y-1">
                   <Link
                     href={ROUTES.PROFILE}
-                    className="flex items-center px-3 py-2 rounded-md text-base font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                    className="flex items-center px-3 py-2 text-base font-medium text-gray-600 rounded-md hover:bg-gray-50 hover:text-gray-900"
                     onClick={() => setIsMenuOpen(false)}
                   >
                     <Settings className="w-4 h-4 mr-2" />
@@ -292,7 +299,7 @@ export default function Header() {
                       handleLogout();
                       setIsMenuOpen(false);
                     }}
-                    className="w-full flex items-center px-3 py-2 rounded-md text-base font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                    className="flex items-center w-full px-3 py-2 text-base font-medium text-gray-600 rounded-md hover:bg-gray-50 hover:text-gray-900"
                   >
                     <LogOut className="w-4 h-4 mr-2" />
                     Đăng xuất

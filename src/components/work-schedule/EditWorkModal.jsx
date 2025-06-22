@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { X } from 'lucide-react';
+import { X, Phone } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
 import { assignWorker } from '@/store/slices/workSlice';
 import Select from 'react-select';
@@ -108,7 +108,7 @@ const EditWorkModal = ({ work, onClose, onSave }) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/25 flex items-center justify-center z-50" onClick={onClose}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/25" onClick={onClose}>
       <div className="bg-white rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-xl font-semibold text-gray-900">
@@ -125,28 +125,28 @@ const EditWorkModal = ({ work, onClose, onSave }) => {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block mb-1 text-sm font-medium text-gray-700">
                 Nội dung công việc <span className="text-red-500">*</span>
               </label>
               <textarea
                 name="work_content"
                 value={formData.work_content}
                 onChange={handleChange}
-                className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 rows="3"
                 required
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block mb-1 text-sm font-medium text-gray-700">
                 Loại công việc <span className="text-red-500">*</span>
               </label>
               <select
                 name="kind_work"
                 value={formData.kind_work}
                 onChange={handleChange}
-                className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 required
               >
                 <option value="">Chọn loại công việc</option>
@@ -165,7 +165,7 @@ const EditWorkModal = ({ work, onClose, onSave }) => {
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block mb-1 text-sm font-medium text-gray-700">
                 Tên khách hàng <span className="text-red-500">*</span>
               </label>
               <input
@@ -173,13 +173,13 @@ const EditWorkModal = ({ work, onClose, onSave }) => {
                 name="name_cus"
                 value={formData.name_cus}
                 onChange={handleChange}
-                className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 required
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block mb-1 text-sm font-medium text-gray-700">
                 Số điện thoại <span className="text-red-500">*</span>
               </label>
               <input
@@ -187,7 +187,7 @@ const EditWorkModal = ({ work, onClose, onSave }) => {
                 name="phone_number"
                 value={formData.phone_number}
                 onChange={handleChange}
-                className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 required
               />
             </div>
@@ -195,7 +195,7 @@ const EditWorkModal = ({ work, onClose, onSave }) => {
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block mb-1 text-sm font-medium text-gray-700">
                 Đường <span className="text-red-500">*</span>
               </label>
               <input
@@ -203,13 +203,13 @@ const EditWorkModal = ({ work, onClose, onSave }) => {
                 name="street"
                 value={formData.street}
                 onChange={handleChange}
-                className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 required
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block mb-1 text-sm font-medium text-gray-700">
                 Quận/Huyện <span className="text-red-500">*</span>
               </label>
               <input
@@ -217,14 +217,14 @@ const EditWorkModal = ({ work, onClose, onSave }) => {
                 name="district"
                 value={formData.district}
                 onChange={handleChange}
-                className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 required
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block mb-1 text-sm font-medium text-gray-700">
               Ngày đặt <span className="text-red-500">*</span>
             </label>
             <input
@@ -232,14 +232,14 @@ const EditWorkModal = ({ work, onClose, onSave }) => {
               name="date_book"
               value={formData.date_book}
               onChange={handleChange}
-              className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
             />
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block mb-1 text-sm font-medium text-gray-700">
                 Thợ chính
               </label>
               <Select
@@ -253,14 +253,17 @@ const EditWorkModal = ({ work, onClose, onSave }) => {
                 formatOptionLabel={option => (
                   <div>
                     <div>{option.label}</div>
-                    <div className="text-sm text-gray-500">SĐT: {option.phone}</div>
+                    <div className="flex items-center space-x-1 text-sm text-gray-500">
+                      <Phone className="w-3 h-3" />
+                      <span>SĐT: {option.phone || 'Chưa có thông tin'}</span>
+                    </div>
                   </div>
                 )}
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block mb-1 text-sm font-medium text-gray-700">
                 Thợ phụ
               </label>
               <Select
@@ -274,7 +277,10 @@ const EditWorkModal = ({ work, onClose, onSave }) => {
                 formatOptionLabel={option => (
                   <div>
                     <div>{option.label}</div>
-                    <div className="text-sm text-gray-500">SĐT: {option.phone}</div>
+                    <div className="flex items-center space-x-1 text-sm text-gray-500">
+                      <Phone className="w-3 h-3" />
+                      <span>SĐT: {option.phone || 'Chưa có thông tin'}</span>
+                    </div>
                   </div>
                 )}
               />
@@ -282,25 +288,25 @@ const EditWorkModal = ({ work, onClose, onSave }) => {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block mb-1 text-sm font-medium text-gray-700">
               Ghi chú
             </label>
             <textarea
               name="work_note"
               value={formData.work_note}
               onChange={handleChange}
-              className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               rows="2"
             />
           </div>
 
           {error && (
-            <div className="p-3 bg-red-50 border border-red-200 rounded-md text-red-600 text-sm">
+            <div className="p-3 text-sm text-red-600 border border-red-200 rounded-md bg-red-50">
               {error}
             </div>
           )}
 
-          <div className="flex justify-end space-x-3 mt-6">
+          <div className="flex justify-end mt-6 space-x-3">
             <button
               type="button"
               onClick={onClose}

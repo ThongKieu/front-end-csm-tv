@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { assignWorker, changeWorker, selectSelectedDate } from '@/store/slices/workSlice';
-import { X } from 'lucide-react';
+import { X, Phone } from 'lucide-react';
 import Select from 'react-select';
 
 const AssignWorkerModal = ({ work, workers = [], onClose, onAssign, isChanging = false }) => {
@@ -14,8 +14,38 @@ const AssignWorkerModal = ({ work, workers = [], onClose, onAssign, isChanging =
 
   const workerOptions = workers.map(worker => ({
     value: worker.id,
-    label: `${worker.worker_full_name} (${worker.worker_code})`
+    label: `${worker.worker_full_name} (${worker.worker_code})`,
+    phone: worker.worker_phone_company
   }));
+
+  const customSelectStyles = {
+    control: (base) => ({
+      ...base,
+      minHeight: '42px',
+      borderColor: '#D1D5DB',
+      '&:hover': {
+        borderColor: '#9CA3AF'
+      }
+    }),
+    option: (base, state) => ({
+      ...base,
+      backgroundColor: state.isSelected ? '#2563EB' : state.isFocused ? '#EFF6FF' : 'white',
+      color: state.isSelected ? 'white' : '#1F2937',
+      '&:hover': {
+        backgroundColor: state.isSelected ? '#2563EB' : '#EFF6FF'
+      }
+    })
+  };
+
+  const formatOptionLabel = (option) => (
+    <div>
+      <div>{option.label}</div>
+      <div className="text-sm text-gray-500 flex items-center space-x-1">
+        <Phone className="w-3 h-3" />
+        <span>SĐT: {option.phone || 'Chưa có thông tin'}</span>
+      </div>
+    </div>
+  );
 
   useEffect(() => {
     if (isChanging && work) {
@@ -24,12 +54,14 @@ const AssignWorkerModal = ({ work, workers = [], onClose, onAssign, isChanging =
       
       setSelectedWorker(mainWorker ? {
         value: mainWorker.id,
-        label: `${mainWorker.worker_full_name} (${mainWorker.worker_code})`
+        label: `${mainWorker.worker_full_name} (${mainWorker.worker_code})`,
+        phone: mainWorker.worker_phone_company
       } : null);
       
       setSelectedExtraWorker(extraWorker ? {
         value: extraWorker.id,
-        label: `${extraWorker.worker_full_name} (${extraWorker.worker_code})`
+        label: `${extraWorker.worker_full_name} (${extraWorker.worker_code})`,
+        phone: extraWorker.worker_phone_company
       } : null);
     }
   }, [work, isChanging, workers]);
@@ -118,6 +150,8 @@ const AssignWorkerModal = ({ work, workers = [], onClose, onAssign, isChanging =
               required
               className="react-select-container text-black"
               classNamePrefix="react-select"
+              styles={customSelectStyles}
+              formatOptionLabel={formatOptionLabel}
             />
           </div>
 
@@ -134,6 +168,8 @@ const AssignWorkerModal = ({ work, workers = [], onClose, onAssign, isChanging =
               isSearchable
               className="react-select-container text-black"
               classNamePrefix="react-select"
+              styles={customSelectStyles}
+              formatOptionLabel={formatOptionLabel}
             />
           </div>
 

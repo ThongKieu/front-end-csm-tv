@@ -13,6 +13,7 @@ import {
   UserCog,
   Settings,
   DollarSign,
+  Phone,
 } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -257,6 +258,31 @@ const WorkTable = ({ works = [], workers = [] }) => {
     }
   };
 
+  const getWorkTypeGradient = (kindWork) => {
+    switch (kindWork) {
+      case 1:
+        return 'bg-gradient-to-r from-blue-500 to-blue-600'; // Điện Nước
+      case 2:
+        return 'bg-gradient-to-r from-green-500 to-green-600'; // Điện Lạnh
+      case 3:
+        return 'bg-gradient-to-r from-yellow-500 to-yellow-600'; // Đồ gỗ
+      case 4:
+        return 'bg-gradient-to-r from-orange-500 to-orange-600'; // Năng Lượng Mặt trời
+      case 5:
+        return 'bg-gradient-to-r from-red-500 to-red-600'; // Xây Dựng
+      case 6:
+        return 'bg-gradient-to-r from-purple-500 to-purple-600'; // Tài Xế
+      case 7:
+        return 'bg-gradient-to-r from-indigo-500 to-indigo-600'; // Cơ Khí
+      case 8:
+        return 'bg-gradient-to-r from-pink-500 to-pink-600'; // Điện - Điện Tử
+      case 9:
+        return 'bg-gradient-to-r from-gray-500 to-gray-600'; // Văn Phòng
+      default:
+        return 'bg-gradient-to-r from-gray-500 to-gray-600';
+    }
+  };
+
   const handleWorkerTypeChange = (type) => {
     setSelectedWorkerType(type);
   };
@@ -314,7 +340,7 @@ const WorkTable = ({ works = [], workers = [] }) => {
 
           return (
             <div className="space-y-2">
-              {works.map((work) => {
+              {works.map((work, index) => {
                 const assignedWorker = workers.find(
                   (w) => w.id === work.id_worker
                 );
@@ -327,13 +353,20 @@ const WorkTable = ({ works = [], workers = [] }) => {
                     <div className="flex items-start justify-between">
                       <div className="space-y-1.5 flex-1 min-w-0">
                         <div className="grid grid-cols-6 items-center space-x-2">
-                          <span
-                            className={`px-2 py-1 text-center col-span-1 text-xs font-medium rounded-full ${getWorkTypeColor(
+                          <div className="col-span-1 flex items-center space-x-1">
+                            <span className={`inline-flex items-center justify-center w-5 h-5 text-xs font-bold text-white rounded-full shadow-sm ${getWorkTypeGradient(
                               category.kind_worker.id
-                            )}`}
-                          >
-                            {getWorkTypeName(category.kind_worker.id)}
-                          </span>
+                            )}`}>
+                              {index + 1}
+                            </span>
+                            <span
+                              className={`px-2 py-1 text-center text-xs font-medium rounded-full ${getWorkTypeColor(
+                                category.kind_worker.id
+                              )}`}
+                            >
+                              {getWorkTypeName(category.kind_worker.id)}
+                            </span>
+                          </div>
                           <p className="font-medium col-span-5 text-gray-900 break-words whitespace-pre-line">
                             {work.work_content || "Không có nội dung"}
                           </p>
@@ -341,19 +374,20 @@ const WorkTable = ({ works = [], workers = [] }) => {
 
                         <div className="space-y-1 text-sm">
                           <div className="flex flex-row justify-between items-center space-x-2">
-                            <div className="flex items-center space-x-2">
-                              <p className="text-gray-600 truncate">
-                                <span className="font-medium text-gray-700">
-                                  Khách hàng:
-                                </span>{" "}
-                                {work.name_cus || "Chưa có thông tin"}
-                              </p>
-                              <p className="text-gray-600 truncate">
-                                <span className="font-medium text-gray-700">
-                                  SĐT:
-                                </span>{" "}
-                                {work.phone_number || "Chưa có thông tin"}
-                              </p>
+                            <div className="flex items-center space-x-4">
+                              <div className="flex items-center space-x-1">
+                                <span className="font-medium text-gray-700">Khách hàng:</span>
+                                <span className="text-gray-600 truncate">
+                                  {work.name_cus || "Chưa có thông tin"}
+                                </span>
+                              </div>
+                              <div className="flex items-center space-x-1">
+                                <Phone className="w-3 h-3 text-gray-500" />
+                                <span className="font-medium text-gray-700">SĐT:</span>
+                                <span className="text-gray-600 truncate">
+                                  {work.phone_number || "Chưa có thông tin"}
+                                </span>
+                              </div>
                             </div>
                             <div className="flex items-center space-x-2">
                               <span
@@ -385,15 +419,20 @@ const WorkTable = ({ works = [], workers = [] }) => {
                         </div>
                         {assignedWorker && (
                           <div className="mt-2 p-2 bg-blue-50 rounded-md border border-blue-100">
-                            <p className="text-sm font-medium text-blue-700">
+                            <p className="text-sm font-medium text-blue-700 mb-1">
                               Thợ đã phân công:
                             </p>
-                            <p className="text-sm text-blue-600 truncate">
-                              {work.worker_full_name} ({work.worker_code})
-                            </p>
-                            <p className="text-sm text-blue-600 truncate">
-                              SĐT: {work.worker_phone_company || "Chưa có thông tin"}
-                            </p>
+                            <div className="space-y-1">
+                              <p className="text-sm text-blue-600 truncate">
+                                {work.worker_full_name} ({work.worker_code})
+                              </p>
+                              <div className="flex items-center space-x-1">
+                                <Phone className="w-3 h-3 text-blue-500" />
+                                <span className="text-sm text-blue-600 truncate">
+                                  SĐT: {work.worker_phone_company || "Chưa có thông tin"}
+                                </span>
+                              </div>
+                            </div>
                           </div>
                         )}
                       </div>

@@ -74,12 +74,12 @@ export default function WorkScheduleClient() {
   return (
     <div className="space-y-4">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-4 rounded-lg shadow-sm border border-blue-100">
+      <div className="flex flex-col items-start justify-between gap-4 p-4 bg-white border border-blue-100 rounded-lg shadow-sm sm:flex-row sm:items-center">
         <div>
-          <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+          <h1 className="text-2xl font-bold text-transparent bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text">
             Lịch làm việc
           </h1>
-          <p className="text-sm text-gray-500 mt-1">
+          <p className="mt-1 text-sm text-gray-500">
             Quản lý và theo dõi công việc theo ngày
           </p>
         </div>
@@ -88,9 +88,9 @@ export default function WorkScheduleClient() {
             variant="outline"
             size="sm"
             onClick={handlePreviousDay}
-            className="hover:bg-blue-50 hover:text-blue-600 transition-colors"
+            className="transition-colors hover:bg-blue-50 hover:text-blue-600"
           >
-            <ChevronLeft className="h-4 w-4" />
+            <ChevronLeft className="w-4 h-4" />
           </Button>
           <div className="flex items-center gap-2 px-3 py-1.5 bg-white rounded-md border border-blue-200 shadow-sm hover:border-blue-300 transition-colors">
             <CalendarIcon className="w-4 h-4 text-blue-600" />
@@ -98,22 +98,22 @@ export default function WorkScheduleClient() {
               type="date"
               value={format(date, "yyyy-MM-dd")}
               onChange={handleDateChange}
-              className="bg-transparent border-none focus:ring-0 text-blue-900 font-medium"
+              className="font-medium text-blue-900 bg-transparent border-none focus:ring-0"
             />
           </div>
           <Button
             variant="outline"
             size="sm"
             onClick={handleNextDay}
-            className="hover:bg-blue-50 hover:text-blue-600 transition-colors"
+            className="transition-colors hover:bg-blue-50 hover:text-blue-600"
           >
-            <ChevronRight className="h-4 w-4" />
+            <ChevronRight className="w-4 h-4" />
           </Button>
           <Button
             variant="outline"
             size="sm"
             onClick={handleToday}
-            className="hover:bg-blue-50 hover:text-blue-600 transition-colors"
+            className="transition-colors hover:bg-blue-50 hover:text-blue-600"
           >
             Hôm nay
           </Button>
@@ -122,22 +122,22 @@ export default function WorkScheduleClient() {
 
       {/* Search Bar */}
       <div className="relative">
-        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-          <Search className="h-4 w-4 text-gray-400" />
+        <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+          <Search className="w-4 h-4 text-gray-400" />
         </div>
         <Input
           type="text"
           placeholder="Tìm kiếm theo số điện thoại..."
           value={searchPhone}
           onChange={(e) => setSearchPhone(e.target.value)}
-          className="pl-10 pr-10 h-9 text-sm"
+          className="pl-10 pr-10 text-sm h-9"
         />
         {searchPhone && (
           <button
             onClick={handleClearSearch}
-            className="absolute inset-y-0 right-0 pr-3 flex items-center"
+            className="absolute inset-y-0 right-0 flex items-center pr-3"
           >
-            <X className="h-4 w-4 text-gray-400 hover:text-gray-600" />
+            <X className="w-4 h-4 text-gray-400 hover:text-gray-600" />
           </button>
         )}
       </div>
@@ -148,16 +148,16 @@ export default function WorkScheduleClient() {
           <table className="w-full">
             <thead>
               <tr className="border-b border-blue-100">
-                <th className="text-left py-3 px-4 text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-4 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">
                   Khách hàng
                 </th>
-                <th className="text-left py-3 px-4 text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-4 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">
                   Nội dung công việc
                 </th>
-                <th className="text-left py-3 px-4 text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-4 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">
                   Địa chỉ
                 </th>
-                <th className="text-center py-3 px-4 text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-4 py-3 text-xs font-medium tracking-wider text-center text-gray-500 uppercase">
                   Trạng thái
                 </th>
               </tr>
@@ -165,23 +165,23 @@ export default function WorkScheduleClient() {
             <tbody className="divide-y divide-blue-50">
               {loading ? (
                 <tr>
-                  <td colSpan="4" className="text-center py-8">
+                  <td colSpan="4" className="py-8 text-center">
                     <div className="flex justify-center">
-                      <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
+                      <div className="w-6 h-6 border-b-2 border-blue-600 rounded-full animate-spin"></div>
                     </div>
                   </td>
                 </tr>
               ) : works.length === 0 ? (
                 <tr>
-                  <td colSpan="4" className="text-center py-8">
+                  <td colSpan="4" className="py-8 text-center">
                     <div className="flex flex-col items-center text-gray-500">
-                      <CalendarIcon className="w-12 h-12 text-gray-300 mb-3" />
+                      <CalendarIcon className="w-12 h-12 mb-3 text-gray-300" />
                       <p className="text-sm font-medium">
                         {searchPhone
                           ? "Không tìm thấy công việc nào với số điện thoại này"
                           : "Không có công việc nào"}
                       </p>
-                      <p className="text-xs mt-1">
+                      <p className="mt-1 text-xs">
                         {searchPhone
                           ? "Hãy thử tìm kiếm với số điện thoại khác"
                           : "Hãy chọn ngày khác hoặc thêm công việc mới"}
@@ -190,14 +190,14 @@ export default function WorkScheduleClient() {
                   </td>
                 </tr>
               ) : (
-                works.map((work) => (
+                works.map((work, index) => (
                   <tr
                     key={work.id}
-                    className="hover:bg-blue-50/50 transition-colors"
+                    className="transition-colors hover:bg-blue-50/50"
                   >
-                    <td className="py-3 px-4">
+                    <td className="px-4 py-3">
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
+                        <div className="flex items-center justify-center w-10 h-10 bg-blue-100 rounded-full">
                           <User className="w-5 h-5 text-blue-600" />
                         </div>
                         <div>
@@ -211,29 +211,32 @@ export default function WorkScheduleClient() {
                         </div>
                       </div>
                     </td>
-                    <td className="py-3 px-4">
+                    <td className="px-4 py-3">
                       <div className="flex items-start gap-2">
                         <FileText className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" />
                         <div>
                           <div className="text-sm text-gray-900">
+                            <span className="inline-flex items-center justify-center w-5 h-5 mr-2 text-xs font-bold text-white rounded-full shadow-sm bg-gradient-to-r from-blue-500 to-blue-600">
+                              {index + 1}
+                            </span>
                             {work.work_content}
                           </div>
-                          <div className="text-xs text-gray-500 mt-1 flex items-center">
+                          <div className="flex items-center mt-1 text-xs text-gray-500">
                             <Clock className="w-3.5 h-3.5 mr-1" />
                             {format(new Date(work.created_at), "HH:mm")}
                           </div>
                         </div>
                       </div>
                     </td>
-                    <td className="py-3 px-4">
+                    <td className="px-4 py-3">
                       <div className="flex items-center gap-2">
-                        <MapPin className="w-4 h-4 text-blue-600 flex-shrink-0" />
+                        <MapPin className="flex-shrink-0 w-4 h-4 text-blue-600" />
                         <span className="text-sm text-gray-600 truncate max-w-[200px]">
                           {work.address.address}
                         </span>
                       </div>
                     </td>
-                    <td className="py-3 px-4 text-center">
+                    <td className="px-4 py-3 text-center">
                       <span
                         className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium
                             ${
