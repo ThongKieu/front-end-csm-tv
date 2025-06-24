@@ -71,6 +71,12 @@ export default function Header() {
       icon: <Users className="w-4 h-4" />,
     },
     {
+      id: "workers",
+      label: "Nhân viên",
+      route: ROUTES.WORKERS,
+      icon: <Users className="w-4 h-4" />,
+    },
+    {
       id: "services",
       label: "Dịch vụ",
       route: ROUTES.SERVICES,

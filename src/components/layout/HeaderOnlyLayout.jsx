@@ -6,7 +6,7 @@ export default function HeaderOnlyLayout({ children }) {
   return (
     <div className="min-h-screen bg-gray-100">
       <Header />
-      <main>
+      <main className="pt-16">
         {children}
       </main>
     </div>

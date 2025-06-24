@@ -8,6 +8,7 @@ export const ROUTES = {
   CUSTOMERS: "/customer",
   SERVICES: "/services",
   REPORTS: "/reports",
+  WORKERS: "/workers",
   SETTINGS: "/settings",
   CHANGE_PASSWORD: '/change-password',
   CUSTOMER: '/customer',
