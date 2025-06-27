@@ -62,27 +62,27 @@ const initialStats = {
 };
 
 const StatCard = ({ title, value, icon: Icon, trend, trendValue, trendType, description }) => (
-  <Card className="hover:shadow-lg transition-all duration-200 bg-white">
-    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+  <Card className="bg-white transition-all duration-200 hover:shadow-lg">
+    <CardHeader className="flex flex-row justify-between items-center pb-2 space-y-0">
       <CardTitle className="text-sm font-medium text-gray-500">{title}</CardTitle>
       <div className="p-2 bg-gray-50 rounded-lg">
-        <Icon className="h-4 w-4 text-gray-600" />
+        <Icon className="w-4 h-4 text-gray-600" />
       </div>
     </CardHeader>
     <CardContent>
       <div className="text-2xl font-bold text-gray-900">{value}</div>
       <div className="flex items-center mt-2">
         {trendType === "up" ? (
-          <ArrowUpRight className="h-4 w-4 text-green-500 mr-1" />
+          <ArrowUpRight className="mr-1 w-4 h-4 text-green-500" />
         ) : (
-          <ArrowDownRight className="h-4 w-4 text-red-500 mr-1" />
+          <ArrowDownRight className="mr-1 w-4 h-4 text-red-500" />
         )}
         <p className="text-xs text-gray-500">
           {trendValue} {trend}
         </p>
       </div>
       {description && (
-        <p className="text-xs text-gray-500 mt-1">{description}</p>
+        <p className="mt-1 text-xs text-gray-500">{description}</p>
       )}
     </CardContent>
   </Card>
@@ -91,17 +91,17 @@ const StatCard = ({ title, value, icon: Icon, trend, trendValue, trendType, desc
 const ActivityIcon = ({ type }) => {
   switch (type) {
     case 'appointment':
-      return <Calendar className="h-4 w-4 text-blue-500" />;
+      return <Calendar className="w-4 h-4 text-blue-500" />;
     case 'call':
-      return <Phone className="h-4 w-4 text-green-500" />;
+      return <Phone className="w-4 h-4 text-green-500" />;
     case 'update':
-      return <CheckCircle className="h-4 w-4 text-yellow-500" />;
+      return <CheckCircle className="w-4 h-4 text-yellow-500" />;
     case 'source':
-      return <Users className="h-4 w-4 text-purple-500" />;
+      return <Users className="w-4 h-4 text-purple-500" />;
     case 'feedback':
-      return <MessageSquare className="h-4 w-4 text-yellow-500" />;
+      return <MessageSquare className="w-4 h-4 text-yellow-500" />;
     default:
-      return <Calendar className="h-4 w-4 text-gray-500" />;
+      return <Calendar className="w-4 h-4 text-gray-500" />;
   }
 };
 
@@ -141,24 +141,24 @@ export default function AdminDashboard() {
   };
 
   return (
-    <div className="min-h-screen pt-16 bg-gradient-to-br from-blue-50 to-indigo-50">
-      <div className="h-full flex flex-col p-6">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50">
+      <div className="flex flex-col p-6 h-full">
         <div className="space-y-6">
           {/* Header */}
           <div className="flex justify-between items-center">
             <div>
               <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
-              <p className="text-sm text-gray-500 mt-1">
+              <p className="mt-1 text-sm text-gray-500">
                 Tổng quan về hoạt động của hệ thống
               </p>
             </div>
-            <div className="text-sm text-gray-500 bg-white px-4 py-2 rounded-lg shadow-sm border border-gray-100">
+            <div className="px-4 py-2 text-sm text-gray-500 bg-white rounded-lg border border-gray-100 shadow-sm">
               Cập nhật lần cuối: {lastUpdated}
             </div>
           </div>
 
           {/* Stats Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
             <StatCard
               title="Tổng số lịch hẹn"
               value={stats.totalAppointments}
@@ -198,7 +198,7 @@ export default function AdminDashboard() {
           </div>
 
           {/* Charts */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
             {/* Revenue Chart */}
             <Card className="shadow-lg">
               <CardHeader>
@@ -319,7 +319,7 @@ export default function AdminDashboard() {
                 {stats.recentActivity.map((activity, index) => (
                   <div
                     key={index}
-                    className="flex items-center justify-between p-4 bg-white rounded-lg border border-gray-100 hover:bg-gray-50 transition-colors duration-200"
+                    className="flex justify-between items-center p-4 bg-white rounded-lg border border-gray-100 transition-colors duration-200 hover:bg-gray-50"
                   >
                     <div className="flex items-center space-x-4">
                       <div className="p-2 bg-gray-50 rounded-full">
@@ -330,7 +330,7 @@ export default function AdminDashboard() {
                         <p className="text-sm text-gray-500">{activity.description}</p>
                       </div>
                     </div>
-                    <div className="text-sm text-gray-500 bg-gray-50 px-3 py-1 rounded-full">
+                    <div className="px-3 py-1 text-sm text-gray-500 bg-gray-50 rounded-full">
                       {formatDate(activity.timestamp)}
                     </div>
                   </div>

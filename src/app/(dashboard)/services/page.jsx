@@ -6,7 +6,7 @@ export const metadata = {
 export default function ServicesPage() {
 
   return (
-    <div className="max-w-6xl px-4 pt-16 pb-4 mx-auto">
+    <div className="px-4 pb-4 mx-auto max-w-6xl">
         <ServiceClient />
     </div>
   );

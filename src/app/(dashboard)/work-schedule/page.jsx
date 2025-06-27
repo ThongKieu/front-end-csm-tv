@@ -6,12 +6,5 @@ export const metadata = {
 }
 
 export default function WorkSchedulePage() {
- 
-
-  return (
-    
-    <div className="container mx-auto px-4 py-6 pt-18">
-      <WorkScheduleClient />
-    </div>
-  );
+  return <WorkScheduleClient />;
 } 

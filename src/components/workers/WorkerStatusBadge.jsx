@@ -8,14 +8,14 @@ export default function WorkerStatusBadge({ status, showIcon = false }) {
           text: "Đang hoạt động",
           bgColor: "bg-green-100",
           textColor: "text-green-800",
-          icon: showIcon ? <CheckCircle2 className="h-4 w-4 mr-1" /> : null
+          icon: showIcon ? <CheckCircle2 className="mr-1 w-4 h-4" /> : null
         };
       case 0:
         return {
           text: "Không hoạt động",
           bgColor: "bg-red-100",
           textColor: "text-red-800",
-          icon: showIcon ? <XCircle className="h-4 w-4 mr-1" /> : null
+          icon: showIcon ? <XCircle className="mr-1 w-4 h-4" /> : null
         };
       default:
         return {

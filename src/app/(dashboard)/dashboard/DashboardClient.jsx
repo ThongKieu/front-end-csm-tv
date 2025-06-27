@@ -5,27 +5,14 @@ import { useDispatch, useSelector } from "react-redux";
 import Link from "next/link";
 import WorkTable from "@/components/work-schedule/WorkTable";
 import WorkHistory from "@/components/dashboard/WorkHistory";
+import DateNavigator from "@/components/ui/DateNavigator";
 import {
-  LayoutDashboard,
-  Calendar,
-  Users,
-  Wrench,
-  BarChart,
-  Settings,
-  LogOut,
-  Menu,
-  X,
-  ChevronDown,
   AlertCircle,
   Crown,
-  Clock,
-  CheckCircle,
-  AlertTriangle,
-  ChevronLeft,
-  ChevronRight,
-  CalendarDays,
   History,
   Filter,
+  Calendar,
+  AlertTriangle,
 } from "lucide-react";
 import {
   fetchAssignedWorks,
@@ -81,58 +68,21 @@ export default function DashboardClient() {
   );
 
   // Memoize view mode change handler
-  const handleViewModeChange = useCallback((mode) => {
-    setViewMode(mode);
-    if (mode === "today" && isInitialized) {
-      fetchData(selectedDate);
-    }
-  }, [fetchData, selectedDate, isInitialized]);
-
-  // Memoize date status calculations
-  const getDateStatus = useCallback((date) => {
-    const today = new Date();
-    const targetDate = new Date(date);
-    const diffTime = today - targetDate;
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    
-    if (diffDays === 0) return "today";
-    if (diffDays > 0) return "past";
-    return "future";
-  }, []);
-
-  const getStatusIcon = useCallback((date) => {
-    const status = getDateStatus(date);
-    switch (status) {
-      case "today":
-        return <Clock className="w-3 h-3 text-blue-600" />;
-      case "past":
-        return <AlertTriangle className="w-3 h-3 text-orange-600" />;
-      case "future":
-        return <CalendarDays className="w-3 h-3 text-green-600" />;
-      default:
-        return <Calendar className="w-3 h-3 text-gray-600" />;
-    }
-  }, [getDateStatus]);
-
-  const getStatusText = useCallback((date) => {
-    const status = getDateStatus(date);
-    switch (status) {
-      case "today":
-        return "Hôm nay";
-      case "past":
-        return "Quá hạn";
-      case "future":
-        return "Tương lai";
-      default:
-        return "Không xác định";
-    }
-  }, [getDateStatus]);
+  const handleViewModeChange = useCallback(
+    (mode) => {
+      setViewMode(mode);
+      if (mode === "today" && isInitialized) {
+        fetchData(selectedDate);
+      }
+    },
+    [fetchData, selectedDate, isInitialized]
+  );
 
   // Memoize navigation handlers
   const handlePreviousDay = useCallback(() => {
     const prevDate = new Date(selectedDate);
     prevDate.setDate(prevDate.getDate() - 1);
-    const newDate = prevDate.toISOString().split('T')[0];
+    const newDate = prevDate.toISOString().split("T")[0];
     dispatch(setSelectedDate(newDate));
     fetchData(newDate);
   }, [selectedDate, dispatch, fetchData]);
@@ -140,28 +90,37 @@ export default function DashboardClient() {
   const handleNextDay = useCallback(() => {
     const nextDate = new Date(selectedDate);
     nextDate.setDate(nextDate.getDate() + 1);
-    const newDate = nextDate.toISOString().split('T')[0];
+    const newDate = nextDate.toISOString().split("T")[0];
     dispatch(setSelectedDate(newDate));
     fetchData(newDate);
   }, [selectedDate, dispatch, fetchData]);
 
   const handleToday = useCallback(() => {
-    const today = new Date().toISOString().split('T')[0];
+    const today = new Date().toISOString().split("T")[0];
     dispatch(setSelectedDate(today));
     fetchData(today);
   }, [dispatch, fetchData]);
 
   // Memoize statistics
-  const stats = useMemo(() => ({
-    unassignedCount: unassignedWorks.reduce((acc, cat) => acc + cat.data.length, 0),
-    assignedCount: assignedWorks.reduce((acc, cat) => acc + cat.data.length, 0),
-  }), [unassignedWorks, assignedWorks]);
+  const stats = useMemo(
+    () => ({
+      unassignedCount: unassignedWorks.reduce(
+        (acc, cat) => acc + cat.data.length,
+        0
+      ),
+      assignedCount: assignedWorks.reduce(
+        (acc, cat) => acc + cat.data.length,
+        0
+      ),
+    }),
+    [unassignedWorks, assignedWorks]
+  );
 
   // Initialize data only once
   useEffect(() => {
     const initializeData = async () => {
       if (isInitialized) return;
-      
+
       try {
         setError(null);
         // Fetch workers first, then data
@@ -207,26 +166,26 @@ export default function DashboardClient() {
   }
 
   return (
-    <div className="h-full max-w-[1920px] mx-auto flex flex-col p-3">
+    <div className="flex flex-col p-3 py-1 mx-auto h-[calc(100vh-64px)]">
       {/* Compact Header */}
-      <div className="flex justify-between items-center p-3 mb-3 bg-white rounded-lg shadow-sm">
+      <div className="flex justify-between items-center p-3 py-1 mb-3 bg-white rounded-lg shadow-sm">
         <div className="flex gap-3 items-center">
-          <h1 className="text-lg font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">
+          <h1 className="text-[15px] font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">
             Phân công công việc
           </h1>
-          
+
           {/* Compact View Mode Tabs */}
           <div className="flex gap-1 items-center p-1 bg-gray-100 rounded-md">
             <button
               onClick={() => handleViewModeChange("today")}
-              className={`flex items-center gap-1 px-2 py-1 rounded text-xs font-medium transition-all duration-200 ${
+              className={`flex items-center gap-1 p-1 rounded font-medium transition-all duration-200 ${
                 viewMode === "today"
                   ? "bg-white text-blue-600 shadow-sm"
                   : "text-gray-600 hover:text-gray-800"
               }`}
             >
               <Calendar className="w-3 h-3" />
-              Hôm nay
+              <span className="text-[12px]">Hôm nay</span>
             </button>
             <button
               onClick={() => handleViewModeChange("history")}
@@ -237,7 +196,7 @@ export default function DashboardClient() {
               }`}
             >
               <History className="w-3 h-3" />
-              Lịch sử
+              <span className="text-[12px]">Lịch sử</span>
             </button>
             <button
               onClick={() => handleViewModeChange("pending")}
@@ -248,37 +207,23 @@ export default function DashboardClient() {
               }`}
             >
               <AlertTriangle className="w-3 h-3" />
-              Chưa xử lý
+             
+              <span className="text-[12px]"> Chưa xử lý </span>
             </button>
           </div>
 
           {/* Date Navigation */}
-          <div className="flex gap-2 items-center">
-            <button
-              onClick={handlePreviousDay}
-              className="flex gap-1 items-center px-2 py-1 text-xs text-gray-600 bg-white rounded-md border border-gray-200 transition-colors hover:bg-gray-50"
-            >
-              <ChevronLeft className="w-3 h-3" />
-              Trước
-            </button>
-            <button
-              onClick={handleToday}
-              className="px-2 py-1 text-xs text-white bg-blue-600 rounded-md transition-colors hover:bg-blue-700"
-            >
-              Hôm nay
-            </button>
-            <button
-              onClick={handleNextDay}
-              className="flex gap-1 items-center px-2 py-1 text-xs text-gray-600 bg-white rounded-md border border-gray-200 transition-colors hover:bg-gray-50"
-            >
-              Sau
-              <ChevronRight className="w-3 h-3" />
-            </button>
-          </div>
+          <DateNavigator
+            selectedDate={selectedDate}
+            onDateChange={handleDateChange}
+            onPreviousDay={handlePreviousDay}
+            onNextDay={handleNextDay}
+            onToday={handleToday}
+          />
         </div>
 
         <div className="flex items-center space-x-2">
-          {user?.role === 'admin' && (
+          {user?.role === "admin" && (
             <Link
               href={ROUTES.ADMIN.DASHBOARD}
               className="flex items-center px-3 py-1.5 space-x-1 text-white transition-all duration-200 rounded-md shadow-sm bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-xs"
@@ -287,19 +232,6 @@ export default function DashboardClient() {
               <span className="font-medium">Admin</span>
             </Link>
           )}
-          
-          <div className="flex items-center px-2 py-1 space-x-1 bg-blue-50 rounded-md">
-            <Calendar className="w-3 h-3 text-blue-600" />
-            <input
-              type="date"
-              value={selectedDate}
-              onChange={handleDateChange}
-              className="w-24 text-xs font-medium text-blue-900 bg-transparent border-none focus:ring-0"
-            />
-            <span className="text-xs font-medium text-blue-600">
-              {getStatusText(selectedDate)}
-            </span>
-          </div>
         </div>
       </div>
 
@@ -307,23 +239,31 @@ export default function DashboardClient() {
       {viewMode === "history" && (
         <div className="p-3 mb-3 bg-white rounded-lg shadow-sm">
           <div className="flex gap-3 items-center">
-            <h3 className="text-sm font-semibold text-gray-700">Khoảng thời gian:</h3>
+            <h3 className="text-sm font-semibold text-gray-700">
+              Khoảng thời gian:
+            </h3>
             <div className="flex gap-2 items-center">
               <input
                 type="date"
                 value={dateRange.start}
-                onChange={(e) => setDateRange({ ...dateRange, start: e.target.value })}
+                onChange={(e) =>
+                  setDateRange({ ...dateRange, start: e.target.value })
+                }
                 className="px-2 py-1 text-xs rounded-md border border-gray-200 focus:outline-none focus:ring-1 focus:ring-blue-500"
               />
               <span className="text-xs text-gray-500">đến</span>
               <input
                 type="date"
                 value={dateRange.end}
-                onChange={(e) => setDateRange({ ...dateRange, end: e.target.value })}
+                onChange={(e) =>
+                  setDateRange({ ...dateRange, end: e.target.value })
+                }
                 className="px-2 py-1 text-xs rounded-md border border-gray-200 focus:outline-none focus:ring-1 focus:ring-blue-500"
               />
               <button
-                onClick={() => console.log("Fetching data for range:", dateRange)}
+                onClick={() =>
+                  console.log("Fetching data for range:", dateRange)
+                }
                 className="flex gap-1 items-center px-2 py-1 text-xs text-white bg-blue-600 rounded-md transition-colors hover:bg-blue-700"
               >
                 <Filter className="w-3 h-3" />

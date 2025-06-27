@@ -2,31 +2,34 @@
 
 import { useEffect } from 'react'
 import { useDispatch } from 'react-redux'
-import { login } from '@/store/slices/authSlice'
-import Cookies from 'js-cookie'
+import { restoreAuth, setLoading, clearAuth } from '@/store/slices/authSlice'
+import { restoreAuthState, setupAuthListener } from '@/utils/auth'
 
 export function AuthProvider({ children }) {
   const dispatch = useDispatch()
 
   useEffect(() => {
-    const token = Cookies.get('token')
-    if (token) {
-      try {
-        // Giải mã token để lấy thông tin user
-        const payload = JSON.parse(atob(token.split('.')[1]))
-        const user = {
-          id: payload.userId,
-          email: payload.email,
-          role: payload.role
-        }
-        
-        // Khôi phục trạng thái đăng nhập
-        dispatch(login({ user, token }))
-      } catch (error) {
-        console.error('Error restoring auth state:', error)
-        Cookies.remove('token')
-      }
+    // Khôi phục trạng thái authentication khi component mount
+    const authState = restoreAuthState()
+    
+    if (authState) {
+      dispatch(restoreAuth(authState))
+    } else {
+      dispatch(setLoading(false))
     }
+
+    // Lắng nghe thay đổi localStorage giữa các tab
+    const cleanup = setupAuthListener(() => {
+      const newAuthState = restoreAuthState()
+      if (newAuthState) {
+        dispatch(restoreAuth(newAuthState))
+      } else {
+        dispatch(clearAuth())
+      }
+    })
+
+    // Cleanup khi component unmount
+    return cleanup
   }, [dispatch])
 
   return children

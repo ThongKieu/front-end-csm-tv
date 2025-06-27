@@ -48,9 +48,9 @@ export default function WorksPage() {
   }, [selectedDate])
 
   return (
-    <div className="min-h-screen pt-16 bg-gradient-to-br from-blue-50 to-indigo-50">
-      <div className="h-full flex flex-col p-6">
-        <div className="flex items-center justify-between">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50">
+      <div className="flex flex-col p-6 h-full">
+        <div className="flex justify-between items-center">
           <h1 className="text-xl font-bold">Quản lý công việc</h1>
           <div className="flex items-center space-x-4">
             <div className="flex items-center space-x-2">
@@ -59,15 +59,15 @@ export default function WorksPage() {
                 type="date"
                 value={selectedDate}
                 onChange={(e) => setSelectedDate(e.target.value)}
-                className="border rounded px-1 py-1"
+                className="px-1 py-1 rounded border"
               />
             </div>
           </div>
         </div>
 
         {isLoading ? (
-          <div className="flex items-center justify-center h-64">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+          <div className="flex justify-center items-center h-64">
+            <div className="w-12 h-12 rounded-full border-b-2 border-blue-500 animate-spin"></div>
           </div>
         ) : (
           <WorkTable data={works} />

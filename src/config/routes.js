@@ -12,6 +12,7 @@ export const ROUTES = {
   SETTINGS: "/settings",
   CHANGE_PASSWORD: '/change-password',
   CUSTOMER: '/customer',
+  QUOTES: '/quotes',
   ADMIN: {
     DASHBOARD: '/admin/dashboard',
     USERS: '/admin/workers',

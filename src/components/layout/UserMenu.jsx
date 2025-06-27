@@ -4,19 +4,12 @@ import { Fragment } from 'react';
 import { Menu, MenuButton, MenuItem, MenuItems, Transition } from '@headlessui/react';
 import { User, Settings, LogOut, LayoutDashboard } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useSelector, useDispatch } from 'react-redux';
-import { logout } from '@/store/slices/authSlice';
+import { useAuth } from '@/hooks/useAuth';
 import { ROUTES } from '@/config/routes';
 
 export const UserMenu = () => {
   const router = useRouter();
-  const dispatch = useDispatch();
-  const { user } = useSelector((state) => state.auth);
-
-  const handleLogout = () => {
-    dispatch(logout());
-    router.push(ROUTES.LOGIN);
-  };
+  const { user, logout } = useAuth();
 
   const menuItems = [
     {
@@ -76,7 +69,7 @@ export const UserMenu = () => {
             <MenuItem>
               {({ active }) => (
                 <button
-                  onClick={handleLogout}
+                  onClick={logout}
                   className={`${
                     active ? 'bg-gray-100 text-gray-900' : 'text-gray-700'
                   } flex w-full items-center px-4 py-2 text-sm`}

@@ -12,12 +12,36 @@ import CreateScheduleModal from '@/components/layout/CreateScheduleModal'
 import { useSchedule } from '@/contexts/ScheduleContext'
 import { SettingsProvider } from '@/contexts/SettingsContext'
 import { ToastContainer } from '@/components/ui/toast'
+import { useSelector } from 'react-redux'
+import { selectAuthLoading } from '@/store/slices/authSlice'
+import AuthLoading from '@/components/AuthLoading'
 
 const inter = Inter({ subsets: ['latin'] })
 
-function LayoutContent({ children }) {
+function AppContent({ children }) {
   const { isCreateScheduleModalOpen, setIsCreateScheduleModalOpen, workers } = useSchedule()
+  const isLoading = useSelector(selectAuthLoading)
 
+  // Hiển thị loading khi đang kiểm tra authentication
+  if (isLoading) {
+    return <AuthLoading />
+  }
+
+  return (
+    <>
+      {children}
+      <CreateScheduleButton />
+      <CreateScheduleModal
+        isOpen={isCreateScheduleModalOpen}
+        onClose={() => setIsCreateScheduleModalOpen(false)}
+        workers={workers}
+      />
+      <ToastContainer />
+    </>
+  )
+}
+
+export default function RootLayout({ children }) {
   return (
     <html lang="vi">
       <body className={inter.className}>
@@ -25,28 +49,15 @@ function LayoutContent({ children }) {
           <AuthProvider>
             <SocketProvider>
               <SettingsProvider>
-                {children}
-                <CreateScheduleButton />
-                <CreateScheduleModal
-                  isOpen={isCreateScheduleModalOpen}
-                  onClose={() => setIsCreateScheduleModalOpen(false)}
-                  workers={workers}
-                />
-                <ToastContainer />
+                <ScheduleProvider>
+                  <AppContent>{children}</AppContent>
+                </ScheduleProvider>
               </SettingsProvider>
             </SocketProvider>
           </AuthProvider>
         </Provider>
       </body>
     </html>
-  )
-}
-
-export default function RootLayout({ children }) {
-  return (
-    <ScheduleProvider>
-      <LayoutContent>{children}</LayoutContent>
-    </ScheduleProvider>
   )
 }
 

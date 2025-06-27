@@ -5,7 +5,7 @@ export const metadata = {
 }
 export default function SettingsPage() {
   return (
-    <div className="max-w-6xl px-4 pt-16 pb-4 mx-auto h-[calc(100vh-64px)]">
+    <div className="max-w-6xl px-4 pb-4 mx-auto h-[calc(100vh-64px)]">
       <SettingClient />
     </div>
   )

@@ -23,6 +23,7 @@ import {
   Lock,
   Shield,
   Crown,
+  DollarSign,
 } from "lucide-react";
 
 export default function Header() {
@@ -63,6 +64,12 @@ export default function Header() {
       label: "Lịch làm việc",
       route: ROUTES.WORK_SCHEDULE,
       icon: <Calendar className="w-4 h-4" />,
+    },
+    {
+      id: "quotes",
+      label: "Báo giá",
+      route: ROUTES.QUOTES,
+      icon: <DollarSign className="w-4 h-4" />,
     },
     {
       id: "customers",

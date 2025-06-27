@@ -10,14 +10,17 @@ import {
   Phone,
   User,
   FileText,
-  ChevronRight,
-  ChevronLeft,
   Search,
   X,
+  Plus,
+  Filter,
+  Eye,
+  Edit,
+  Trash2,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import DateNavigator from "@/components/ui/DateNavigator";
 
 export default function WorkScheduleClient() {
   const [date, setDate] = useState(new Date());
@@ -33,10 +36,8 @@ export default function WorkScheduleClient() {
         let worksData;
 
         if (searchPhone) {
-          // Nếu có số điện thoại tìm kiếm, lọc theo số điện thoại
           worksData = getWorksByCustomerPhone(searchPhone);
         } else {
-          // Nếu không có số điện thoại tìm kiếm, lấy theo ngày
           worksData = getWorksByDate(formattedDate);
         }
 
@@ -71,196 +72,250 @@ export default function WorkScheduleClient() {
     setSearchPhone("");
   };
 
+  const getStatusColor = (status) => {
+    switch (status) {
+      case "pending":
+        return "bg-yellow-50 text-yellow-700 border-yellow-200";
+      case "in_progress":
+        return "bg-blue-50 text-blue-700 border-blue-200";
+      case "completed":
+        return "bg-green-50 text-green-700 border-green-200";
+      default:
+        return "bg-gray-50 text-gray-700 border-gray-200";
+    }
+  };
+
+  const getStatusText = (status) => {
+    switch (status) {
+      case "pending":
+        return "Chờ xử lý";
+      case "in_progress":
+        return "Đang thực hiện";
+      case "completed":
+        return "Hoàn thành";
+      default:
+        return "Không xác định";
+    }
+  };
+
   return (
-    <div className="space-y-4">
-      {/* Header */}
-      <div className="flex flex-col items-start justify-between gap-4 p-4 bg-white border border-blue-100 rounded-lg shadow-sm sm:flex-row sm:items-center">
-        <div>
-          <h1 className="text-2xl font-bold text-transparent bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text">
-            Lịch làm việc
-          </h1>
-          <p className="mt-1 text-sm text-gray-500">
-            Quản lý và theo dõi công việc theo ngày
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handlePreviousDay}
-            className="transition-colors hover:bg-blue-50 hover:text-blue-600"
-          >
-            <ChevronLeft className="w-4 h-4" />
-          </Button>
-          <div className="flex items-center gap-2 px-3 py-1.5 bg-white rounded-md border border-blue-200 shadow-sm hover:border-blue-300 transition-colors">
-            <CalendarIcon className="w-4 h-4 text-blue-600" />
-            <input
-              type="date"
-              value={format(date, "yyyy-MM-dd")}
-              onChange={handleDateChange}
-              className="font-medium text-blue-900 bg-transparent border-none focus:ring-0"
-            />
+    <div className="h-[calc(100vh-70px)] bg-gray-50">
+      <div className="p-4 mx-auto max-w-7xl">
+        {/* Header */}
+        {/* <div className="flex flex-col gap-3 mb-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">Lịch làm việc</h1>
+            <p className="text-sm text-gray-600">Quản lý và theo dõi công việc theo ngày</p>
           </div>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleNextDay}
-            className="transition-colors hover:bg-blue-50 hover:text-blue-600"
-          >
-            <ChevronRight className="w-4 h-4" />
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleToday}
-            className="transition-colors hover:bg-blue-50 hover:text-blue-600"
-          >
-            Hôm nay
-          </Button>
+          
+          <div className="flex gap-3 items-center">
+            <button className="flex gap-2 items-center px-3 py-2 text-sm text-white bg-blue-600 rounded-lg transition-colors hover:bg-blue-700">
+              <Plus className="w-4 h-4" />
+              Thêm
+            </button>
+          </div>
+        </div> */}
+
+        {/* Main Layout - Sidebar + Content */}
+        <div className="flex flex-col gap-4 lg:flex-row">
+          {/* Left Sidebar */}
+          <div className="space-y-4 w-full lg:w-80 lg:flex-shrink-0">
+            {/* Date Navigation */}
+            <div className="p-4 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg border border-blue-100 shadow-sm">
+              <h3 className="flex gap-2 items-center mb-3 text-sm font-semibold text-blue-900">
+                <CalendarIcon className="w-4 h-4" />
+                Chọn ngày
+              </h3>
+              <div className="p-3 bg-white rounded-lg shadow-sm">
+                <DateNavigator
+                  selectedDate={format(date, "yyyy-MM-dd")}
+                  onDateChange={handleDateChange}
+                  onPreviousDay={handlePreviousDay}
+                  onNextDay={handleNextDay}
+                  onToday={handleToday}
+                  className="bg-transparent border-0"
+                  showStatus={false}
+                  compact={true}
+                />
+              </div>
+              <div className="p-2 mt-3 text-center bg-white rounded-lg">
+                <p className="text-sm font-medium text-blue-900">
+                  {format(date, "EEEE, dd/MM/yyyy")}
+                </p>
+                <p className="mt-1 text-xs text-blue-600">
+                  {format(date, "dd 'tháng' MM, yyyy")}
+                </p>
+              </div>
+            </div>
+
+            {/* Stats Cards */}
+            <div className="grid grid-cols-3 gap-3 lg:grid-cols-1">
+              <div className="p-3 bg-white rounded-lg border border-gray-100 shadow-sm">
+                <div className="flex justify-between items-center">
+                  <div>
+                    <p className="text-xs font-medium text-gray-500">Tổng công việc</p>
+                    <p className="text-xl font-bold text-gray-900">{works.length}</p>
+                  </div>
+                  <FileText className="w-5 h-5 text-blue-500" />
+                </div>
+              </div>
+              
+              <div className="p-3 bg-white rounded-lg border border-gray-100 shadow-sm">
+                <div className="flex justify-between items-center">
+                  <div>
+                    <p className="text-xs font-medium text-gray-500">Chờ xử lý</p>
+                    <p className="text-xl font-bold text-yellow-600">{works.filter(w => w.status_work === "pending").length}</p>
+                  </div>
+                  <Clock className="w-5 h-5 text-yellow-500" />
+                </div>
+              </div>
+              
+              <div className="p-3 bg-white rounded-lg border border-gray-100 shadow-sm">
+                <div className="flex justify-between items-center">
+                  <div>
+                    <p className="text-xs font-medium text-gray-500">Hoàn thành</p>
+                    <p className="text-xl font-bold text-green-600">{works.filter(w => w.status_work === "completed").length}</p>
+                  </div>
+                  <CalendarIcon className="w-5 h-5 text-green-500" />
+                </div>
+              </div>
+            </div>
+
+            {/* Search & Filters */}
+            <div className="p-4 bg-white rounded-lg border border-gray-100 shadow-sm">
+              <h3 className="mb-3 text-sm font-semibold text-gray-900">Tìm kiếm & Lọc</h3>
+              
+              <div className="space-y-3">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 w-4 h-4 text-gray-400 transform -translate-y-1/2" />
+                  <Input
+                    type="text"
+                    placeholder="Số điện thoại..."
+                    value={searchPhone}
+                    onChange={(e) => setSearchPhone(e.target.value)}
+                    className="pr-10 pl-10 h-10 text-sm"
+                  />
+                  {searchPhone && (
+                    <button
+                      onClick={handleClearSearch}
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 hover:text-gray-600"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  )}
+                </div>
+                
+                <button className="flex gap-2 justify-center items-center px-3 py-2 w-full text-gray-600 bg-gray-50 rounded-lg border border-gray-200 transition-colors hover:bg-gray-100">
+                  <Filter className="w-4 h-4" />
+                  <span className="text-sm">Lọc nâng cao</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex-1 min-w-0 h-[calc(100vh-140px)]">
+            <Card className="flex flex-col h-full bg-white border border-gray-100 shadow-sm">
+              <div className="flex-shrink-0 p-4 border-b border-gray-100">
+                <div className="flex justify-between items-center">
+                  <h2 className="text-lg font-semibold text-gray-900">Danh sách công việc</h2>
+                  <span className="text-sm text-gray-500">{works.length} công việc</span>
+                </div>
+              </div>
+              
+              <div className="overflow-y-auto flex-1">
+                {loading ? (
+                  <div className="flex justify-center items-center py-12">
+                    <div className="flex flex-col items-center space-y-3">
+                      <div className="w-8 h-8 rounded-full border-2 border-blue-200 animate-spin border-t-blue-600"></div>
+                      <p className="text-sm text-gray-600">Đang tải...</p>
+                    </div>
+                  </div>
+                ) : works.length === 0 ? (
+                  <div className="flex flex-col justify-center items-center py-12 text-center">
+                    <CalendarIcon className="mb-3 w-12 h-12 text-gray-300" />
+                    <h3 className="mb-1 text-base font-medium text-gray-800">
+                      {searchPhone ? "Không tìm thấy công việc" : "Không có công việc nào"}
+                    </h3>
+                    <p className="max-w-sm text-sm text-gray-600">
+                      {searchPhone
+                        ? "Thử tìm kiếm với số điện thoại khác"
+                        : "Thêm công việc mới hoặc chọn ngày khác"}
+                    </p>
+                  </div>
+                ) : (
+                  <div className="divide-y divide-gray-100">
+                    {works.map((work, index) => (
+                      <div key={work.id} className="p-4 transition-colors hover:bg-gray-50">
+                        <div className="flex gap-4 items-start">
+                          {/* Customer Avatar */}
+                          <div className="flex-shrink-0">
+                            <div className="flex justify-center items-center w-10 h-10 bg-blue-100 rounded-full">
+                              <User className="w-5 h-5 text-blue-600" />
+                            </div>
+                          </div>
+                          
+                          {/* Work Details */}
+                          <div className="flex-1 min-w-0">
+                            <div className="flex gap-3 justify-between items-start">
+                              <div className="flex-1 min-w-0">
+                                <div className="flex gap-2 items-center mb-1">
+                                  <h3 className="text-sm font-semibold text-gray-900 truncate">
+                                    {work.customer.name}
+                                  </h3>
+                                  <span className="text-xs text-gray-500">#{index + 1}</span>
+                                </div>
+                                
+                                <div className="flex gap-2 items-center mb-2 text-xs text-gray-500">
+                                  <Phone className="w-3 h-3" />
+                                  <span>{work.customer.phone}</span>
+                                </div>
+                                
+                                <p className="mb-2 text-sm text-gray-700 line-clamp-2">
+                                  {work.work_content}
+                                </p>
+                                
+                                <div className="flex gap-4 items-center text-xs text-gray-500">
+                                  <div className="flex gap-1 items-center">
+                                    <Clock className="w-3 h-3" />
+                                    <span>{format(new Date(work.created_at), "HH:mm")}</span>
+                                  </div>
+                                  <div className="flex gap-1 items-center">
+                                    <MapPin className="w-3 h-3" />
+                                    <span className="truncate max-w-[200px] lg:max-w-[300px]">{work.address.address}</span>
+                                  </div>
+                                </div>
+                              </div>
+                              
+                              {/* Status & Actions */}
+                              <div className="flex flex-col gap-2 items-end">
+                                <span className={`px-2 py-1 rounded-full text-xs font-medium border ${getStatusColor(work.status_work)}`}>
+                                  {getStatusText(work.status_work)}
+                                </span>
+                                
+                                <div className="flex gap-1 items-center">
+                                  <button className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors">
+                                    <Eye className="w-3.5 h-3.5" />
+                                  </button>
+                                  <button className="p-1.5 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded transition-colors">
+                                    <Edit className="w-3.5 h-3.5" />
+                                  </button>
+                                  <button className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors">
+                                    <Trash2 className="w-3.5 h-3.5" />
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </Card>
+          </div>
         </div>
       </div>
-
-      {/* Search Bar */}
-      <div className="relative">
-        <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-          <Search className="w-4 h-4 text-gray-400" />
-        </div>
-        <Input
-          type="text"
-          placeholder="Tìm kiếm theo số điện thoại..."
-          value={searchPhone}
-          onChange={(e) => setSearchPhone(e.target.value)}
-          className="pl-10 pr-10 text-sm h-9"
-        />
-        {searchPhone && (
-          <button
-            onClick={handleClearSearch}
-            className="absolute inset-y-0 right-0 flex items-center pr-3"
-          >
-            <X className="w-4 h-4 text-gray-400 hover:text-gray-600" />
-          </button>
-        )}
-      </div>
-
-      {/* Work List */}
-      <Card className="p-4 border border-blue-100 shadow-sm">
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead>
-              <tr className="border-b border-blue-100">
-                <th className="px-4 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">
-                  Khách hàng
-                </th>
-                <th className="px-4 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">
-                  Nội dung công việc
-                </th>
-                <th className="px-4 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">
-                  Địa chỉ
-                </th>
-                <th className="px-4 py-3 text-xs font-medium tracking-wider text-center text-gray-500 uppercase">
-                  Trạng thái
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-blue-50">
-              {loading ? (
-                <tr>
-                  <td colSpan="4" className="py-8 text-center">
-                    <div className="flex justify-center">
-                      <div className="w-6 h-6 border-b-2 border-blue-600 rounded-full animate-spin"></div>
-                    </div>
-                  </td>
-                </tr>
-              ) : works.length === 0 ? (
-                <tr>
-                  <td colSpan="4" className="py-8 text-center">
-                    <div className="flex flex-col items-center text-gray-500">
-                      <CalendarIcon className="w-12 h-12 mb-3 text-gray-300" />
-                      <p className="text-sm font-medium">
-                        {searchPhone
-                          ? "Không tìm thấy công việc nào với số điện thoại này"
-                          : "Không có công việc nào"}
-                      </p>
-                      <p className="mt-1 text-xs">
-                        {searchPhone
-                          ? "Hãy thử tìm kiếm với số điện thoại khác"
-                          : "Hãy chọn ngày khác hoặc thêm công việc mới"}
-                      </p>
-                    </div>
-                  </td>
-                </tr>
-              ) : (
-                works.map((work, index) => (
-                  <tr
-                    key={work.id}
-                    className="transition-colors hover:bg-blue-50/50"
-                  >
-                    <td className="px-4 py-3">
-                      <div className="flex items-center gap-3">
-                        <div className="flex items-center justify-center w-10 h-10 bg-blue-100 rounded-full">
-                          <User className="w-5 h-5 text-blue-600" />
-                        </div>
-                        <div>
-                          <div className="text-sm font-medium text-gray-900">
-                            {work.customer.name}
-                          </div>
-                          <div className="text-xs text-gray-500 flex items-center mt-0.5">
-                            <Phone className="w-3.5 h-3.5 mr-1" />
-                            {work.customer.phone}
-                          </div>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-4 py-3">
-                      <div className="flex items-start gap-2">
-                        <FileText className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" />
-                        <div>
-                          <div className="text-sm text-gray-900">
-                            <span className="inline-flex items-center justify-center w-5 h-5 mr-2 text-xs font-bold text-white rounded-full shadow-sm bg-gradient-to-r from-blue-500 to-blue-600">
-                              {index + 1}
-                            </span>
-                            {work.work_content}
-                          </div>
-                          <div className="flex items-center mt-1 text-xs text-gray-500">
-                            <Clock className="w-3.5 h-3.5 mr-1" />
-                            {format(new Date(work.created_at), "HH:mm")}
-                          </div>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-4 py-3">
-                      <div className="flex items-center gap-2">
-                        <MapPin className="flex-shrink-0 w-4 h-4 text-blue-600" />
-                        <span className="text-sm text-gray-600 truncate max-w-[200px]">
-                          {work.address.address}
-                        </span>
-                      </div>
-                    </td>
-                    <td className="px-4 py-3 text-center">
-                      <span
-                        className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium
-                            ${
-                              work.status_work === "pending"
-                                ? "bg-yellow-100 text-yellow-800"
-                                : work.status_work === "in_progress"
-                                ? "bg-blue-100 text-blue-800"
-                                : "bg-green-100 text-green-800"
-                            }`}
-                      >
-                        {work.status_work === "pending"
-                          ? "Chờ xử lý"
-                          : work.status_work === "in_progress"
-                          ? "Đang thực hiện"
-                          : "Hoàn thành"}
-                      </span>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
-      </Card>
     </div>
   );
 }

@@ -14,6 +14,7 @@ import {
   Building2,
   FileText,
   BarChart3,
+  DollarSign,
 } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
 import { logout } from '@/store/slices/authSlice';
@@ -45,6 +46,12 @@ export const AdminLayout = ({ children }) => {
         icon: <Calendar className="w-5 h-5" />,
         href: ROUTES.ADMIN.SCHEDULE,
         roles: ['admin', 'manager', 'user'],
+      },
+      {
+        title: 'Báo giá',
+        icon: <DollarSign className="w-5 h-5" />,
+        href: ROUTES.QUOTES,
+        roles: ['admin', 'manager', 'accountant', 'user'],
       },
       {
         title: 'Công ty',

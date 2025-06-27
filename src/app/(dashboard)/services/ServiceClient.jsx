@@ -108,8 +108,8 @@ export default function ServiceClient() {
       {/* Header */}
       <div className="flex-shrink-0 px-6 py-4 bg-white border-b border-gray-200">
         <div className="flex justify-between items-center">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">Dịch vụ</h1>
+          <div className="flex flex-row gap-1 items-center">
+            <h1 className="text-2xl font-bold text-gray-900">Dịch vụ</h1>/
             <p className="mt-1 text-sm text-gray-600">
               {selectedCategory ? selectedCategory.title_cate_hot : 'Chọn danh mục để xem dịch vụ'}
             </p>
