@@ -1,7 +1,7 @@
 import DashboardClient from "./DashboardClient";
 export const metadata = {
-  title: "Dashboard",
-  description: "Dashboard",
+  title: "Dashboard" + " - " + process.env.NEXT_PUBLIC_APP_NAME,
+  description: "Dashboard" + " - " + process.env.NEXT_PUBLIC_APP_NAME,
 };
 export default function DashboardPage() {
   return (

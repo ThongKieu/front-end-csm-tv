@@ -1,7 +1,7 @@
 import CustomerClient from './CustomerClient'
 export const metadata = {
-  title: "Customer",
-  description: "Customer",
+  title: "Customer" + " - " + process.env.NEXT_PUBLIC_APP_NAME,
+  description: "Customer" + " - " + process.env.NEXT_PUBLIC_APP_NAME,
 }
 
 export default function CustomerPage() {

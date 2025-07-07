@@ -13,6 +13,7 @@ export const ROUTES = {
   CHANGE_PASSWORD: '/change-password',
   CUSTOMER: '/customer',
   QUOTES: '/quotes',
+  WARDS: '/wards',
   ADMIN: {
     DASHBOARD: '/admin/dashboard',
     USERS: '/admin/workers',

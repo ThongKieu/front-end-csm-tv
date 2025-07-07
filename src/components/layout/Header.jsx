@@ -24,6 +24,7 @@ import {
   Shield,
   Crown,
   DollarSign,
+  MapPin,
 } from "lucide-react";
 
 export default function Header() {
@@ -88,6 +89,12 @@ export default function Header() {
       label: "Dịch vụ",
       route: ROUTES.SERVICES,
       icon: <Wrench className="w-4 h-4" />,
+    },
+    {
+      id: "wards",
+      label: "Phường/Xã",
+      route: ROUTES.WARDS,
+      icon: <MapPin className="w-4 h-4" />,
     },
     {
       id: "reports",

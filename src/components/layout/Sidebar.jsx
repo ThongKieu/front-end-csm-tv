@@ -17,7 +17,8 @@ import {
   Calendar,
   Home,
   MessageSquare,
-  DollarSign
+  DollarSign,
+  MapPin
 } from 'lucide-react'
 
 const iconMap = {
@@ -30,7 +31,8 @@ const iconMap = {
   Calendar,
   Home,
   MessageSquare,
-  DollarSign
+  DollarSign,
+  MapPin
 }
 
 export default function Sidebar() {
@@ -88,13 +90,20 @@ export default function Sidebar() {
     },
     {
       id: 6,
+      label: 'Phường/Xã',
+      icon: 'MapPin',
+      route: ROUTES.WARDS,
+      roles: ['admin', 'manager', 'accountant', 'user']
+    },
+    {
+      id: 7,
       label: 'Gửi ZNS',
       icon: 'MessageSquare',
       route: '/admin/zns',
       roles: ['admin']
     },
     {
-      id: 7,
+      id: 8,
       label: 'Cài đặt',
       icon: 'Settings',
       route: '/profile',

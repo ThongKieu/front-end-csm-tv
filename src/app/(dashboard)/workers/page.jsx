@@ -125,9 +125,9 @@ export default function WorkersPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="flex flex-col items-center gap-3">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+      <div className="flex justify-center items-center h-64">
+        <div className="flex flex-col gap-3 items-center">
+          <div className="w-8 h-8 rounded-full border-b-2 border-blue-600 animate-spin"></div>
           <p className="text-sm text-gray-500">Đang tải danh sách nhân viên...</p>
         </div>
       </div>
@@ -148,7 +148,7 @@ export default function WorkersPage() {
           
           <div className="flex gap-2 items-center">
             {/* View Mode Toggle */}
-            <div className="flex items-center bg-gray-100 rounded-md p-1">
+            <div className="flex items-center p-1 bg-gray-100 rounded-md">
               <button
                 onClick={() => setViewMode("grid")}
                 className={`p-1.5 rounded transition-all ${
@@ -187,9 +187,9 @@ export default function WorkersPage() {
                 placeholder="Tìm kiếm nhân viên..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-64 pl-9 pr-4 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="py-2 pr-4 pl-9 w-64 text-sm rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <Search className="absolute left-3 top-1/2 w-4 h-4 text-gray-400 -translate-y-1/2" />
             </div>
 
             {/* Add Worker Button */}
@@ -202,7 +202,7 @@ export default function WorkersPage() {
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 flex overflow-hidden">
+      <div className="flex overflow-hidden flex-1">
         {/* Sidebar - Filters */}
         <div className="overflow-y-auto flex-shrink-0 w-64 bg-gray-50 border-r border-gray-200">
           <div className="p-3">
@@ -213,7 +213,7 @@ export default function WorkersPage() {
             
             {/* Status Filter */}
             <div className="mb-4">
-              <h3 className="text-xs font-medium text-gray-600 mb-2">Trạng thái</h3>
+              <h3 className="mb-2 text-xs font-medium text-gray-600">Trạng thái</h3>
               <div className="space-y-1">
                 {[
                   { id: "all", label: "Tất cả", count: workers.length },
@@ -242,7 +242,7 @@ export default function WorkersPage() {
 
             {/* Sort Options */}
             <div className="mb-4">
-              <h3 className="text-xs font-medium text-gray-600 mb-2">Sắp xếp</h3>
+              <h3 className="mb-2 text-xs font-medium text-gray-600">Sắp xếp</h3>
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
@@ -255,8 +255,8 @@ export default function WorkersPage() {
             </div>
 
             {/* Quick Stats */}
-            <div className="bg-white rounded-lg border border-gray-200 p-3">
-              <h3 className="text-xs font-medium text-gray-600 mb-2">Thống kê nhanh</h3>
+            <div className="p-3 bg-white rounded-lg border border-gray-200">
+              <h3 className="mb-2 text-xs font-medium text-gray-600">Thống kê nhanh</h3>
               <div className="space-y-2 text-xs">
                 <div className="flex justify-between">
                   <span className="text-gray-500">Tổng nhân viên:</span>
@@ -276,7 +276,7 @@ export default function WorkersPage() {
         </div>
 
         {/* Main Content Area */}
-        <div className="flex-1 bg-white overflow-y-auto">
+        <div className="overflow-y-auto flex-1 bg-white">
           <div className="p-4">
             {/* Stats Cards */}
             <div className="grid grid-cols-1 gap-3 mb-6 md:grid-cols-2 lg:grid-cols-4">
@@ -310,15 +310,15 @@ export default function WorkersPage() {
                 {filteredWorkers.map((worker) => (
                   <div
                     key={worker.id}
-                    className="p-4 bg-white rounded-lg border border-gray-200 hover:shadow-md transition-all duration-200 group"
+                    className="p-4 bg-white rounded-lg border border-gray-200 transition-all duration-200 hover:shadow-md group"
                   >
-                    <div className="flex items-start justify-between mb-3">
-                      <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
+                    <div className="flex justify-between items-start mb-3">
+                      <div className="flex gap-3 items-center">
+                        <div className="flex justify-center items-center w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full">
                           <Users className="w-6 h-6 text-white" />
                         </div>
                         <div>
-                          <h3 className="font-semibold text-gray-900 text-sm">{worker.worker_full_name}</h3>
+                          <h3 className="text-sm font-semibold text-gray-900">{worker.worker_full_name}</h3>
                           <p className="text-xs text-gray-500">#{worker.worker_code}</p>
                         </div>
                       </div>
@@ -332,17 +332,17 @@ export default function WorkersPage() {
                     </div>
 
                     <div className="space-y-2 text-xs text-gray-600">
-                      <div className="flex items-center gap-2">
+                      <div className="flex gap-2 items-center">
                         <Phone className="w-3 h-3" />
                         <span>{worker.worker_phone_company}</span>
                       </div>
                       {worker.worker_address && (
-                        <div className="flex items-center gap-2">
+                        <div className="flex gap-2 items-center">
                           <MapPin className="w-3 h-3" />
                           <span className="truncate">{worker.worker_address}</span>
                         </div>
                       )}
-                      <div className="flex items-center gap-2">
+                      <div className="flex gap-2 items-center">
                         <DollarSign className="w-3 h-3" />
                         <span className={getPerformanceColor(worker.worker_daily_sales)}>
                           {formatCurrency(worker.worker_daily_sales)}
@@ -350,14 +350,14 @@ export default function WorkersPage() {
                       </div>
                     </div>
 
-                    <div className="flex items-center justify-between mt-3 pt-3 border-t border-gray-100">
+                    <div className="flex justify-between items-center pt-3 mt-3 border-t border-gray-100">
                       <button
                         onClick={() => handleViewDetails(worker)}
-                        className="text-xs text-blue-600 hover:text-blue-700 font-medium"
+                        className="text-xs font-medium text-blue-600 hover:text-blue-700"
                       >
                         Xem chi tiết
                       </button>
-                      <div className="flex items-center gap-1">
+                      <div className="flex gap-1 items-center">
                         <button className="p-1 text-gray-400 hover:text-gray-600">
                           <Edit className="w-3 h-3" />
                         </button>
@@ -370,24 +370,24 @@ export default function WorkersPage() {
                 ))}
               </div>
             ) : (
-              <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+              <div className="overflow-hidden bg-white rounded-lg border border-gray-200">
                 <table className="w-full">
                   <thead className="bg-gray-50">
                     <tr>
-                      <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Nhân viên</th>
-                      <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Mã số</th>
-                      <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Số điện thoại</th>
-                      <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Hiệu suất</th>
-                      <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Trạng thái</th>
-                      <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Thao tác</th>
+                      <th className="px-3 py-2 text-xs font-medium text-left text-gray-500 uppercase">Nhân viên</th>
+                      <th className="px-3 py-2 text-xs font-medium text-left text-gray-500 uppercase">Mã số</th>
+                      <th className="px-3 py-2 text-xs font-medium text-left text-gray-500 uppercase">Số điện thoại</th>
+                      <th className="px-3 py-2 text-xs font-medium text-left text-gray-500 uppercase">Hiệu suất</th>
+                      <th className="px-3 py-2 text-xs font-medium text-left text-gray-500 uppercase">Trạng thái</th>
+                      <th className="px-3 py-2 text-xs font-medium text-left text-gray-500 uppercase">Thao tác</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200">
                     {filteredWorkers.map((worker) => (
                       <tr key={worker.id} className="hover:bg-gray-50">
                         <td className="px-3 py-3">
-                          <div className="flex items-center gap-2">
-                            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
+                          <div className="flex gap-2 items-center">
+                            <div className="flex justify-center items-center w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full">
                               <Users className="w-4 h-4 text-white" />
                             </div>
                             <span className="text-sm font-medium text-gray-900">{worker.worker_full_name}</span>
@@ -410,7 +410,7 @@ export default function WorkersPage() {
                           </span>
                         </td>
                         <td className="px-3 py-3">
-                          <div className="flex items-center gap-1">
+                          <div className="flex gap-1 items-center">
                             <button
                               onClick={() => handleViewDetails(worker)}
                               className="p-1 text-gray-400 hover:text-blue-600"
@@ -434,11 +434,11 @@ export default function WorkersPage() {
 
             {/* Empty State */}
             {filteredWorkers.length === 0 && (
-              <div className="text-center py-12">
-                <div className="w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
+              <div className="py-12 text-center">
+                <div className="flex justify-center items-center mx-auto mb-4 w-16 h-16 bg-gray-100 rounded-full">
                   <Users className="w-8 h-8 text-gray-400" />
                 </div>
-                <h3 className="text-lg font-medium text-gray-900 mb-2">Không tìm thấy nhân viên</h3>
+                <h3 className="mb-2 text-lg font-medium text-gray-900">Không tìm thấy nhân viên</h3>
                 <p className="text-gray-500">
                   {searchTerm ? "Thử tìm kiếm với từ khóa khác" : "Chưa có nhân viên nào trong hệ thống"}
                 </p>
@@ -450,9 +450,9 @@ export default function WorkersPage() {
 
       {/* Worker Detail Modal */}
       {isDetailModalOpen && selectedWorker && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4">
-            <div className="flex items-center justify-between mb-4">
+        <div className="flex fixed inset-0 z-50 justify-center items-center bg-black/25" onClick={() => setIsDetailModalOpen(false)}>
+          <div className="p-6 mx-4 w-full max-w-md bg-white rounded-lg" onClick={(e) => e.stopPropagation()}>
+            <div className="flex justify-between items-center mb-4">
               <h2 className="text-lg font-bold text-gray-900">Chi tiết nhân viên</h2>
               <button
                 onClick={() => setIsDetailModalOpen(false)}
@@ -463,8 +463,8 @@ export default function WorkersPage() {
             </div>
             
             <div className="space-y-4">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
+              <div className="flex gap-3 items-center">
+                <div className="flex justify-center items-center w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full">
                   <Users className="w-6 h-6 text-white" />
                 </div>
                 <div>
@@ -474,35 +474,35 @@ export default function WorkersPage() {
               </div>
 
               <div className="space-y-3 text-sm">
-                <div className="flex items-center gap-2">
+                <div className="flex gap-2 items-center">
                   <Phone className="w-4 h-4 text-gray-400" />
                   <span>{selectedWorker.worker_phone_company}</span>
                 </div>
                 {selectedWorker.worker_phone_personal && (
-                  <div className="flex items-center gap-2">
+                  <div className="flex gap-2 items-center">
                     <Phone className="w-4 h-4 text-gray-400" />
                     <span>{selectedWorker.worker_phone_personal} (Cá nhân)</span>
                   </div>
                 )}
                 {selectedWorker.worker_address && (
-                  <div className="flex items-center gap-2">
+                  <div className="flex gap-2 items-center">
                     <MapPin className="w-4 h-4 text-gray-400" />
                     <span>{selectedWorker.worker_address}</span>
                   </div>
                 )}
-                <div className="flex items-center gap-2">
+                <div className="flex gap-2 items-center">
                   <DollarSign className="w-4 h-4 text-gray-400" />
                   <span className={getPerformanceColor(selectedWorker.worker_daily_sales)}>
                     {formatCurrency(selectedWorker.worker_daily_sales)} / ngày
                   </span>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex gap-2 items-center">
                   <Clock className="w-4 h-4 text-gray-400" />
                   <span>{selectedWorker.worker_daily_o_t_by_hour || 0} giờ OT / ngày</span>
                 </div>
               </div>
 
-              <div className="flex items-center justify-between pt-4 border-t border-gray-200">
+              <div className="flex justify-between items-center pt-4 border-t border-gray-200">
                 <span className={`px-3 py-1 rounded-full text-sm font-medium ${
                   selectedWorker.worker_status === 1 
                     ? 'bg-green-100 text-green-700' 
@@ -510,7 +510,7 @@ export default function WorkersPage() {
                 }`}>
                   {selectedWorker.worker_status === 1 ? 'Đang hoạt động' : 'Tạm nghỉ'}
                 </span>
-                <div className="flex items-center gap-2">
+                <div className="flex gap-2 items-center">
                   <button className="px-3 py-1.5 text-sm border border-gray-200 rounded-md hover:bg-gray-50">
                     Chỉnh sửa
                   </button>

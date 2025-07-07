@@ -1,0 +1,856 @@
+{
+  "name": "Thành phố Hồ Chí Minh",
+  "code": "79",
+  "description": "Cấu trúc hành chính mới của TP.HCM sau khi bỏ cấp quận, chỉ còn phường và xã",
+  "wards": [
+    {
+      "name": "Phường Sài Gòn",
+      "code": "26734",
+      "formed_from": "Phường Bến Nghé, một phần phường Đa Kao và Nguyễn Thái Bình (Quận 1)"
+    },
+    {
+      "name": "Phường Tân Định",
+      "code": "26737",
+      "formed_from": "Phường Tân Định và một phần phường Đa Kao (Quận 1)"
+    },
+    {
+      "name": "Phường Bến Thành",
+      "code": "26740",
+      "formed_from": "Các phường Bến Thành, Phạm Ngũ Lão, một phần phường Cầu Ông Lãnh và Nguyễn Thái Bình (Quận 1)"
+    },
+    {
+      "name": "Phường Cầu Ông Lãnh",
+      "code": "26743",
+      "formed_from": "Các phường Nguyễn Cư Trinh, Cầu Kho, Cô Giang, một phần phường Cầu Ông Lãnh (Quận 1)"
+    },
+    {
+      "name": "Phường Bàn Cờ",
+      "code": "26746",
+      "formed_from": "Các phường 1, 2, 3, 5, một phần phường 4 (Quận 3) "
+    },
+    {
+      "name": "Phường Xuân Hòa",
+      "code": "26749",
+      "formed_from": "Các phường Võ Thị Sáu, một phần phường 4 (Quận 3)"
+    },
+    {
+      "name": "Phường Nhiêu Lộc",
+      "code": "26752",
+      "formed_from": "Các phường 9, 11, 12, 14 (Quận 3)"
+    },
+    {
+      "name": "Phường Xóm Chiếu",
+      "code": "26755",
+      "formed_from": "Các phường 13, 16, 18, một phần phường 15 (Quận 4)"
+    },
+    {
+      "name": "Phường Khánh Hội",
+      "code": "26758",
+      "formed_from": "Các phường 8, 9, một phần phường 2, 4 và 15 (Quận 4)"
+    },
+    {
+      "name": "Phường Vĩnh Hội",
+      "code": "26761",
+      "formed_from": "Các phường 1, 3, một phần phường 2 và 4 (Quận 4)"
+    },
+    {
+      "name": "Phường Chợ Quán",
+      "code": "26764",
+      "formed_from": "Các phường 1, 2, 4 (Quận 5)"
+    },
+    {
+      "name": "Phường An Đông",
+      "code": "26767",
+      "formed_from": "Các phường 5, 7, 9 (Quận 5)"
+    },
+    {
+      "name": "Phường Chợ Lớn",
+      "code": "26770",
+      "formed_from": "Các phường 11, 12, 13, 14 (Quận 5)"
+    },
+    {
+      "name": "Phường Bình Tây",
+      "code": "26773",
+      "formed_from": "Các phường 2, 9 (Quận 6)"
+    },
+    {
+      "name": "Phường Bình Tiên",
+      "code": "26776",
+      "formed_from": "Các phường 1, 7, 8 (Quận 6)"
+    },
+    {
+      "name": "Phường Bình Phú",
+      "code": "26779",
+      "formed_from": "Các phường 10, 11 (Quận 6), một phần phường 16 (Quận 8)"
+    },
+    {
+      "name": "Phường Phú Lâm",
+      "code": "26782",
+      "formed_from": "Các phường 12, 13, 14 (Quận 6)"
+    },
+    {
+      "name": "Phường Tân Thuận",
+      "code": "26785",
+      "formed_from": "Các phường Bình Thuận, Tân Thuận Đông, Tân Thuận Tây (Quận 7)"
+    },
+    {
+      "name": "Phường Phú Thuận",
+      "code": "26788",
+      "formed_from": "Phường Phú Thuận và một phần phường Phú Mỹ (Quận 7)"
+    },
+    {
+      "name": "Phường Tân Mỹ",
+      "code": "26791",
+      "formed_from": "Các phường Tân Phú và một phần phường Phú Mỹ (Quận 7)"
+    },
+    {
+      "name": "Phường Tân Hưng",
+      "code": "26794",
+      "formed_from": "Các phường Tân Phong, Tân Quy, Tân Kiểng, Tân Hưng (Quận 7)"
+    },
+    {
+      "name": "Phường Chánh Hưng",
+      "code": "26797",
+      "formed_from": "Các phường 4 (Quận 8), Rạch Ông, Hưng Phú và một phần phường 5 (Quận 8)"
+    },
+    {
+      "name": "Phường Phú Định",
+      "code": "26800",
+      "formed_from": "Các phường 14, 15, Xóm Củi và một phần phường 16 (Quận 8)"
+    },
+    {
+      "name": "Phường Bình Đông",
+      "code": "26803",
+      "formed_from": "Phường 6, một phần phường 5 và 7 (Quận 8), xã An Phú Tây (Huyện Bình Chánh)"
+    },
+    {
+      "name": "Phường Diên Hồng",
+      "code": "26806",
+      "formed_from": "Các phường 6, 8, một phần phường 14 (Quận 10)"
+    },
+    {
+      "name": "Phường Vườn Lài",
+      "code": "26809",
+      "formed_from": "Các phường 1, 2, 4, 9, 10 (Quận 10)"
+    },
+    {
+      "name": "Phường Hòa Hưng",
+      "code": "26812",
+      "formed_from": "Các phường 12, 13, 15, một phần phường 14 (Quận 10)"
+    },
+    {
+      "name": "Phường Minh Phụng",
+      "code": "26815",
+      "formed_from": "Các phường 1, 7, 16 (Quận 11)"
+    },
+    {
+      "name": "Phường Bình Thới",
+      "code": "26818",
+      "formed_from": "Các phường 3, 10, một phần phường 8 (Quận 11)"
+    },
+    {
+      "name": "Phường Hòa Bình",
+      "code": "26821",
+      "formed_from": "Các phường 5, 14 (Quận 11)"
+    },
+    {
+      "name": "Phường Phú Thọ",
+      "code": "26824",
+      "formed_from": "Các phường 11, 15, một phần phường 8 (Quận 11)"
+    },
+    {
+      "name": "Phường Đông Hưng Thuận",
+      "code": "26827",
+      "formed_from": "Các phường Tân Thới Nhất, Tân Hưng Thuận, Đông Hưng Thuận (Quận 12)"
+    },
+    {
+      "name": "Phường Trung Mỹ Tây",
+      "code": "26830",
+      "formed_from": "Các phường Tân Chánh Hiệp, Trung Mỹ Tây (Quận 12)"
+    },
+    {
+      "name": "Phường Tân Thới Hiệp",
+      "code": "26833",
+      "formed_from": "Các phường Hiệp Thành (Quận 12), Tân Thới Hiệp (Quận 12)"
+    },
+    {
+      "name": "Phường Thới An",
+      "code": "26836",
+      "formed_from": "Các phường Thạnh Xuân, Thới An (Quận 12)"
+    },
+    {
+      "name": "Phường An Phú Đông",
+      "code": "26839",
+      "formed_from": "Các phường Thạnh Lộc, An Phú Đông (Quận 12)"
+    },
+    {
+      "name": "Phường An Lạc",
+      "code": "26842",
+      "formed_from": "Các phường Bình Trị Đông B, An Lạc A, An Lạc (Bình Tân)"
+    },
+    {
+      "name": "Phường Bình Tân",
+      "code": "26845",
+      "formed_from": "Các phường Bình Hưng Hòa B, một phần phường Bình Trị Đông A và Tân Tạo (Bình Tân)"
+    },
+    {
+      "name": "Phường Tân Tạo",
+      "code": "26848",
+      "formed_from": "Xã Tân Kiên (Bình Chánh), một phần phường Tân Tạo A và Tân Tạo (Bình Tân)"
+    },
+    {
+      "name": "Phường Bình Trị Đông",
+      "code": "26851",
+      "formed_from": "Các phường Bình Trị Đông, một phần phường Bình Hưng Hòa A và Bình Trị Đông A (Bình Tân)"
+    },
+    {
+      "name": "Phường Bình Hưng Hòa",
+      "code": "26854",
+      "formed_from": "Các phường Bình Hưng Hòa, một phần phường Sơn Kỳ và Bình Hưng Hòa A (Bình Tân)"
+    },
+    {
+      "name": "Phường Gia Định",
+      "code": "26857",
+      "formed_from": "Các phường 1, 2, 7, 17 (quận Bình Thạnh)"
+    },
+    {
+      "name": "Phường Bình Thạnh",
+      "code": "26860",
+      "formed_from": "Các phường 12, 14, 26 (quận Bình Thạnh)"
+    },
+    {
+      "name": "Phường Bình Lợi Trung",
+      "code": "26863",
+      "formed_from": "Các phường 5, 11, 13 (quận Bình Thạnh)"
+    },
+    {
+      "name": "Phường Thạnh Mỹ Tây",
+      "code": "26866",
+      "formed_from": "Các phường 19, 22, 25 (Bình Thạnh)"
+    },
+    {
+      "name": "Phường Bình Quới",
+      "code": "26869",
+      "formed_from": "Các phường 27, 28 (Bình Thạnh)"
+    },
+    {
+      "name": "Phường Hạnh Thông",
+      "code": "26872",
+      "formed_from": "Các phường 1, 3 (quận Gò Vấp)"
+    },
+    {
+      "name": "Phường An Nhơn",
+      "code": "26875",
+      "formed_from": "Các phường 5, 6 (quận Gò Vấp)"
+    },
+    {
+      "name": "Phường Gò Vấp",
+      "code": "26878",
+      "formed_from": "Các phường 10, 17 (quận Gò Vấp)"
+    },
+    {
+      "name": "Phường An Hội Đông",
+      "code": "26881",
+      "formed_from": "Các phường 15, 16 (quận Gò Vấp)"
+    },
+    {
+      "name": "Phường Thông Tây Hội",
+      "code": "26884",
+      "formed_from": "Các phường 8, 11 (quận Gò Vấp)"
+    },
+    {
+      "name": "Phường An Hội Tây",
+      "code": "26887",
+      "formed_from": "Các phường 12, 14 (quận Gò Vấp)"
+    },
+    {
+      "name": "Phường Đức Nhuận",
+      "code": "26890",
+      "formed_from": "Các phường 4, 5, 9 (quận Phú Nhuận)"
+    },
+    {
+      "name": "Phường Cầu Kiệu",
+      "code": "26893",
+      "formed_from": "Các phường 1, 2, 7, một phần phường 15 (quận Phú Nhuận)"
+    },
+    {
+      "name": "Phường Phú Nhuận",
+      "code": "26896",
+      "formed_from": "Các phường 8, 10, 11, 13, một phần phường 15 (quận Phú Nhuận)"
+    },
+    {
+      "name": "Phường Tân Sơn Hòa",
+      "code": "26899",
+      "formed_from": "Các phường 1, 2, 3 (quận Tân Bình)"
+    },
+    {
+      "name": "Phường Tân Sơn Nhất",
+      "code": "26902",
+      "formed_from": "Các phường 4, 5, 7 (quận Tân Bình)"
+    },
+    {
+      "name": "Phường Tân Hòa",
+      "code": "26905",
+      "formed_from": "Các phường 6, 8, 9 (quận Tân Bình)"
+    },
+    {
+      "name": "Phường Bảy Hiền",
+      "code": "26908",
+      "formed_from": "Các phường 10, 11, 12 (quận Tân Bình)"
+    },
+    {
+      "name": "Phường Tân Bình",
+      "code": "26911",
+      "formed_from": "Các phường 13, 14, một phần phường 15 (quận Tân Bình)"
+    },
+    {
+      "name": "Phường Tân Sơn",
+      "code": "26914",
+      "formed_from": "Phần còn lại phường 15 (quận Tân Bình)"
+    },
+    {
+      "name": "Phường Tây Thạnh",
+      "code": "26917",
+      "formed_from": "Các phường Tây Thạnh, một phần phường Sơn Kỳ (Tân Phú)"
+    },
+    {
+      "name": "Phường Tân Sơn Nhì",
+      "code": "26920",
+      "formed_from": "Các phường Tân Sơn Nhì, Sơn Kỳ, một phần phường Tân Quý và Tân Thành (Tân Phú)"
+    },
+    {
+      "name": "Phường Phú Thọ Hòa",
+      "code": "26923",
+      "formed_from": "Các phường Phú Thọ Hòa, một phần phường Tân Thành và Tân Quý (Tân Phú)"
+    },
+    {
+      "name": "Phường Tân Phú",
+      "code": "26926",
+      "formed_from": "Các phường Phú Trung, Hòa Thạnh, một phần phường Tân Thới Hòa và Tân Thành (Tân Phú)"
+    },
+    {
+      "name": "Phường Phú Thạnh",
+      "code": "26929",
+      "formed_from": "Các phường Hiệp Tân, Phú Thạnh, một phần phường Tân Thới Hòa (Tân Phú)"
+    },
+    {
+      "name": "Phường Hiệp Bình",
+      "code": "26932",
+      "formed_from": "Các phường Hiệp Bình Chánh, Hiệp Bình Phước, một phần phường Linh Đông (Thủ Đức)"
+    },
+    {
+      "name": "Phường Thủ Đức",
+      "code": "26935",
+      "formed_from": "Các phường Bình Thọ, Linh Chiểu, Trường Thọ, một phần phường Linh Tây và Linh Đông (Thủ Đức)"
+    },
+    {
+      "name": "Phường Tam Bình",
+      "code": "26938",
+      "formed_from": "Các phường Bình Chiểu, Tam Phú, Tam Bình (Thủ Đức)"
+    },
+    {
+      "name": "Phường Linh Xuân",
+      "code": "26941",
+      "formed_from": "Các phường Linh Trung, Linh Xuân, một phần phường Linh Tây (Thủ Đức)"
+    },
+    {
+      "name": "Phường Tăng Nhơn Phú",
+      "code": "26944",
+      "formed_from": "Các phường Tân Phú (thành phố Thủ Đức), Hiệp Phú, Tăng Nhơn Phú A, Tăng Nhơn Phú B, một phần phường Long Thạnh Mỹ (Thủ Đức)"
+    },
+    {
+      "name": "Phường Long Bình",
+      "code": "26947",
+      "formed_from": "Các phường Long Bình, một phần phường Long Thạnh Mỹ (Thủ Đức)"
+    },
+    {
+      "name": "Phường Long Phước",
+      "code": "26950",
+      "formed_from": "Các phường Trường Thạnh, Long Phước (Thủ Đức)"
+    },
+    {
+      "name": "Phường Long Trường",
+      "code": "26953",
+      "formed_from": "Các phường Phú Hữu, Long Trường (Thủ Đức)"
+    },
+    {
+      "name": "Phường Cát Lái",
+      "code": "26956",
+      "formed_from": "Các phường Thạnh Mỹ Lợi, Cát Lái (Thủ Đức)"
+    },
+    {
+      "name": "Phường Bình Trưng",
+      "code": "26959",
+      "formed_from": "Các phường Bình Trưng Đông, Bình Trưng Tây, một phần phường An Phú (thành phố Thủ Đức)"
+    },
+    {
+      "name": "Phường Phước Long",
+      "code": "26962",
+      "formed_from": "Các phường Phước Bình, Phước Long A, Phước Long B (Thủ Đức)"
+    },
+    {
+      "name": "Phường An Khánh",
+      "code": "26965",
+      "formed_from": "Các phường Thủ Thiêm, An Lợi Đông, Thảo Điền, An Khánh, một phần phường An Phú (thành phố Thủ Đức)"
+    },
+    {
+      "name": "Phường Đông Hòa",
+      "code": "26968",
+      "formed_from": "Các phường Bình An, Bình Thắng, Đông Hòa (Thủ Đức)"
+    },
+    {
+      "name": "Phường Dĩ An",
+      "code": "26971",
+      "formed_from": "Các phường An Bình, Dĩ An, một phần phường Tân Đông Hiệp (Bình Dương)"
+    },
+    {
+      "name": "Phường Tân Đông Hiệp",
+      "code": "26974",
+      "formed_from": "Các phường Tân Bình, một phần phường Thái Hòa và Tân Đông Hiệp (Bình Dương)"
+    },
+    {
+      "name": "Phường An Phú",
+      "code": "26977",
+      "formed_from": "Các phường An Phú (thành phố Thuận An), một phần phường Bình Chuẩn (Bình Dương)"
+    },
+    {
+      "name": "Phường Bình Hòa",
+      "code": "26980",
+      "formed_from": "Phường Bình Hòa và một phần phường Vĩnh Phú (Bình Dương)"
+    },
+    {
+      "name": "Phường Lái Thiêu",
+      "code": "26983",
+      "formed_from": "Các phường Bình Nhâm, Lái Thiêu, một phần phường Vĩnh Phú (Bình Dương)"
+    },
+    {
+      "name": "Phường Thuận An",
+      "code": "26986",
+      "formed_from": "Các phường Hưng Định, An Thạnh, Xã An Sơn (Bình Dương)"
+    },
+    {
+      "name": "Phường Thuận Giao",
+      "code": "26989",
+      "formed_from": "Các phường Thuận Giao, Bình Chuẩn (Bình Dương)"
+    },
+    {
+      "name": "Phường Thủ Dầu Một",
+      "code": "26992",
+      "formed_from": "Các phường Phú Cường, Phú Thọ, Chánh Nghĩa, một phần phường Hiệp Thành (thành phố Thủ Dầu Một), Chánh Mỹ (Bình Dương)"
+    },
+    {
+      "name": "Phường Phú Lợi",
+      "code": "26995",
+      "formed_from": "Các phường Phú Hòa, Phú Lợi, một phần phường Hiệp Thành (thành phố Thủ Dầu Một) (Bình Dương)"
+    },
+    {
+      "name": "Phường Chánh Hiệp",
+      "code": "26998",
+      "formed_from": "Các phường Định Hòa, Tương Bình Hiệp, một phần phường Hiệp An và Chánh Mỹ (Bình Dương)"
+    },
+    {
+      "name": "Phường Bình Dương",
+      "code": "27001",
+      "formed_from": "Các phường Phú Mỹ (thành phố Thủ Dầu Một), Hòa Phú, Phú Tân, Phú Chánh (Bình Dương)"
+    },
+    {
+      "name": "Phường Hòa Lợi",
+      "code": "27004",
+      "formed_from": "Các phường Tân Định (thành phố Bến Cát), Hòa Lợi (Bình Dương)"
+    },
+    {
+      "name": "Phường Phú An",
+      "code": "27007",
+      "formed_from": "Các phường Tân An, Xã Phú An, Hiệp An (Bình Dương)"
+    },
+    {
+      "name": "Phường Tây Nam",
+      "code": "27010",
+      "formed_from": "Phường An Tây, một phần xã Thanh Tuyền và xã An Lập (Bình Dương)"
+    },
+    {
+      "name": "Phường Long Nguyên",
+      "code": "27013",
+      "formed_from": "Phường An Điền, xã Long Nguyên, một phần phường Mỹ Phước (Bình Dương)"
+    },
+    {
+      "name": "Phường Bến Cát",
+      "code": "27016",
+      "formed_from": "Xã Tân Hưng (huyện Bàu Bàng), xã Lai Hưng, một phần phường Mỹ Phước (Bình Dương)"
+    },
+    {
+      "name": "Phường Chánh Phú Hòa",
+      "code": "27019",
+      "formed_from": "Phường Chánh Phú Hòa, Xã Hưng Hòa (Bình Dương)"
+    },
+    {
+      "name": "Phường Vĩnh Tân",
+      "code": "27022",
+      "formed_from": "Phường Vĩnh Tân, Thị trấn Tân Bình (Bình Dương)"
+    },
+    {
+      "name": "Phường Bình Cơ",
+      "code": "27025",
+      "formed_from": "Xã Bình Mỹ (huyện Bắc Tân Uyên), Phường Hội Nghĩa (Bình Dương)"
+    },
+    {
+      "name": "Phường Tân Uyên",
+      "code": "27028",
+      "formed_from": "Phường Uyên Hưng, Xã Bạch Đằng, Xã Tân Lập, một phần xã Tân Mỹ (Bình Dương)"
+    },
+    {
+      "name": "Phường Tân Hiệp",
+      "code": "27031",
+      "formed_from": "Các phường Khánh Bình, Tân Hiệp (Bình Dương)"
+    },
+    {
+      "name": "Phường Tân Khánh",
+      "code": "27034",
+      "formed_from": "Các phường Thạnh Phước, Tân Phước Khánh, Tân Vĩnh Hiệp, một phần phường Thái Hòa và xã Thạnh Hội (Bình Dương)"
+    },
+    {
+      "name": "Phường Vũng Tàu",
+      "code": "27037",
+      "formed_from": "Các phường 1, 2, 3, 4, 5 (thành phố Vũng Tàu), Thắng Nhì, Thắng Tam (Vũng Tàu)"
+    },
+    {
+      "name": "Phường Tam Thắng",
+      "code": "27040",
+      "formed_from": "Các phường 7, 8, 9 (thành phố Vũng Tàu), Nguyễn An Ninh (Vũng Tàu)"
+    },
+    {
+      "name": "Phường Rạch Dừa",
+      "code": "27043",
+      "formed_from": "Các phường 10 (thành phố Vũng Tàu), Thắng Nhất, Rạch Dừa (Vũng Tàu)"
+    },
+    {
+      "name": "Phường Phước Thắng",
+      "code": "27046",
+      "formed_from": "Các phường 11, 12 (thành phố Vũng Tàu)"
+    },
+    {
+      "name": "Phường Long Hương",
+      "code": "27049",
+      "formed_from": "Xã Tân Hưng (thành phố Bà Rịa), Kim Dinh, Long Hương"
+    },
+    {
+      "name": "Phường Bà Rịa",
+      "code": "27052",
+      "formed_from": "Các phường Phước Trung, Phước Nguyên, Long Toàn, Phước Hưng"
+    },
+    {
+      "name": "Phường Tam Long",
+      "code": "27055",
+      "formed_from": "Các phường Long Tâm, Xã Hòa Long, Xã Long Phước"
+    },
+    {
+      "name": "Phường Tân Hải",
+      "code": "27058",
+      "formed_from": "Các phường Tân Hòa, Tân Hải"
+    },
+    {
+      "name": "Phường Tân Phước",
+      "code": "27061",
+      "formed_from": "Các phường Phước Hòa, Tân Phước"
+    },
+    {
+      "name": "Phường Phú Mỹ",
+      "code": "27064",
+      "formed_from": "Các phường Phú Mỹ (thành phố Phú Mỹ), Mỹ Xuân"
+    },
+    {
+      "name": "Phường Tân Thành",
+      "code": "27067",
+      "formed_from": "Các phường Hắc Dịch, Xã Sông Xoài (Vũng Tàu)"
+    },
+    {
+      "name": "Xã Vĩnh Lộc",
+      "code": "27070",
+      "formed_from": "Xã Vĩnh Lộc A và một phần xã Phạm Văn Hai"
+    },
+    {
+      "name": "Xã Tân Vĩnh Lộc",
+      "code": "27073",
+      "formed_from": "Các xã Vĩnh Lộc B, một phần xã Phạm Văn Hai (Bình Chánh) và một phần phường Tân Tạo (Bình Tân) "
+    },
+    {
+      "name": "Xã Bình Lợi",
+      "code": "27076",
+      "formed_from": "Các xã Lê Minh Xuân, Bình Lợi (Bình Chánh)"
+    },
+    {
+      "name": "Xã Tân Nhựt",
+      "code": "27079",
+      "formed_from": "Thị trấn Tân Túc (Bình Chánh), Xã Tân Nhựt (Bình Chánh), một phần phường Tân Tạo A (Bình Tân), xã Tân Kiên (Bình Chánh) và phường 16 (Quận 8)"
+    },
+    {
+      "name": "Xã Bình Chánh",
+      "code": "27082",
+      "formed_from": "Các xã Tân Quý Tây, Bình Chánh, An Phú Tây (Bình Chánh)"
+    },
+    {
+      "name": "Xã Hưng Long",
+      "code": "27085",
+      "formed_from": "Các xã Đa Phước, Qui Đức, Hưng Long (Bình Chánh)"
+    },
+    {
+      "name": "Xã Bình Hưng",
+      "code": "27088",
+      "formed_from": "Các xã Phong Phú (Bình Chánh), xã Bình Hưng (Bình Chánh), một phần phường 7 (Quận 8)"
+    },
+    {
+      "name": "Xã Bình Khánh",
+      "code": "27091",
+      "formed_from": "Các xã Tam Thôn Hiệp, Bình Khánh, một phần xã An Thới Đông (Cần Giờ)"
+    },
+    {
+      "name": "Xã An Thới Đông",
+      "code": "27094",
+      "formed_from": "Xã Lý Nhơn và một phần xã An Thới Đông (Cần Giờ)"
+    },
+    {
+      "name": "Xã Cần Giờ",
+      "code": "27097",
+      "formed_from": "Xã Long Hòa (huyện Cần Giờ), Thị trấn Cần Thạnh (Cần Giờ)"
+    },
+    {
+      "name": "Xã Củ Chi",
+      "code": "27100",
+      "formed_from": "Các xã Tân Phú Trung, Tân Thông Hội, Phước Vĩnh An (Củ Chi)"
+    },
+    {
+      "name": "Xã Tân An Hội",
+      "code": "27103",
+      "formed_from": "Thị trấn Củ Chi, Xã Phước Hiệp, Xã Tân An Hội (Củ Chi)"
+    },
+    {
+      "name": "Xã Thái Mỹ",
+      "code": "27106",
+      "formed_from": "Các xã Trung Lập Thượng, Phước Thạnh, Thái Mỹ (Củ Chi)"
+    },
+    {
+      "name": "Xã An Nhơn Tây",
+      "code": "27109",
+      "formed_from": "Các xã Phú Mỹ Hưng, An Phú, An Nhơn Tây (Củ Chi)"
+    },
+    {
+      "name": "Xã Nhuận Đức",
+      "code": "27112",
+      "formed_from": "Các xã Phạm Văn Cội, Trung Lập Hạ, Nhuận Đức (Củ Chi)"
+    },
+    {
+      "name": "Xã Phú Hòa Đông",
+      "code": "27115",
+      "formed_from": "Các xã Tân Thạnh Tây, Tân Thạnh Đông, Phú Hòa Đông (Củ Chi)"
+    },
+    {
+      "name": "Xã Bình Mỹ",
+      "code": "27118",
+      "formed_from": "Các xã Bình Mỹ (huyện Củ Chi), Hòa Phú, Trung An (Củ Chi)"
+    },
+    {
+      "name": "Xã Đông Thạnh",
+      "code": "27121",
+      "formed_from": "Các xã Thới Tam Thôn, Nhị Bình, Đông Thạnh (Củ Chi)"
+    },
+    {
+      "name": "Xã Hóc Môn",
+      "code": "27124",
+      "formed_from": "Các xã Tân Hiệp (huyện Hóc Môn), Xã Tân Xuân, Thị trấn Hóc Môn"
+    },
+    {
+      "name": "Xã Xuân Thới Sơn",
+      "code": "27127",
+      "formed_from": "Các xã Tân Thới Nhì, Xuân Thới Đông, Xuân Thới Sơn (Hóc Môn)"
+    },
+    {
+      "name": "Xã Bà Điểm",
+      "code": "27130",
+      "formed_from": "Các xã Xuân Thới Thượng, Trung Chánh, Bà Điểm (Hóc Môn)"
+    },
+    {
+      "name": "Xã Nhà Bè",
+      "code": "27133",
+      "formed_from": "Thị trấn Nhà Bè, Xã Phú Xuân, Xã Phước Kiển, Xã Phước Lộc (Nhà Bè)"
+    },
+    {
+      "name": "Xã Hiệp Phước",
+      "code": "27136",
+      "formed_from": "Các xã Nhơn Đức, Long Thới, Hiệp Phước (Nhà Bè)"
+    },
+    {
+      "name": "Xã Thường Tân",
+      "code": "27139",
+      "formed_from": "Các xã Lạc An, Hiếu Liêm, Thường Tân, một phần xã Tân Mỹ (Nhà Bè)"
+    },
+    {
+      "name": "Xã Bắc Tân Uyên",
+      "code": "27142",
+      "formed_from": "Thị trấn Tân Thành, Xã Đất Cuốc, Xã Tân Định (Bắc Tân Uyên)"
+    },
+    {
+      "name": "Xã Phú Giáo",
+      "code": "27145",
+      "formed_from": "Thị trấn Phước Vĩnh, xã An Bình, một phần xã Tam Lập (Phú Giáo)"
+    },
+    {
+      "name": "Xã Phước Hòa",
+      "code": "27148",
+      "formed_from": "Các xã Vĩnh Hòa, Phước Hòa, một phần xã Tam Lập (Phú Giáo)"
+    },
+    {
+      "name": "Xã Phước Thành",
+      "code": "27151",
+      "formed_from": "Các xã Tân Hiệp (huyện Phú Giáo), An Thái, Phước Sang (Phú Giáo)"
+    },
+    {
+      "name": "Xã An Long",
+      "code": "27154",
+      "formed_from": "Các xã An Linh, Tân Long, An Long (Bắc Tân Uyên)"
+    },
+    {
+      "name": "Xã Trừ Văn Thố",
+      "code": "27157",
+      "formed_from": "Xã Trừ Văn Thố, xã Cây Trường II, một phần thị trấn Lai Uyên (Bắc Tân Uyên)"
+    },
+    {
+      "name": "Xã Bàu Bàng",
+      "code": "27160",
+      "formed_from": "Phần còn lại thị trấn Lai Uyên (Bắc Tân Uyên)"
+    },
+    {
+      "name": "Xã Long Hòa",
+      "code": "27163",
+      "formed_from": "Các xã Long Tân, Long Hòa (huyện Dầu Tiếng), một phần xã Minh Tân và Minh Thạnh (Bắc Tân Uyên)"
+    },
+    {
+      "name": "Xã Thanh An",
+      "code": "27166",
+      "formed_from": "Các xã Thanh An, một phần xã Định Hiệp, Thanh Tuyền và An Lập (Bắc Tân Uyên)"
+    },
+    {
+      "name": "Xã Dầu Tiếng",
+      "code": "27169",
+      "formed_from": "Thị trấn Dầu Tiếng, xã Định An, xã Định Thành và một phần xã Định Hiệp (Bắc Tân Uyên)"
+    },
+    {
+      "name": "Xã Minh Thạnh",
+      "code": "27172",
+      "formed_from": "Xã Minh Hòa, một phần xã Minh Tân và Minh Thạnh (Bắc Tân Uyên)"
+    },
+    {
+      "name": "Xã Châu Pha",
+      "code": "27175",
+      "formed_from": "Các xã Tóc Tiên và Châu Pha (Bà Rịa - Vũng Tàu)"
+    },
+    {
+      "name": "Xã Long Hải",
+      "code": "27178",
+      "formed_from": "Thị trấn Long Hải, xã Phước Tỉnh và xã Phước Hưng (Bà Rịa - Vũng Tàu)"
+    },
+    {
+      "name": "Xã Long Điền",
+      "code": "27181",
+      "formed_from": "Thị trấn Long Điền, Xã Tam An (Bà Rịa - Vũng Tàu)"
+    },
+    {
+      "name": "Xã Phước Hải",
+      "code": "27184",
+      "formed_from": "Thị trấn Phước Hải, Xã Phước Hội (Bà Rịa - Vũng Tàu)"
+    },
+    {
+      "name": "Xã Đất Đỏ",
+      "code": "27187",
+      "formed_from": "Thị trấn Đất Đỏ, Xã Long Tân (huyện Long Đất), Xã Láng Dài, Xã Phước Long Thọ (Bà Rịa - Vũng Tàu)"
+    },
+    {
+      "name": "Xã Nghĩa Thành",
+      "code": "27190",
+      "formed_from": "Các xã Đá Bạc, Nghĩa Thành (Bà Rịa - Vũng Tàu)"
+    },
+    {
+      "name": "Xã Ngãi Giao",
+      "code": "27193",
+      "formed_from": "Thị trấn Ngãi Giao, Xã Bình Ba, Xã Suối Nghệ (Bà Rịa - Vũng Tàu)"
+    },
+    {
+      "name": "Xã Kim Long",
+      "code": "27196",
+      "formed_from": "Thị trấn Kim Long, Xã Bàu Chinh, Xã Láng Lớn (Bà Rịa - Vũng Tàu)"
+    },
+    {
+      "name": "Xã Châu Đức",
+      "code": "27199",
+      "formed_from": "Các xã Cù Bị, Xà Bang (Bà Rịa - Vũng Tàu)"
+    },
+    {
+      "name": "Xã Bình Giã",
+      "code": "27202",
+      "formed_from": "Các xã Bình Trung, Quảng Thành, Bình Giã (Bà Rịa - Vũng Tàu)"
+    },
+    {
+      "name": "Xã Xuân Sơn",
+      "code": "27205",  
+      "formed_from": "Các xã Suối Rao, Xã Sơn Bình, Xã Xuân Sơn (Bà Rịa - Vũng Tàu)"
+    },
+    {
+      "name": "Xã Hồ Tràm",
+      "code": "27208",
+      "formed_from": "Thị trấn Phước Bửu, Xã Phước Tân, Xã Phước Thuận (Bà Rịa - Vũng Tàu)"
+    },
+    {
+      "name": "Xã Xuyên Mộc",
+      "code": "27211",
+      "formed_from": "Các xã Bông Trang, Xã Bưng Riềng, Xã Xuyên Mộc (Bà Rịa - Vũng Tàu)"
+    },
+    {
+      "name": "Xã Hòa Hội",
+      "code": "27214",
+      "formed_from": "Các xã Hòa Hưng, Hòa Bình, Hòa Hội (Bà Rịa - Vũng Tàu)"
+    },
+    {
+      "name": "Xã Bàu Lâm",
+      "code": "27217",
+      "formed_from": "Các xã Tân Lâm, Bàu Lâm (Bà Rịa - Vũng Tàu)"
+    },
+    {
+      "name": "Đặc khu Côn Đảo",
+      "code": "27220",
+      "formed_from": "Huyện Côn Đảo (Bà Rịa - Vũng Tàu)"
+    },
+    {
+      "name": "Xã Bình Châu",
+      "code": "27223",
+      "formed_from": "Không sáp nhập (Bà Rịa - Vũng Tàu)"
+    },
+    {
+      "name": "Xã Hòa Hiệp",
+      "code": "27226",
+      "formed_from": "Không sáp nhập (Bà Rịa - Vũng Tàu)"
+    },
+    {
+      "name": "Xã Long Sơn",
+      "code": "27229",
+      "formed_from": "Không sáp nhập (Bà Rịa - Vũng Tàu)"
+    },
+    {
+      "name": "Xã Thạnh An",
+      "code": "27232",
+      "formed_from": "Không sáp nhập (Bà Rịa - Vũng Tàu)"
+    },
+    {
+      "name": "Phường Thới Hòa",
+      "code": "27235",
+      "formed_from": "Không sáp nhập (Bình Dương)"
+    }
+  ],
+  "metadata": {
+    "description": "Cấu trúc hành chính mới của TP.HCM sau khi bỏ cấp quận, chỉ còn phường và xã",
+    "total_wards": 168,
+    "total_phuong": 149,
+    "total_xa": 18,
+    "total_dac_khu": 1,
+    "last_updated": "2024",
+    "note": "TP.HCM đã bỏ cấp quận, chỉ còn cấp phường và xã trực thuộc thành phố"
+  }
+}
