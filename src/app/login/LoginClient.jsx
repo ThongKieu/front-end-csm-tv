@@ -23,7 +23,7 @@ import {
 
 export default function LoginClient() {
   const [formData, setFormData] = useState({
-    email: "",
+    user_name: "",
     password: "",
   });
   const [showPassword, setShowPassword] = useState(false);
@@ -45,34 +45,25 @@ export default function LoginClient() {
     setIsLoading(true);
     setError("");
 
-    console.log('Attempting login with:', formData);
-
     try {
-      const response = await fetch("/api/auth/login", {
+      const response = await fetch("/api/user/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          user_name: formData.user_name,
+          password: formData.password,
+        }),
       });
 
-      console.log('Response status:', response.status);
       const data = await response.json();
-      console.log('Response data:', data);
-
       if (!response.ok) {
         throw new Error(data.message || "Đăng nhập thất bại");
       }
-
-      console.log('Login successful, dispatching to Redux');
-      // Dispatch login action (sẽ tự động lưu vào localStorage)
       dispatch(login(data));
-
-      console.log('Redirecting to:', from);
-      // Redirect to the original page or dashboard
       router.push(from);
     } catch (error) {
-      console.error('Login error:', error);
       setError(error.message);
     } finally {
       setIsLoading(false);
@@ -183,39 +174,28 @@ export default function LoginClient() {
             <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-purple-500 via-pink-500 to-blue-500"></div>
             
             <form onSubmit={handleSubmit} className="relative z-10 space-y-3">
-              {/* Email */}
+              {/* User Name */}
               <div className="space-y-1.5">
-                <label
-                  htmlFor="email"
-                  className="block text-xs font-semibold text-white/90"
-                >
-                  Email
-                </label>
+                <label htmlFor="user_name" className="block text-xs font-semibold text-white/90">Tên đăng nhập</label>
                 <div className="relative group">
                   <div className="flex absolute inset-y-0 left-0 items-center pl-3 pointer-events-none">
                     <Mail className="w-4 h-4 transition-colors text-white/60 group-focus-within:text-purple-400" />
                   </div>
                   <input
-                    type="email"
-                    id="email"
-                    value={formData.email}
-                    onChange={(e) => handleInputChange("email", e.target.value)}
+                    type="text"
+                    id="user_name"
+                    value={formData.user_name}
+                    onChange={(e) => handleInputChange("user_name", e.target.value)}
                     className="py-2.5 pr-3 pl-10 w-full text-sm text-white rounded-xl border backdrop-blur-sm transition-all duration-300 bg-white/10 border-white/20 focus:ring-2 focus:ring-purple-500 focus:border-transparent placeholder-white/50"
-                    placeholder="Nhập email của bạn"
+                    placeholder="Nhập tên đăng nhập"
                     required
                   />
                   <div className="absolute inset-0 bg-gradient-to-r rounded-xl opacity-0 blur-xl transition-opacity duration-300 from-purple-500/20 to-pink-500/20 group-focus-within:opacity-100 -z-10"></div>
                 </div>
               </div>
-
               {/* Password */}
               <div className="space-y-1.5">
-                <label
-                  htmlFor="password"
-                  className="block text-xs font-semibold text-white/90"
-                >
-                  Mật khẩu
-                </label>
+                <label htmlFor="password" className="block text-xs font-semibold text-white/90">Mật khẩu</label>
                 <div className="relative group">
                   <div className="flex absolute inset-y-0 left-0 items-center pl-3 pointer-events-none">
                     <Lock className="w-4 h-4 transition-colors text-white/60 group-focus-within:text-purple-400" />
@@ -243,14 +223,12 @@ export default function LoginClient() {
                   <div className="absolute inset-0 bg-gradient-to-r rounded-xl opacity-0 blur-xl transition-opacity duration-300 from-purple-500/20 to-pink-500/20 group-focus-within:opacity-100 -z-10"></div>
                 </div>
               </div>
-
               {/* Error Message */}
               {error && (
                 <div className="p-2.5 rounded-xl border backdrop-blur-sm animate-pulse bg-red-500/20 border-red-500/30">
                   <p className="text-xs font-medium text-red-200">{error}</p>
                 </div>
               )}
-
               {/* Submit Button */}
               <button
                 type="submit"
@@ -271,76 +249,19 @@ export default function LoginClient() {
                   </div>
                 )}
               </button>
-            </form>
-
-            {/* Demo Accounts */}
-            <div className="overflow-hidden relative p-3 mt-3 rounded-xl border backdrop-blur-xl bg-white/5 border-white/10">
-              <div className="absolute inset-0 bg-gradient-to-br rounded-xl from-purple-500/10 to-pink-500/10"></div>
-              <div className="relative z-10">
-                <h3 className="flex items-center mb-2 text-xs font-semibold text-white/90">
-                  <CheckCircle className="mr-2 w-3 h-3 text-green-400" />
-                  Tài khoản demo:
-                </h3>
-                <div className="space-y-1.5">
-                  <button
-                    onClick={() => handleDemoLogin("admin@example.com", "admin123")}
-                    disabled={isLoading}
-                    className="flex justify-between items-center p-2 w-full rounded-lg border shadow-sm backdrop-blur-sm transition-all duration-300 bg-white/10 hover:shadow-lg border-white/20 hover:border-purple-400/50 disabled:opacity-50 group"
-                  >
-                    <div className="flex items-center">
-                      <div className="flex justify-center items-center mr-2 w-6 h-6 bg-gradient-to-r from-red-500 to-pink-500 rounded-lg shadow-lg">
-                        <Shield className="w-3 h-3 text-white" />
-                      </div>
-                      <div className="text-left">
-                        <p className="text-xs font-medium text-white">Admin</p>
-                        <p className="text-xs text-white/60">admin@example.com</p>
-                      </div>
-                    </div>
-                    <span className="px-2 py-0.5 text-xs font-medium text-red-200 rounded-full border bg-red-500/20 border-red-500/30">
-                      Admin
-                    </span>
-                  </button>
-
-                  <button
-                    onClick={() => handleDemoLogin("user@example.com", "user123")}
-                    disabled={isLoading}
-                    className="flex justify-between items-center p-2 w-full rounded-lg border shadow-sm backdrop-blur-sm transition-all duration-300 bg-white/10 hover:shadow-lg border-white/20 hover:border-blue-400/50 disabled:opacity-50 group"
-                  >
-                    <div className="flex items-center">
-                      <div className="flex justify-center items-center mr-2 w-6 h-6 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-lg shadow-lg">
-                        <Users className="w-3 h-3 text-white" />
-                      </div>
-                      <div className="text-left">
-                        <p className="text-xs font-medium text-white">User</p>
-                        <p className="text-xs text-white/60">user@example.com</p>
-                      </div>
-                    </div>
-                    <span className="px-2 py-0.5 text-xs font-medium text-blue-200 rounded-full border bg-blue-500/20 border-blue-500/30">
-                      User
-                    </span>
-                  </button>
-
-                  <button
-                    onClick={() => handleDemoLogin("accountant@example.com", "accountant123")}
-                    disabled={isLoading}
-                    className="flex justify-between items-center p-2 w-full rounded-lg border shadow-sm backdrop-blur-sm transition-all duration-300 bg-white/10 hover:shadow-lg border-white/20 hover:border-green-400/50 disabled:opacity-50 group"
-                  >
-                    <div className="flex items-center">
-                      <div className="flex justify-center items-center mr-2 w-6 h-6 bg-gradient-to-r from-green-500 to-emerald-500 rounded-lg shadow-lg">
-                        <BarChart3 className="w-3 h-3 text-white" />
-                      </div>
-                      <div className="text-left">
-                        <p className="text-xs font-medium text-white">Kế toán</p>
-                        <p className="text-xs text-white/60">accountant@example.com</p>
-                      </div>
-                    </div>
-                    <span className="px-2 py-0.5 text-xs font-medium text-green-200 rounded-full border bg-green-500/20 border-green-500/30">
-                      Kế toán
-                    </span>
-                  </button>
-                </div>
+              
+              {/* Register Link */}
+              <div className="text-center">
+                <p className="mb-2 text-xs text-white/70">Chưa có tài khoản?</p>
+                <a
+                  href="/register"
+                  className="inline-flex items-center px-4 py-2 text-xs font-medium text-purple-300 rounded-lg border transition-all duration-300 bg-white/10 border-white/20 hover:bg-white/20 hover:border-purple-400/50"
+                >
+                  <Users className="mr-2 w-3 h-3" />
+                  Tạo tài khoản mới
+                </a>
               </div>
-            </div>
+            </form>
           </div>
         </div>
       </div>

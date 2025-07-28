@@ -19,7 +19,7 @@ import AuthLoading from '@/components/AuthLoading'
 const inter = Inter({ subsets: ['latin'] })
 
 function AppContent({ children }) {
-  const { isCreateScheduleModalOpen, setIsCreateScheduleModalOpen, workers } = useSchedule()
+  const { isCreateScheduleModalOpen, setIsCreateScheduleModalOpen, workers, refreshData } = useSchedule()
   const isLoading = useSelector(selectAuthLoading)
 
   // Hiển thị loading khi đang kiểm tra authentication
@@ -35,6 +35,7 @@ function AppContent({ children }) {
         isOpen={isCreateScheduleModalOpen}
         onClose={() => setIsCreateScheduleModalOpen(false)}
         workers={workers}
+        onSuccess={refreshData}
       />
       <ToastContainer />
     </>

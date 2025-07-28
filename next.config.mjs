@@ -1,7 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
-    domains: ['192.168.1.59', 'csm.thoviet.net'],
+    domains: ['192.168.1.27', 'csm.thoviet.net'],
   },
   async headers() {
     return [
@@ -35,7 +35,7 @@ const nextConfig = {
     return [
       {
         source: '/api/:path*',
-        destination: 'http://192.168.1.59:3000/api/:path*',
+        destination: 'http://192.168.1.27:3000/api/:path*',
       },
     ]
   },

@@ -29,6 +29,115 @@ import axios from "axios";
 import { useWorkSocket } from '@/hooks/useWorkSocket';
 import EditAssignedWorkModal from "./EditAssignedWorkModal";
 
+// Export các function để sử dụng ở component khác
+export const getWorkTypeColor = (kindWork) => {
+  switch (kindWork) {
+    case 1:
+      return 'bg-blue-100 text-blue-800'; // Điện Nước
+    case 2:
+      return 'bg-green-100 text-green-800'; // Điện Lạnh
+    case 3:
+      return 'bg-yellow-100 text-yellow-800'; // Đồ gỗ
+    case 4:
+      return 'bg-orange-100 text-orange-800'; // Năng Lượng Mặt trời
+    case 5:
+      return 'bg-red-100 text-red-800'; // Xây Dựng
+    case 6:
+      return 'bg-purple-100 text-purple-800'; // Tài Xế
+    case 7:
+      return 'bg-indigo-100 text-indigo-800'; // Cơ Khí
+    case 8:
+      return 'bg-pink-100 text-pink-800'; // Điện - Điện Tử
+    case 9:
+      return 'bg-gray-100 text-gray-800'; // Văn Phòng
+    default:
+      return 'bg-gray-100 text-gray-800';
+  }
+};
+
+export const getWorkTypeName = (kindWork) => {
+  switch (kindWork) {
+    case 1:
+      return 'ĐN'; // Điện Nước
+    case 2:
+      return 'ĐL'; // Điện Lạnh
+    case 3:
+      return 'ĐG'; // Đồ gỗ
+    case 4:
+      return 'NLMT'; // Năng Lượng Mặt trời
+    case 5:
+      return 'XD'; // Xây Dựng
+    case 6:
+      return 'TX'; // Tài Xế
+    case 7:
+      return 'CK'; // Cơ Khí
+    case 8:
+      return 'ĐĐT'; // Điện - Điện Tử
+    case 9:
+      return 'VP'; // Văn Phòng
+    default:
+      return 'CPL'; // Chưa phân loại
+  }
+};
+
+export const getStatusColor = (status) => {
+  switch (status) {
+    case 0:
+      return 'bg-gray-100 text-gray-800 border border-gray-300'; // Chưa Phân
+    case 1:
+      return 'bg-yellow-100 text-yellow-800 border border-yellow-300'; // Thuê Bao / Không nghe
+    case 2:
+      return 'bg-orange-100 text-orange-800 border border-orange-300'; // Khách Nhắc 1 lần
+    case 3:
+      return 'bg-red-100 text-red-800 border border-red-300'; // Khách nhắc nhiều lần
+    case 4:
+      return 'bg-purple-100 text-purple-800 border border-purple-300 font-semibold'; // Lịch Gấp/Ưu tiên
+    case 5:
+      return 'bg-blue-100 text-blue-800 border border-blue-300'; // Đang xử lý
+    case 6:
+      return 'bg-green-100 text-green-800 border border-green-300'; // Lịch đã phân
+    case 7:
+      return 'bg-red-200 text-red-900 border border-red-400'; // Lịch Hủy
+    case 8:
+      return 'bg-gray-200 text-gray-900 border border-gray-400'; // KXL
+    case 9:
+      return 'bg-pink-100 text-pink-800 border border-pink-300 font-semibold'; // Khách quen
+    case 10:
+      return 'bg-indigo-100 text-indigo-800 border border-indigo-300 font-semibold'; // Lịch ưu tiên
+    default:
+      return 'bg-gray-100 text-gray-800 border border-gray-300';
+  }
+};
+
+export const getStatusName = (status) => {
+  switch (status) {
+    case 0:
+      return '⏳ Chưa Phân';
+    case 1:
+      return '📞 Thuê Bao / Không nghe';
+    case 2:
+      return '⚠️ Khách Nhắc 1 lần';
+    case 3:
+      return '🚨 Khách nhắc nhiều lần';
+    case 4:
+      return '🔥 Lịch Gấp/Ưu tiên';
+    case 5:
+      return '⚡ Đang xử lý';
+    case 6:
+      return '✅ Lịch đã phân';
+    case 7:
+      return '❌ Lịch Hủy';
+    case 8:
+      return '⏸️ KXL';
+    case 9:
+      return '👥 Khách quen';
+    case 10:
+      return '⭐ Lịch ưu tiên';
+    default:
+      return '❓ Chưa xác định';
+  }
+};
+
 const WorkTable = ({ works = [], workers = [] }) => {
   const dispatch = useDispatch();
   const selectedDate = useSelector(selectSelectedDate);
@@ -158,105 +267,7 @@ const WorkTable = ({ works = [], workers = [] }) => {
     }
   };
 
-  const getWorkTypeColor = (kindWork) => {
-    switch (kindWork) {
-      case 1:
-        return 'bg-blue-100 text-blue-800'; // Điện Nước
-      case 2:
-        return 'bg-green-100 text-green-800'; // Điện Lạnh
-      case 3:
-        return 'bg-yellow-100 text-yellow-800'; // Đồ gỗ
-      case 4:
-        return 'bg-orange-100 text-orange-800'; // Năng Lượng Mặt trời
-      case 5:
-        return 'bg-red-100 text-red-800'; // Xây Dựng
-      case 6:
-        return 'bg-purple-100 text-purple-800'; // Tài Xế
-      case 7:
-        return 'bg-indigo-100 text-indigo-800'; // Cơ Khí
-      case 8:
-        return 'bg-pink-100 text-pink-800'; // Điện - Điện Tử
-      case 9:
-        return 'bg-gray-100 text-gray-800'; // Văn Phòng
-      default:
-        return 'bg-gray-100 text-gray-800';
-    }
-  };
 
-  const getWorkTypeName = (kindWork) => {
-    switch (kindWork) {
-      case 1:
-        return 'ĐN'; // Điện Nước
-      case 2:
-        return 'ĐL'; // Điện Lạnh
-      case 3:
-        return 'ĐG'; // Đồ gỗ
-      case 4:
-        return 'NLMT'; // Năng Lượng Mặt trời
-      case 5:
-        return 'XD'; // Xây Dựng
-      case 6:
-        return 'TX'; // Tài Xế
-      case 7:
-        return 'CK'; // Cơ Khí
-      case 8:
-        return 'ĐĐT'; // Điện - Điện Tử
-      case 9:
-        return 'VP'; // Văn Phòng
-      default:
-        return 'CPL'; // Chưa phân loại
-    }
-  };
-
-  const getStatusColor = (status) => {
-    switch (status) {
-      case 0:
-        return 'bg-gray-100 text-gray-800'; // Chưa Phân
-      case 1:
-        return 'bg-yellow-100 text-yellow-800'; // Thuê Bao / Không nghe
-      case 2:
-        return 'bg-orange-100 text-orange-800'; // Khách Nhắc 1 lần
-      case 3:
-        return 'bg-red-100 text-red-800'; // Khách nhắc nhiều lần
-      case 4:
-        return 'bg-purple-100 text-purple-800'; // Lịch Gấp/Ưu tiên
-      case 5:
-        return 'bg-blue-100 text-blue-800'; // 
-      case 6:
-        return 'bg-green-100 text-green-800'; // Lịch đã phân
-      case 7:
-        return 'bg-red-200 text-red-900'; // Lịch Hủy
-      case 8:
-        return 'bg-gray-200 text-gray-900'; // KXL
-      default:
-        return 'bg-gray-100 text-gray-800';
-    }
-  };
-
-  const getStatusName = (status) => {
-    switch (status) {
-      case 0:
-        return 'Chưa Phân';
-      case 1:
-        return 'Thuê Bao / Không nghe';
-      case 2:
-        return 'Khách Nhắc 1 lần';
-      case 3:
-        return 'Khách nhắc nhiều lần';
-      case 4:
-        return 'Lịch Gấp/Ưu tiên';
-      case 5:
-        return 'Đang xử lý';
-      case 6:
-        return 'Lịch đã phân';
-      case 7:
-        return 'Lịch Hủy';
-      case 8:
-        return 'KXL';
-      default:
-        return 'Chưa xác định';
-    }
-  };
 
   const getWorkTypeGradient = (kindWork) => {
     switch (kindWork) {
@@ -348,12 +359,12 @@ const WorkTable = ({ works = [], workers = [] }) => {
                 return (
                   <div
                     key={work.id}
-                    className="p-3 bg-gray-50 rounded-lg border border-gray-100 hover:border-blue-200 transition-colors"
+                    className="p-3 bg-gray-50 rounded-lg border border-gray-100 transition-colors hover:border-blue-200"
                   >
-                    <div className="flex items-start justify-between">
+                    <div className="flex justify-between items-start">
                       <div className="space-y-1.5 flex-1 min-w-0">
                         <div className="grid grid-cols-6 items-center space-x-2">
-                          <div className="col-span-1 flex items-center space-x-1">
+                          <div className="flex col-span-1 items-center space-x-1">
                             <span className={`inline-flex items-center justify-center w-5 h-5 text-xs font-bold text-white rounded-full shadow-sm ${getWorkTypeGradient(
                               category.kind_worker.id
                             )}`}>
@@ -367,7 +378,7 @@ const WorkTable = ({ works = [], workers = [] }) => {
                               {getWorkTypeName(category.kind_worker.id)}
                             </span>
                           </div>
-                          <p className="font-medium col-span-5 text-gray-900 break-words whitespace-pre-line">
+                          <p className="col-span-5 font-medium text-gray-900 whitespace-pre-line break-words">
                             {work.work_content || "Không có nội dung"}
                           </p>
                         </div>
@@ -397,29 +408,48 @@ const WorkTable = ({ works = [], workers = [] }) => {
                               >
                                 {getStatusName(work.status_work)}
                               </span>
-                              <p className="truncate border border-green-400 p-1 rounded-md text-green-400">
-                                {work.date_book}
-                              </p>
+                              <div className="flex items-center space-x-1">
+                                <p className="p-1 text-xs text-green-400 truncate rounded-md border border-green-400">
+                                  {work.date_book}
+                                </p>
+                                {work.time_book && (
+                                  <p className="p-1 text-xs text-blue-400 truncate rounded-md border border-blue-400">
+                                    {work.time_book}
+                                  </p>
+                                )}
+                              </div>
                             </div>
                           </div>
-                          <p className="text-gray-600 truncate break-words whitespace-pre-line">
+                          <p className="text-gray-600 truncate whitespace-pre-line break-words">
                             <span className="font-medium text-gray-700">
                               Địa chỉ:
                             </span>{" "}
                             {work.street
-                              ? `${work.street}, ${work.district}`
+                              ? `${work.street}${work.district ? `, ${work.district}` : ''}`
                               : "Chưa có thông tin"}
                           </p>
 
                           {work.work_note && (
-                            <p className="font-medium text-gray-900 break-words whitespace-pre-line">
+                            <p className="font-medium text-gray-900 whitespace-pre-line break-words">
                               {work.work_note}
+                            </p>
+                          )}
+                          
+                          {work.job_code && (
+                            <p className="text-xs text-gray-500">
+                              <span className="font-medium">Mã công việc:</span> {work.job_code}
+                            </p>
+                          )}
+                          
+                          {work.images_count > 0 && (
+                            <p className="text-xs text-blue-600">
+                              <span className="font-medium">Hình ảnh:</span> {work.images_count} ảnh
                             </p>
                           )}
                         </div>
                         {assignedWorker && (
-                          <div className="mt-2 p-2 bg-blue-50 rounded-md border border-blue-100">
-                            <p className="text-sm font-medium text-blue-700 mb-1">
+                          <div className="p-2 mt-2 bg-blue-50 rounded-md border border-blue-100">
+                            <p className="mb-1 text-sm font-medium text-blue-700">
                               Thợ đã phân công:
                             </p>
                             <div className="space-y-1">
@@ -436,7 +466,7 @@ const WorkTable = ({ works = [], workers = [] }) => {
                           </div>
                         )}
                       </div>
-                      <div className="flex items-center space-x-2 ml-4 flex-shrink-0">
+                      <div className="flex flex-shrink-0 items-center ml-4 space-x-2">
                         <button
                           onClick={() => handleCopy(work)}
                           className={`p-2 rounded-full transition-colors ${
@@ -452,14 +482,14 @@ const WorkTable = ({ works = [], workers = [] }) => {
                           <>
                             <button
                               onClick={() => handleChangeWorker(work)}
-                              className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 cursor-pointer rounded-full transition-colors"
+                              className="p-2 text-gray-500 rounded-full transition-colors cursor-pointer hover:text-blue-600 hover:bg-blue-50"
                               title="Đổi thợ"
                             >
                               <UserCog className="w-5 h-5" />
                             </button>
                             <button
                               onClick={() => handleEditAssignedWork(work)}
-                              className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-full transition-colors"
+                              className="p-2 text-gray-500 rounded-full transition-colors hover:text-blue-600 hover:bg-blue-50"
                               title="Nhập thu chi"
                             >
                               <DollarSign className="w-5 h-5" />
@@ -469,14 +499,14 @@ const WorkTable = ({ works = [], workers = [] }) => {
                           <div>
                             <button
                               onClick={() => handleAssignWorker(work)}
-                              className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-full transition-colors"
+                              className="p-2 text-gray-500 rounded-full transition-colors hover:text-blue-600 hover:bg-blue-50"
                               title="Phân công thợ"
                             >
                               <UserPlus className="w-5 h-5" />
                             </button>
                             <button
                               onClick={() => handleEditWork(work)}
-                              className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-full transition-colors"
+                              className="p-2 text-gray-500 rounded-full transition-colors hover:text-blue-600 hover:bg-blue-50"
                               title="Chỉnh sửa"
                             >
                               <Settings className="w-5 h-5" />
@@ -513,11 +543,11 @@ const WorkTable = ({ works = [], workers = [] }) => {
     getSortedRowModel: getSortedRowModel(),
   });
   return (
-    <div className="h-full flex flex-col">
-      <div className="flex items-center gap-2 justify-end mb-4">
+    <div className="flex flex-col h-full">
+      <div className="flex gap-1 justify-end items-center mb-2">
         <button
           onClick={() => handleWorkerTypeChange("all")}
-          className={`p-1 text-sm font-medium rounded-full transition-all duration-200 ${
+          className={`px-1.5 py-0.5 text-xs font-medium rounded-full transition-all duration-200 ${
             selectedWorkerType === "all"
               ? "bg-blue-600 text-white shadow-md"
               : "bg-gray-100 text-gray-700 hover:bg-gray-200"
@@ -530,29 +560,29 @@ const WorkTable = ({ works = [], workers = [] }) => {
             <button
               key={category.kind_worker?.id}
               onClick={() => handleWorkerTypeChange(category.kind_worker?.id)}
-              className={`p-1 text-sm font-medium cursor-pointer rounded-full transition-all duration-200 ${
+              className={`px-1.5 py-0.5 text-xs font-medium cursor-pointer rounded-full transition-all duration-200 ${
                 selectedWorkerType === category.kind_worker?.id
-                  ? "ring-2 ring-offset-2 ring-blue-500 shadow-md"
+                  ? "ring-1 ring-blue-500 shadow-sm"
                   : ""
               } ${getWorkTypeColor(category.kind_worker?.id)}`}
             >
               {getWorkTypeName(category.kind_worker?.id)}
-              <span className="ml-1 text-xs opacity-75">
+              <span className="ml-0.5 text-xs opacity-75">
                 ({category.kind_worker?.numberOfWork || 0})
               </span>
             </button>
           ))}
       </div>
 
-      <div className="flex-1 overflow-auto">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50 sticky top-0 z-10">
+      <div className="overflow-auto flex-1">
+        <table className="min-w-full divide-y divide-gray-100">
+          <thead className="sticky top-0 z-10 bg-gray-50">
             {table.getHeaderGroups().map((headerGroup) => (
               <tr key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
                   <th
                     key={header.id}
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors bg-gray-50"
+                    className="px-2 py-1 text-left text-[10px] font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors bg-gray-50"
                     onClick={header.column.getToggleSortingHandler()}
                   >
                     <div className="flex items-center space-x-1">
@@ -562,9 +592,9 @@ const WorkTable = ({ works = [], workers = [] }) => {
                       )}
                       {header.column.getIsSorted() &&
                         (header.column.getIsSorted() === "asc" ? (
-                          <ChevronUp className="w-4 h-4" />
+                          <ChevronUp className="w-3 h-3" />
                         ) : (
-                          <ChevronDown className="w-4 h-4" />
+                          <ChevronDown className="w-3 h-3" />
                         ))}
                     </div>
                   </th>
@@ -572,11 +602,11 @@ const WorkTable = ({ works = [], workers = [] }) => {
               </tr>
             ))}
           </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
+          <tbody className="bg-white divide-y divide-gray-100">
             {table.getRowModel().rows.map((row) => (
-              <tr key={row.id} className="hover:bg-gray-50 transition-colors">
+              <tr key={row.id} className="transition-colors hover:bg-gray-50">
                 {row.getVisibleCells().map((cell) => (
-                  <td key={cell.id} className="px-6 py-4">
+                  <td key={cell.id} className="px-2 py-1">
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </td>
                 ))}

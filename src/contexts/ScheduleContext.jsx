@@ -6,30 +6,40 @@ import axios from 'axios';
 const ScheduleContext = createContext();
 
 export function ScheduleProvider({ children }) {
-  const [isCreateScheduleModalOpen, setIsCreateScheduleModalOpen] = useState(false);
   const [workers, setWorkers] = useState([]);
+  const [isCreateScheduleModalOpen, setIsCreateScheduleModalOpen] = useState(false);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
+
+  // Fetch workers
+  const fetchWorkers = async () => {
+    try {
+      const response = await axios.get('https://csm.thoviet.net/api/web/workers');
+      setWorkers(response.data);
+    } catch (error) {
+      console.error('Error fetching workers:', error);
+    }
+  };
+
+  // Refresh data function
+  const refreshData = () => {
+    setRefreshTrigger(prev => prev + 1);
+  };
 
   useEffect(() => {
-    const fetchWorkers = async () => {
-      try {
-        const response = await axios.get('https://csm.thoviet.net/api/web/workers');
-        setWorkers(response.data);
-      } catch (error) {
-        console.error('Error fetching workers:', error);
-      }
-    };
-
     fetchWorkers();
   }, []);
 
+  const value = {
+    workers,
+    fetchWorkers,
+    isCreateScheduleModalOpen,
+    setIsCreateScheduleModalOpen,
+    refreshData,
+    refreshTrigger
+  };
+
   return (
-    <ScheduleContext.Provider
-      value={{
-        isCreateScheduleModalOpen,
-        setIsCreateScheduleModalOpen,
-        workers,
-      }}
-    >
+    <ScheduleContext.Provider value={value}>
       {children}
     </ScheduleContext.Provider>
   );

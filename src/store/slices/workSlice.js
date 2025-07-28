@@ -5,7 +5,7 @@ import axios from 'axios'
 export const fetchAssignedWorks = createAsyncThunk(
   'work/fetchAssignedWorks',
   async (date) => {
-    const response = await axios.get(`https://csm.thoviet.net/api/web/work-assignment?dateCheck=${date}`)
+    const response = await axios.post('/api/jobs/assigned', { date })
     return response.data
   }
 )
@@ -14,7 +14,7 @@ export const fetchAssignedWorks = createAsyncThunk(
 export const fetchUnassignedWorks = createAsyncThunk(
   'work/fetchUnassignedWorks',
   async (date) => {
-    const response = await axios.get(`https://csm.thoviet.net/api/web/works?dateCheck=${date}`)
+    const response = await axios.post('/api/jobs', { date })
     return response.data
   }
 )
