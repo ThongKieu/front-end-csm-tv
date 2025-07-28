@@ -15,11 +15,11 @@ import {
   BarChart3, 
   Shield,
   ArrowRight,
-  CheckCircle,
   Sparkles,
   Zap,
   Star
 } from "lucide-react";
+import { getBackendUrl } from '@/config/constants';
 
 export default function LoginClient() {
   const [formData, setFormData] = useState({
@@ -61,68 +61,10 @@ export default function LoginClient() {
       if (!response.ok) {
         throw new Error(data.message || "Đăng nhập thất bại");
       }
+      
       dispatch(login(data));
       router.push(from);
     } catch (error) {
-      setError(error.message);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleDemoLogin = async (email, password) => {
-    setFormData({ email, password });
-    setError("");
-    setIsLoading(true);
-
-    console.log('Attempting demo login with:', { email, password });
-
-    try {
-      // Test 1: Kiểm tra xem có thể gọi API không
-      console.log('Making API call to /api/auth/login');
-      
-      const response = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, password }),
-      });
-
-      console.log('Demo login response status:', response.status);
-      console.log('Demo login response headers:', response.headers);
-      
-      const data = await response.json();
-      console.log('Demo login response data:', data);
-
-      if (!response.ok) {
-        throw new Error(data.message || "Đăng nhập thất bại");
-      }
-
-      console.log('Demo login successful, dispatching to Redux');
-      
-      // Test 2: Kiểm tra Redux dispatch
-      try {
-        dispatch(login(data));
-        console.log('Redux dispatch successful');
-      } catch (reduxError) {
-        console.error('Redux dispatch error:', reduxError);
-        throw new Error('Lỗi khi lưu thông tin đăng nhập');
-      }
-      
-      console.log('Demo login redirecting to:', from);
-      
-      // Test 3: Kiểm tra router
-      try {
-        router.push(from);
-        console.log('Router push successful');
-      } catch (routerError) {
-        console.error('Router push error:', routerError);
-        // Fallback: reload page
-        window.location.href = from;
-      }
-    } catch (error) {
-      console.error('Demo login error:', error);
       setError(error.message);
     } finally {
       setIsLoading(false);
@@ -165,6 +107,13 @@ export default function LoginClient() {
             </h1>
             <p className="mb-0.5 text-xs font-medium text-white/90">Hệ thống quản lý dịch vụ</p>
             <p className="text-xs text-white/70">Đăng nhập để tiếp tục</p>
+            
+            {/* Backend Info */}
+            <div className="mt-2 p-2 bg-white/10 rounded-lg">
+              <p className="text-xs text-white/80">
+                Kết nối đến: <strong>{getBackendUrl()}</strong>
+              </p>
+            </div>
           </div>
 
           {/* Login Form */}

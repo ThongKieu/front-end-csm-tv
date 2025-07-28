@@ -1,26 +1,21 @@
 import { NextResponse } from 'next/server';
+import { API_URLS } from '@/config/constants';
 
 export async function POST(request) {
   try {
     const body = await request.json();
     
     console.log('Login attempt with:', body);
+    console.log('Backend URL:', API_URLS.USER_LOGIN);
     
-    // Thêm timeout và headers
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout
-    
-    const response = await fetch('http://192.168.1.27:3000/api/user/login', {
+    const response = await fetch(API_URLS.USER_LOGIN, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
       },
       body: JSON.stringify(body),
-      signal: controller.signal,
     });
-    
-    clearTimeout(timeoutId);
     
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({ message: 'Server error' }));
@@ -37,13 +32,6 @@ export async function POST(request) {
     return NextResponse.json(data);
   } catch (error) {
     console.error('Error during login:', error);
-    
-    if (error.name === 'AbortError') {
-      return NextResponse.json(
-        { message: 'Kết nối timeout. Vui lòng thử lại.' },
-        { status: 408 }
-      );
-    }
     
     if (error.code === 'ECONNREFUSED') {
       return NextResponse.json(
