@@ -3,7 +3,7 @@ export const CONFIG = {
   // Backend server configuration
   BACKEND: {
     BASE_URL: 'http://192.168.1.27', // Chỉ cần sửa IP ở đây
-    PORT: '', // Để trống nếu không cần port
+    PORT: '', // Thêm port 3000
     TIMEOUT: 10000, // Timeout cho requests (ms)
   },
   
@@ -14,6 +14,8 @@ export const CONFIG = {
       LOGIN: '/api/user/login',
       LOGOUT: '/api/user/logout',
       PROFILE: '/api/user/profile',
+      CHANGE_PASSWORD: '/api/user/change-password',
+      UPDATE: '/api/user/update',
     },
     JOB: {
       GET_BY_DATE: '/api/web/job/get-by-date',
@@ -44,6 +46,8 @@ export const API_URLS = {
   USER_LOGIN: getApiUrl(CONFIG.API.USER.LOGIN),
   USER_LOGOUT: getApiUrl(CONFIG.API.USER.LOGOUT),
   USER_PROFILE: getApiUrl(CONFIG.API.USER.PROFILE),
+  USER_CHANGE_PASSWORD: getApiUrl(CONFIG.API.USER.CHANGE_PASSWORD),
+  USER_UPDATE: getApiUrl(CONFIG.API.USER.UPDATE),
   JOB_GET_BY_DATE: getApiUrl(CONFIG.API.JOB.GET_BY_DATE),
   HEALTH: getApiUrl(CONFIG.API.HEALTH),
 }; 

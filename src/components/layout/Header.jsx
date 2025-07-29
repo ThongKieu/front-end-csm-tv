@@ -53,6 +53,23 @@ export default function Header() {
     return pathname === path;
   };
 
+  // Hàm để lấy tên hiển thị của user
+  const getDisplayName = () => {
+    if (!user) return "Tài khoản";
+    
+    // Ưu tiên full_name, sau đó là name, cuối cùng là user_name
+    const displayName = user.full_name || user.name || user.user_name;
+    
+    // Nếu có displayName thì trả về, không thì trả về "Tài khoản"
+    return displayName || "Tài khoản";
+  };
+
+  // Hàm để lấy chữ cái đầu của tên
+  const getInitial = () => {
+    const displayName = getDisplayName();
+    return displayName.charAt(0).toUpperCase();
+  };
+
   const menuItems = [
     {
       id: "dashboard",
@@ -101,12 +118,6 @@ export default function Header() {
       label: "Báo cáo",
       route: ROUTES.REPORTS,
       icon: <BarChart className="w-4 h-4" />,
-    },
-    {
-      id: "settings",
-      label: "Cài đặt",
-      route: ROUTES.SETTINGS,
-      icon: <Settings className="w-4 h-4" />,
     },
     ...(user?.role === 'admin' ? [{
       id: "admin",
@@ -193,10 +204,10 @@ export default function Header() {
               >
                 <div className="flex items-center justify-center w-8 h-8 bg-blue-100 rounded-full">
                   <span className="text-sm font-medium text-blue-600">
-                    {user?.name?.[0] || "U"}
+                    {getInitial()}
                   </span>
                 </div>
-                <span className="text-sm font-medium">{user?.name || "User"}</span>
+                <span className="text-sm font-medium">{getDisplayName()}</span>
                 <ChevronDown className="w-4 h-4" />
               </button>
 
@@ -292,13 +303,13 @@ export default function Header() {
                   <div className="flex-shrink-0">
                     <div className="flex items-center justify-center w-10 h-10 bg-blue-100 rounded-full">
                       <span className="text-lg font-medium text-blue-600">
-                        {user?.name?.[0] || "U"}
+                        {getInitial()}
                       </span>
                     </div>
                   </div>
                   <div className="ml-3">
                     <div className="text-base font-medium text-gray-800">
-                      {user?.name || "User"}
+                      {getDisplayName()}
                     </div>
                     <div className="text-sm font-medium text-gray-500">
                       {user?.email}
@@ -311,8 +322,24 @@ export default function Header() {
                     className="flex items-center px-3 py-2 text-base font-medium text-gray-600 rounded-md hover:bg-gray-50 hover:text-gray-900"
                     onClick={() => setIsMenuOpen(false)}
                   >
+                    <User className="w-4 h-4 mr-2" />
+                    Thông tin cá nhân
+                  </Link>
+                  <Link
+                    href={ROUTES.SETTINGS}
+                    className="flex items-center px-3 py-2 text-base font-medium text-gray-600 rounded-md hover:bg-gray-50 hover:text-gray-900"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
                     <Settings className="w-4 h-4 mr-2" />
-                    Hồ sơ
+                    Cài đặt
+                  </Link>
+                  <Link
+                    href={ROUTES.CHANGE_PASSWORD}
+                    className="flex items-center px-3 py-2 text-base font-medium text-gray-600 rounded-md hover:bg-gray-50 hover:text-gray-900"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    <Lock className="w-4 h-4 mr-2" />
+                    Đổi mật khẩu
                   </Link>
                   <button
                     onClick={() => {

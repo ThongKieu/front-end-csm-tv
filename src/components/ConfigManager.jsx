@@ -126,6 +126,10 @@ export default function ConfigManager() {
               <span className="font-mono">{currentConfig.API.USER.LOGIN}</span>
             </div>
             <div className="flex justify-between">
+              <span>User Change Password:</span>
+              <span className="font-mono">{currentConfig.API.USER.CHANGE_PASSWORD}</span>
+            </div>
+            <div className="flex justify-between">
               <span>Job Get by Date:</span>
               <span className="font-mono">{currentConfig.API.JOB.GET_BY_DATE}</span>
             </div>
