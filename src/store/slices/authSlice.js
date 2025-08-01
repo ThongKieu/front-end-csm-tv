@@ -13,12 +13,25 @@ const authSlice = createSlice({
   initialState,
   reducers: {
     login: (state, { payload }) => {
+      console.log('authSlice login: Payload nhận được:', payload)
+      console.log('authSlice login: Payload.token:', payload.token)
+      console.log('authSlice login: Payload.user:', payload.user)
+      
       state.user = payload.user
       state.token = payload.token
       state.isAuthenticated = true
       state.isLoading = false
       
+      console.log('authSlice login: State sau khi cập nhật:', {
+        user: state.user,
+        token: state.token,
+        isAuthenticated: state.isAuthenticated,
+        isLoading: state.isLoading
+      })
+      
+      console.log('authSlice login: Lưu auth data...')
       saveAuthData(payload.token, payload.user)
+      console.log('authSlice login: Đã lưu auth data')
     },
     logout: (state) => {
       state.user = null

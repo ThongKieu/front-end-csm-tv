@@ -33,7 +33,7 @@ const StatusStats = ({ jobs = [], compact = false }) => {
 
   if (compact) {
     return (
-      <div className="flex items-center gap-1">
+      <div className="flex gap-1 items-center">
         {sortedStats.map(({ status, count, color, name }) => (
           <div
             key={status}
@@ -50,8 +50,8 @@ const StatusStats = ({ jobs = [], compact = false }) => {
 
   // Mặc định (không compact)
   return (
-    <div className="mb-2 p-2 bg-white rounded-lg border border-gray-200 shadow-sm">
-      <h3 className="text-xs font-semibold text-gray-700 mb-1">
+    <div className="p-2 mb-2 bg-white rounded-lg border border-gray-200 shadow-sm">
+      <h3 className="mb-1 text-xs font-semibold text-gray-700">
         📊 Thống kê trạng thái ({jobs.length} công việc)
       </h3>
       <div className="flex flex-wrap gap-1">

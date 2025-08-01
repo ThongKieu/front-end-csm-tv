@@ -5,9 +5,8 @@ export async function POST(request) {
   try {
     const body = await request.json();
     
-    console.log('=== UPDATE USER REQUEST ===');
-    console.log('Request body:', JSON.stringify(body, null, 2));
-    console.log('Backend URL:', API_URLS.USER_UPDATE);
+      // Log user update request
+  console.log('User update request:', { id: body.id, full_name: body.full_name });
     
     const response = await fetch(API_URLS.USER_UPDATE, {
       method: 'POST',
@@ -29,17 +28,16 @@ export async function POST(request) {
       }),
     });
     
-    console.log('Backend response status:', response.status);
-    console.log('Backend response headers:', Object.fromEntries(response.headers.entries()));
+
     
     let data;
     try {
       data = await response.json();
-      console.log('Backend response data:', JSON.stringify(data, null, 2));
+
     } catch (parseError) {
       console.error('Failed to parse response as JSON:', parseError);
       const textResponse = await response.text();
-      console.log('Raw response text:', textResponse);
+
       data = { message: 'Invalid response format' };
     }
     
@@ -56,7 +54,7 @@ export async function POST(request) {
       );
     }
     
-    console.log('User updated successfully:', data);
+
     return NextResponse.json(data);
   } catch (error) {
     console.error('=== UPDATE USER ERROR ===');

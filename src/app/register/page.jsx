@@ -1,8 +1,11 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { useSelector } from 'react-redux';
 import { getBackendUrl } from '@/config/constants';
+import { ROUTES, getRoleBasedRoute } from '@/config/routes';
+import AuthLoading from '@/components/AuthLoading';
 
 const jobTypes = [
   { value: 'VP', label: 'VP' },
@@ -53,6 +56,25 @@ export default function RegisterPage() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const router = useRouter();
+  const { isAuthenticated, user, isLoading: authLoading } = useSelector((state) => state.auth);
+
+  useEffect(() => {
+    // Chỉ redirect khi đã hoàn tất quá trình loading và đã đăng nhập
+    if (!authLoading && isAuthenticated && user) {
+      const roleBasedRoute = getRoleBasedRoute(user.role);
+      router.push(roleBasedRoute);
+    }
+  }, [isAuthenticated, authLoading, user, router]);
+
+  // Hiển thị loading khi đang khôi phục authentication
+  if (authLoading) {
+    return <AuthLoading />;
+  }
+
+  // Nếu đã đăng nhập, không hiển thị gì (sẽ redirect)
+  if (isAuthenticated && user) {
+    return null;
+  }
 
   const handleChange = (field, value) => {
     setForm((prev) => ({ ...prev, [field]: value }));
@@ -98,7 +120,7 @@ export default function RegisterPage() {
         role: form.role,
       };
 
-      console.log('Sending data to backend:', requestData);
+  
 
       const res = await fetch('/api/user/create', {
         method: 'POST',
@@ -110,7 +132,7 @@ export default function RegisterPage() {
       });
       
       const data = await res.json();
-      console.log('Backend response:', data);
+      
       
       if (!res.ok) {
         // Hiển thị lỗi chi tiết từ backend

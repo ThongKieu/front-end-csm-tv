@@ -5,6 +5,7 @@ import { useRouter, usePathname } from 'next/navigation'
 import { useSelector } from 'react-redux'
 import { ROUTES, getRoleBasedRoute } from '@/config/routes'
 import HeaderOnlyLayout from '@/components/layout/HeaderOnlyLayout'
+import AuthGuard from '@/components/AuthGuard'
 
 export default function DashboardLayout({ children }) {
   const router = useRouter()
@@ -12,23 +13,21 @@ export default function DashboardLayout({ children }) {
   const { isAuthenticated, user } = useSelector((state) => state.auth)
 
   useEffect(() => {
-    if (!isAuthenticated) {
-      router.push(ROUTES.LOGIN)
-      return
-    }
-
-    // Nếu đang ở trang chủ, chuyển hướng dựa vào role
-    if (pathname === ROUTES.HOME) {
-      const roleBasedRoute = getRoleBasedRoute(user?.role)
-      if (roleBasedRoute !== ROUTES.HOME) {
-        router.push(roleBasedRoute)
+    // Chỉ kiểm tra role routing khi đã authenticated
+    if (isAuthenticated && user) {
+      console.log('DashboardLayout: Đã authenticated, kiểm tra role routing')
+      // Nếu đang ở trang chủ, chuyển hướng dựa vào role
+      if (pathname === ROUTES.HOME) {
+        const roleBasedRoute = getRoleBasedRoute(user?.role)
+        if (roleBasedRoute !== ROUTES.HOME) {
+          console.log('DashboardLayout: Redirect to role-based route:', roleBasedRoute)
+          router.push(roleBasedRoute)
+        }
       }
     }
-  }, [isAuthenticated, router, pathname, user?.role])
+  }, [isAuthenticated, user, router, pathname])
 
-  if (!isAuthenticated) {
-    return null
-  }
-
-  return <HeaderOnlyLayout>{children}</HeaderOnlyLayout>
+  return (
+    <HeaderOnlyLayout>{children}</HeaderOnlyLayout>
+  )
 } 

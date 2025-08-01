@@ -81,20 +81,16 @@ export default function ProfilePage() {
     e.preventDefault()
     setError('')
     setSuccess('')
-    
     if (!validateForm()) {
       return
     }
-
     setIsLoading(true)
-    
     try {
       // Lấy ID từ user object hiện tại thay vì từ form
       const requestData = {
         ...formData,
         id: user?.id || user?.user_id || formData.id, // Ưu tiên lấy từ user object
       }
-
       const response = await fetch('/api/user/update', {
         method: 'POST',
         headers: {

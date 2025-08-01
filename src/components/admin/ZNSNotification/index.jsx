@@ -141,7 +141,7 @@ export default function ZNSNotification() {
         }]
       }
 
-      console.log('Data to send:', sendData)
+  
 
       // Giả lập API call
       await new Promise(resolve => setTimeout(resolve, 2000))

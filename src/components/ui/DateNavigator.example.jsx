@@ -7,7 +7,7 @@ const DateNavigatorExample = () => {
 
   const handleDateChange = (e) => {
     setSelectedDate(e.target.value);
-    console.log('Date changed to:', e.target.value);
+
   };
 
   const handlePreviousDay = () => {
@@ -15,7 +15,7 @@ const DateNavigatorExample = () => {
     prevDate.setDate(prevDate.getDate() - 1);
     const newDate = prevDate.toISOString().split('T')[0];
     setSelectedDate(newDate);
-    console.log('Previous day:', newDate);
+
   };
 
   const handleNextDay = () => {
@@ -23,13 +23,13 @@ const DateNavigatorExample = () => {
     nextDate.setDate(nextDate.getDate() + 1);
     const newDate = nextDate.toISOString().split('T')[0];
     setSelectedDate(newDate);
-    console.log('Next day:', newDate);
+
   };
 
   const handleToday = () => {
     const today = new Date().toISOString().split('T')[0];
     setSelectedDate(today);
-    console.log('Today:', today);
+
   };
 
   return (

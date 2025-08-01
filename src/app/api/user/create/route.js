@@ -5,19 +5,8 @@ export async function POST(request) {
   try {
     const body = await request.json();
     
-    console.log('=== USER CREATE REQUEST ===');
-    console.log('Request body:', JSON.stringify(body, null, 2));
-    console.log('Backend URL:', API_URLS.USER_CREATE);
-    
-    // Kiểm tra dữ liệu trước khi gửi
-    console.log('Data validation:');
-    console.log('- user_name:', typeof body.user_name, body.user_name);
-    console.log('- password:', typeof body.password, body.password?.length);
-    console.log('- type:', typeof body.type, body.type);
-    console.log('- code:', typeof body.code, body.code);
-    console.log('- full_name:', typeof body.full_name, body.full_name);
-    console.log('- phone_business:', typeof body.phone_business, body.phone_business);
-    console.log('- role:', typeof body.role, body.role);
+    // Log request for debugging
+    console.log('User create request:', { user_name: body.user_name, type: body.type, role: body.role });
     
     const response = await fetch(API_URLS.USER_CREATE, {
       method: 'POST',
@@ -28,17 +17,16 @@ export async function POST(request) {
       body: JSON.stringify(body),
     });
     
-    console.log('Backend response status:', response.status);
-    console.log('Backend response headers:', Object.fromEntries(response.headers.entries()));
+
     
     let data;
     try {
       data = await response.json();
-      console.log('Backend response data:', JSON.stringify(data, null, 2));
+
     } catch (parseError) {
       console.error('Failed to parse response as JSON:', parseError);
       const textResponse = await response.text();
-      console.log('Raw response text:', textResponse);
+
       data = { message: 'Invalid response format' };
     }
     
@@ -80,7 +68,7 @@ export async function POST(request) {
       );
     }
     
-    console.log('User created successfully:', data);
+
     return NextResponse.json(data);
   } catch (error) {
     console.error('=== USER CREATE ERROR ===');

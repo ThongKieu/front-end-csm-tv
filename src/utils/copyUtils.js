@@ -32,7 +32,7 @@ ${work.worker_full_name ? `${work.worker_full_name} (${work.worker_code})` : ""}
   if (navigator.clipboard && window.isSecureContext) {
     return navigator.clipboard.writeText(scheduleText)
       .then(() => {
-        console.log('Schedule copied to clipboard');
+    
         return true;
       })
       .catch((err) => {

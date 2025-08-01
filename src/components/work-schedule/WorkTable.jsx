@@ -339,7 +339,7 @@ const WorkTable = ({ works = [], workers = [] }) => {
         cell: (info) => {
           const category = info.row.original;
           const works = category.data || [];
-          console.log(works);
+        
           
           if (works.length === 0) {
             return (
@@ -420,14 +420,66 @@ const WorkTable = ({ works = [], workers = [] }) => {
                               </div>
                             </div>
                           </div>
-                          <p className="text-gray-600 truncate whitespace-pre-line break-words">
-                            <span className="font-medium text-gray-700">
-                              Địa chỉ:
-                            </span>{" "}
-                            {work.street
-                              ? `${work.street}${work.district ? `, ${work.district}` : ''}`
-                              : "Chưa có thông tin"}
-                          </p>
+                                                     <div className="flex items-center space-x-1">
+                             <span className="font-medium text-gray-700">📍 Địa chỉ:</span>
+                                                            <span 
+                                 className="text-gray-600 truncate cursor-pointer hover:text-blue-600 hover:bg-blue-50 px-1 py-0.5 rounded text-sm relative group"
+                                 title="Click để copy địa chỉ"
+                                 onMouseEnter={(e) => {
+                                   const address = (() => {
+                                     const street = typeof work.street === 'string' ? work.street : 
+                                                   (work.street?.name || work.street?.street_name || '');
+                                     const district = typeof work.district === 'string' ? work.district : 
+                                                   (work.district?.name || work.district?.district_name || '');
+                                     
+                                     if (street || district) {
+                                       return `${street || ''}${district ? (street ? ', ' : '') + district : ''}`;
+                                     }
+                                     return "Chưa có thông tin";
+                                   })();
+                                   
+                                   if (address !== "Chưa có thông tin") {
+                                     e.target.title = address;
+                                   }
+                                 }}
+                                 onClick={() => {
+                                 const address = (() => {
+                                   const street = typeof work.street === 'string' ? work.street : 
+                                                 (work.street?.name || work.street?.street_name || '');
+                                   const district = typeof work.district === 'string' ? work.district : 
+                                                 (work.district?.name || work.district?.district_name || '');
+                                   
+                                   if (street || district) {
+                                     return `${street || ''}${district ? (street ? ', ' : '') + district : ''}`;
+                                   }
+                                   return "Chưa có thông tin";
+                                 })();
+                                 
+                                 if (address !== "Chưa có thông tin") {
+                                   navigator.clipboard.writeText(address);
+                                   // Có thể thêm toast notification ở đây
+                                 }
+                               }}
+                             >
+                               {(() => {
+                                 console.log('WorkTable Address debug:', { 
+                                   workId: work.id,
+                                   street: work.street, 
+                                   district: work.district 
+                                 });
+                                 
+                                 const street = typeof work.street === 'string' ? work.street : 
+                                               (work.street?.name || work.street?.street_name || '');
+                                 const district = typeof work.district === 'string' ? work.district : 
+                                               (work.district?.name || work.district?.district_name || '');
+                                 
+                                 if (street || district) {
+                                   return `${street || ''}${district ? (street ? ', ' : '') + district : ''}`;
+                                 }
+                                 return "Chưa có thông tin";
+                               })()}
+                             </span>
+                           </div>
 
                           {work.work_note && (
                             <p className="font-medium text-gray-900 whitespace-pre-line break-words">

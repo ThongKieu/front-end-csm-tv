@@ -37,13 +37,15 @@ export const getRoleBasedRoute = (role) => {
   switch (role) {
     case 'admin':
       return ROUTES.ADMIN.DASHBOARD;
+    case 'manager':
+      return ROUTES.DASHBOARD; // Manager đi đến dashboard thường
     case 'accountant':
       return ROUTES.ACCOUNTANT.TRANSACTIONS;
     case 'worker':
       return ROUTES.WORKER.MY_WORKS;
     case 'user':
-      return ROUTES.HOME;
+      return ROUTES.DASHBOARD; // User đi đến dashboard thường
     default:
-      return ROUTES.HOME;
+      return ROUTES.DASHBOARD; // Default đi đến dashboard
   }
 }; 

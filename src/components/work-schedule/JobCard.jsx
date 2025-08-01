@@ -13,7 +13,9 @@ const JobCard = ({ job, index, onAssign, onEdit, onCopy, copiedWorkId }) => {
       className="relative flex items-center py-1.5 px-3 bg-gray-50 rounded border border-gray-100 hover:border-blue-200 transition-colors cursor-pointer text-xs"
       onMouseEnter={() => setShowTooltip(true)}
       onMouseLeave={() => setShowTooltip(false)}
-      onClick={() => setShowModal(true)}
+      onClick={() => {
+        setShowModal(true);
+      }}
     >
       {/* Số thứ tự */}
       <div className="w-6 text-center font-bold text-gray-600 text-xs">

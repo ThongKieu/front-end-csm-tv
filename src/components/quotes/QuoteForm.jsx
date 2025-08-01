@@ -41,7 +41,7 @@ export default function QuoteForm({
       if (e.ctrlKey && e.key === 's') {
         e.preventDefault();
         // Trigger save action if available
-        console.log('Quick save triggered');
+    
       }
       
       // Navigate between items with arrow keys

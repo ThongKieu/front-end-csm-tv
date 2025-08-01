@@ -6,12 +6,23 @@ const USER_KEY = 'auth_user';
 // Lưu token vào cả cookie và localStorage
 export const saveAuthData = (token, user) => {
   try {
+    console.log('saveAuthData: Lưu authentication data...')
+    console.log('saveAuthData: Token:', token ? 'Có' : 'Không')
+    console.log('saveAuthData: User:', user ? 'Có' : 'Không')
+    console.log('saveAuthData: Token value:', token)
+    console.log('saveAuthData: User value:', user)
+    
     // Lưu vào cookie (cho SSR)
     Cookies.set('token', token, { expires: 7, secure: true, sameSite: 'strict' });
     
     // Lưu vào localStorage (cho client-side)
     localStorage.setItem(TOKEN_KEY, token);
     localStorage.setItem(USER_KEY, JSON.stringify(user));
+    
+    console.log('saveAuthData: Đã lưu thành công vào localStorage và cookie')
+    console.log('saveAuthData: Kiểm tra localStorage sau khi lưu:')
+    console.log('saveAuthData: - auth_token:', localStorage.getItem(TOKEN_KEY))
+    console.log('saveAuthData: - auth_user:', localStorage.getItem(USER_KEY))
   } catch (error) {
     console.error('Error saving auth data:', error);
   }
@@ -38,9 +49,15 @@ export const getAuthToken = () => {
 export const getAuthUser = () => {
   try {
     const userStr = localStorage.getItem(USER_KEY);
-    return userStr ? JSON.parse(userStr) : null;
+    // Kiểm tra nếu userStr là "undefined" hoặc null hoặc rỗng
+    if (!userStr || userStr === 'undefined' || userStr === 'null') {
+      return null;
+    }
+    return JSON.parse(userStr);
   } catch (error) {
     console.error('Error getting auth user:', error);
+    // Xóa dữ liệu hỏng
+    localStorage.removeItem(USER_KEY);
     return null;
   }
 };
@@ -56,12 +73,30 @@ export const clearAuthData = () => {
   }
 };
 
+// Xóa dữ liệu authentication bị hỏng
+export const clearCorruptedAuthData = () => {
+  try {
+    // Xóa tất cả dữ liệu authentication
+    clearAuthData();
+    console.log('Cleared corrupted authentication data');
+  } catch (error) {
+    console.error('Error clearing corrupted auth data:', error);
+  }
+};
+
 // Kiểm tra token có hợp lệ không
 export const isTokenValid = (token) => {
-  if (!token) return false;
+  if (!token || typeof token !== 'string') return false;
   
   try {
-    const payload = JSON.parse(atob(token.split('.')[1]));
+    // Kiểm tra format JWT (3 phần được phân tách bởi dấu chấm)
+    const parts = token.split('.');
+    if (parts.length !== 3) {
+      return false;
+    }
+    
+    // Decode payload
+    const payload = JSON.parse(atob(parts[1]));
     const currentTime = Date.now() / 1000;
     
     // Kiểm tra thời gian hết hạn
@@ -79,21 +114,40 @@ export const isTokenValid = (token) => {
 // Khôi phục trạng thái authentication
 export const restoreAuthState = () => {
   try {
+    console.log('restoreAuthState: Bắt đầu khôi phục...')
+    
+    // Kiểm tra xem localStorage có sẵn sàng không
+    if (typeof window === 'undefined' || !window.localStorage) {
+      console.log('restoreAuthState: localStorage không sẵn sàng')
+      return null;
+    }
+    
     const token = getAuthToken();
     const user = getAuthUser();
     
+    console.log('restoreAuthState: Token từ storage:', token ? 'Có' : 'Không')
+    console.log('restoreAuthState: User từ storage:', user ? 'Có' : 'Không')
+    
+    // Kiểm tra nếu có token và user hợp lệ
     if (token && user && isTokenValid(token)) {
+      console.log('restoreAuthState: Token và user hợp lệ, khôi phục thành công')
       return { token, user };
     }
     
-    // Nếu token không hợp lệ, xóa dữ liệu cũ
-    if (token && !isTokenValid(token)) {
+    console.log('restoreAuthState: Token hoặc user không hợp lệ')
+    console.log('restoreAuthState: Token valid:', token ? isTokenValid(token) : false)
+    
+    // Nếu có token nhưng không hợp lệ hoặc không có user, xóa dữ liệu cũ
+    if (token && (!isTokenValid(token) || !user)) {
+      console.log('restoreAuthState: Xóa dữ liệu authentication cũ')
       clearAuthData();
     }
     
     return null;
   } catch (error) {
     console.error('Error restoring auth state:', error);
+    // Xóa dữ liệu hỏng khi có lỗi
+    clearAuthData();
     return null;
   }
 };

@@ -50,12 +50,12 @@ export default function DashboardClient() {
 
   // Handler functions for JobsList
   const handleAssign = (work, isChanging = false) => {
-    console.log('Assign work:', work, 'isChanging:', isChanging);
+
     // TODO: Implement assign functionality
   };
 
   const handleEdit = (work, isAssigned = false) => {
-    console.log('Edit work:', work, 'isAssigned:', isAssigned);
+
     // TODO: Implement edit functionality
   };
 
@@ -168,7 +168,7 @@ export default function DashboardClient() {
   // Lắng nghe refreshTrigger để tự động refresh data
   useEffect(() => {
     if (isInitialized && refreshTrigger > 0) {
-      console.log('Refreshing data due to schedule creation...');
+  
       fetchData(selectedDate);
     }
   }, [refreshTrigger, isInitialized, fetchData, selectedDate]);
@@ -297,9 +297,10 @@ export default function DashboardClient() {
                 className="px-2 py-1 text-xs rounded-md border border-gray-200 focus:outline-none focus:ring-1 focus:ring-blue-500"
               />
               <button
-                onClick={() =>
-                  console.log("Fetching data for range:", dateRange)
-                }
+                onClick={() => {
+                  // TODO: Implement date range filtering
+                  console.log('Filtering date range:', dateRange);
+                }}
                 className="flex gap-1 items-center px-2 py-1 text-xs text-white bg-blue-600 rounded-md transition-colors hover:bg-blue-700"
               >
                 <Filter className="w-3 h-3" />

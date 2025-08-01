@@ -180,7 +180,7 @@ export default function CreateScheduleModal({ isOpen, onClose, workers, onSucces
         updated_at: new Date().toISOString()
       };
 
-      console.log('Sending data to API:', requestData);
+  
 
       const formData = new FormData();
       
@@ -198,11 +198,7 @@ export default function CreateScheduleModal({ isOpen, onClose, workers, onSucces
         });
       }
 
-      // Log FormData để debug
-      console.log('FormData entries:');
-      for (let [key, value] of formData.entries()) {
-        console.log(`${key}:`, value);
-      }
+
 
       const response = await axios.post('http://192.168.1.27/api/web/job/create', formData, {
         headers: { 
@@ -212,7 +208,7 @@ export default function CreateScheduleModal({ isOpen, onClose, workers, onSucces
         timeout: 30000 // 30 giây timeout
       });
 
-      console.log('API Response:', response);
+
 
       if (response.status === 200 || response.status === 201) {
         showToast('Tạo công việc thành công!', 'success');

@@ -2,7 +2,16 @@ import { NextResponse } from 'next/server'
 import { ROUTES } from '@/config/routes'
 
 // Các route không cần authentication
-const publicRoutes = [ROUTES.LOGIN, '/register', '/forgot-password']
+const publicRoutes = [
+  ROUTES.LOGIN, 
+  '/register', 
+  '/forgot-password',
+  '/api/user/login',
+  '/api/auth/login',
+  '/api/auth/check',
+  '/api/auth/verify',
+  '/api/test-connection'
+]
 
 // Các route theo role
 const roleRoutes = {
@@ -102,8 +111,12 @@ export function middleware(request) {
   const { pathname } = request.nextUrl
   const token = request.cookies.get('token')?.value
 
+  console.log('Middleware: Checking pathname:', pathname)
+  console.log('Middleware: Token exists:', !!token)
+
   // Cho phép truy cập các route công khai
   if (publicRoutes.includes(pathname)) {
+    console.log('Middleware: Public route, allowing access')
     return NextResponse.next()
   }
 

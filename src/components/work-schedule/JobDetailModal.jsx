@@ -1,9 +1,11 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { X, Phone, MapPin, FileText, Image, Calendar, Clock, User } from 'lucide-react';
 import { getStatusColor, getStatusName, getWorkTypeColor, getWorkTypeName } from './WorkTable';
 
 const JobDetailModal = ({ job, open, onClose }) => {
-  // Xử lý phím ESC để đóng modal
+  const modalRef = useRef(null);
+
+  // Xử lý phím ESC và click outside để đóng modal
   useEffect(() => {
     const handleEscape = (e) => {
       if (e.key === 'Escape') {
@@ -11,14 +13,23 @@ const JobDetailModal = ({ job, open, onClose }) => {
       }
     };
 
+    const handleClickOutside = (e) => {
+      if (modalRef.current && !modalRef.current.contains(e.target)) {
+        console.log('Click outside detected');
+        onClose();
+      }
+    };
+
     if (open) {
       document.addEventListener('keydown', handleEscape);
+      document.addEventListener('mousedown', handleClickOutside);
       // Ngăn scroll body khi modal mở
       document.body.style.overflow = 'hidden';
     }
 
     return () => {
       document.removeEventListener('keydown', handleEscape);
+      document.removeEventListener('mousedown', handleClickOutside);
       document.body.style.overflow = 'unset';
     };
   }, [open, onClose]);
@@ -27,12 +38,11 @@ const JobDetailModal = ({ job, open, onClose }) => {
 
   return (
     <div 
-      className="flex fixed inset-0 z-50 justify-center items-center backdrop-blur-sm bg-black/25"
-      onClick={onClose} // Click outside để đóng
+      className="fixed inset-0 z-[9999] flex justify-center items-center backdrop-blur-sm bg-black/25"
     >
       <div 
-        className="bg-white rounded-xl shadow-2xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto animate-in fade-in-0 zoom-in-95 duration-200"
-        onClick={(e) => e.stopPropagation()} // Ngăn đóng khi click vào content
+        ref={modalRef}
+        className="bg-white rounded-xl shadow-2xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto"
       >
         {/* Header */}
         <div className="sticky top-0 px-6 py-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-t-xl border-b border-gray-200">
@@ -100,9 +110,19 @@ const JobDetailModal = ({ job, open, onClose }) => {
                 Địa chỉ
               </h3>
               <p className="text-gray-900">
-                {job.street
-                  ? `${job.street}${job.district ? `, ${job.district}` : ''}`
-                  : "Chưa có thông tin"}
+                {(() => {
+                  console.log('Address debug:', { street: job.street, district: job.district });
+                  
+                  const street = typeof job.street === 'string' ? job.street : 
+                                (job.street?.name || job.street?.street_name || '');
+                  const district = typeof job.district === 'string' ? job.district : 
+                                  (job.district?.name || job.district?.district_name || '');
+                  
+                  if (street || district) {
+                    return `${street || ''}${district ? (street ? ', ' : '') + district : ''}`;
+                  }
+                  return "Chưa có thông tin";
+                })()}
               </p>
             </div>
           </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useDispatch } from "react-redux";
 import { login } from "@/store/slices/authSlice";
@@ -17,7 +17,8 @@ import {
   ArrowRight,
   Sparkles,
   Zap,
-  Star
+  Star,
+  Check
 } from "lucide-react";
 import { getBackendUrl } from '@/config/constants';
 
@@ -29,15 +30,36 @@ export default function LoginClient() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const [rememberMe, setRememberMe] = useState(false);
 
   const router = useRouter();
   const dispatch = useDispatch();
   const searchParams = useSearchParams();
   const from = searchParams.get("from") || "/dashboard";
 
+  // Load saved login info when component mounts
+  useEffect(() => {
+    try {
+      const savedLoginInfo = localStorage.getItem('savedLoginInfo');
+      if (savedLoginInfo) {
+        const { user_name, password, rememberMe: savedRememberMe } = JSON.parse(savedLoginInfo);
+        setFormData({ user_name, password });
+        setRememberMe(savedRememberMe);
+      }
+    } catch (error) {
+      console.error('Error loading saved login info:', error);
+    }
+  }, []);
+
   const handleInputChange = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
     setError(""); // Clear error when user types
+  };
+
+  const clearSavedLoginInfo = () => {
+    localStorage.removeItem('savedLoginInfo');
+    setFormData({ user_name: "", password: "" });
+    setRememberMe(false);
   };
 
   const handleSubmit = async (e) => {
@@ -58,11 +80,64 @@ export default function LoginClient() {
       });
 
       const data = await response.json();
+      console.log('LoginClient: Response data từ API:', data);
+      
       if (!response.ok) {
         throw new Error(data.message || "Đăng nhập thất bại");
       }
       
-      dispatch(login(data));
+      // Xử lý các format response khác nhau từ backend
+      let loginData = data;
+      
+      // Nếu backend trả về format { success: true, data: { token, user } }
+      if (data.success && data.data) {
+        loginData = data.data;
+      }
+      // Nếu backend trả về format { success: true, token, user }
+      else if (data.success && data.token && data.user) {
+        loginData = { token: data.token, user: data.user };
+      }
+      // Nếu backend trả về trực tiếp { token, user }
+      else if (data.token && data.user) {
+        loginData = data;
+      }
+      else {
+        console.error('LoginClient: Response không chứa token hoặc user:', data);
+        throw new Error("Dữ liệu đăng nhập không hợp lệ");
+      }
+      
+      console.log('LoginClient: Login data đã xử lý:', loginData);
+      
+      // Save login info if remember me is checked
+      if (rememberMe) {
+        try {
+          localStorage.setItem('savedLoginInfo', JSON.stringify({
+            user_name: formData.user_name,
+            password: formData.password,
+            rememberMe: true
+          }));
+        } catch (error) {
+          console.error('Error saving login info:', error);
+        }
+      } else {
+        // Remove saved login info if remember me is unchecked
+        localStorage.removeItem('savedLoginInfo');
+      }
+      
+      console.log('LoginClient: Dispatching login với data:', loginData);
+      console.log('LoginClient: Token sẽ được lưu:', loginData.token);
+      console.log('LoginClient: User sẽ được lưu:', loginData.user);
+      
+      dispatch(login(loginData));
+      
+      // Kiểm tra xem token có được lưu vào localStorage không
+      setTimeout(() => {
+        const savedToken = localStorage.getItem('auth_token');
+        const savedUser = localStorage.getItem('auth_user');
+        console.log('LoginClient: Kiểm tra sau khi dispatch - Token:', savedToken ? 'Có' : 'Không');
+        console.log('LoginClient: Kiểm tra sau khi dispatch - User:', savedUser ? 'Có' : 'Không');
+      }, 100);
+      
       router.push(from);
     } catch (error) {
       setError(error.message);
@@ -109,7 +184,7 @@ export default function LoginClient() {
             <p className="text-xs text-white/70">Đăng nhập để tiếp tục</p>
             
             {/* Backend Info */}
-            <div className="mt-2 p-2 bg-white/10 rounded-lg">
+            <div className="p-2 mt-2 rounded-lg bg-white/10">
               <p className="text-xs text-white/80">
                 Kết nối đến: <strong>{getBackendUrl()}</strong>
               </p>
@@ -172,6 +247,45 @@ export default function LoginClient() {
                   <div className="absolute inset-0 bg-gradient-to-r rounded-xl opacity-0 blur-xl transition-opacity duration-300 from-purple-500/20 to-pink-500/20 group-focus-within:opacity-100 -z-10"></div>
                 </div>
               </div>
+              
+              {/* Remember Me Checkbox */}
+              <div className="flex justify-between items-center">
+                <div className="flex items-center space-x-2">
+                  <button
+                    type="button"
+                    onClick={() => setRememberMe(!rememberMe)}
+                    className={`flex items-center justify-center w-4 h-4 rounded border transition-all duration-200 ${
+                      rememberMe 
+                        ? 'bg-gradient-to-r from-purple-500 to-pink-500 border-purple-500' 
+                        : 'bg-white/10 border-white/30 hover:border-purple-400'
+                    }`}
+                  >
+                    {rememberMe && (
+                      <Check className="w-3 h-3 text-white" />
+                    )}
+                  </button>
+                  <label 
+                    htmlFor="remember-me" 
+                    className="text-xs font-medium cursor-pointer select-none text-white/90"
+                    onClick={() => setRememberMe(!rememberMe)}
+                  >
+                    Ghi nhớ đăng nhập
+                  </label>
+                </div>
+                
+                {/* Clear saved info button (only show if there's saved info) */}
+                {localStorage.getItem('savedLoginInfo') && (
+                  <button
+                    type="button"
+                    onClick={clearSavedLoginInfo}
+                    className="text-xs underline transition-colors text-white/60 hover:text-white/90"
+                    title="Xóa thông tin đã lưu"
+                  >
+                    Xóa thông tin đã lưu
+                  </button>
+                )}
+              </div>
+              
               {/* Error Message */}
               {error && (
                 <div className="p-2.5 rounded-xl border backdrop-blur-sm animate-pulse bg-red-500/20 border-red-500/30">

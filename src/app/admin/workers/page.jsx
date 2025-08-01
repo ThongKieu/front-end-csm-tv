@@ -79,14 +79,14 @@ export default function WorkersPage() {
 
   const handleDelete = (worker) => {
     // TODO: Implement delete functionality
-    console.log("Deleting worker:", worker);
+
   };
 
   const handleEditSubmit = async (e) => {
     e.preventDefault();
     try {
       // TODO: Implement API call to update worker
-      console.log("Updating worker:", editForm);
+  
       setIsEditModalOpen(false);
     } catch (error) {
       console.error("Error updating worker:", error);
@@ -97,7 +97,7 @@ export default function WorkersPage() {
     e.preventDefault();
     try {
       // TODO: Implement API call to add worker
-      console.log("Adding worker:", addForm);
+  
       setIsAddModalOpen(false);
       // Reset form
       setAddForm({

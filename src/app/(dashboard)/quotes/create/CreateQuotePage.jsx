@@ -23,7 +23,7 @@ export default function CreateQuotePage() {
   const onSubmit = async (quoteData) => {
     setIsSubmitting(true);
     try {
-      console.log("Quote data:", quoteData);
+    
       await new Promise(resolve => setTimeout(resolve, 1000));
       router.push("/quotes");
     } catch (error) {

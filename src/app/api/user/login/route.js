@@ -5,8 +5,8 @@ export async function POST(request) {
   try {
     const body = await request.json();
     
-    console.log('Login attempt with:', body);
-    console.log('Backend URL:', API_URLS.USER_LOGIN);
+    // Log login attempt
+    console.log('Login attempt:', { user_name: body.user_name });
     
     const response = await fetch(API_URLS.USER_LOGIN, {
       method: 'POST',
@@ -27,8 +27,8 @@ export async function POST(request) {
     }
     
     const data = await response.json();
-    console.log('Backend login response:', data);
-    
+    console.log('Login API: Response từ backend:', data);
+
     return NextResponse.json(data);
   } catch (error) {
     console.error('Error during login:', error);
