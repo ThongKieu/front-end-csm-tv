@@ -76,7 +76,7 @@ export default function WorkScheduleTable({ columns, data }) {
                   {row.getVisibleCells().map((cell) => (
                     <td
                       key={cell.id}
-                      className="px-6 py-4 whitespace-nowrap text-red-500"
+                      className="px-6 py-4 whitespace-nowrap text-brand-yellow"
                     >
                       {flexRender(
                         cell.column.columnDef.cell,

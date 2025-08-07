@@ -68,10 +68,10 @@ export function Calendar({ selected, onSelect, locale = vi }) {
               onClick={() => onSelect(day)}
               className={`
                 aspect-square p-2 text-center text-sm rounded-full
-                ${isSelected ? "bg-blue-600 text-white" : ""}
+                ${isSelected ? "bg-brand-green text-white" : ""}
                 ${!isSelected && isCurrentMonth ? "hover:bg-gray-100" : ""}
                 ${!isCurrentMonth ? "text-gray-400" : ""}
-                ${isSelected ? "hover:bg-blue-700" : ""}
+                ${isSelected ? "hover:bg-green-700" : ""}
                 transition-colors
               `}
             >

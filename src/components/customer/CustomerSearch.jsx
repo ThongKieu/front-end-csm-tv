@@ -276,7 +276,7 @@ const CustomerSearch = ({ onSearchResults }) => {
                             title="Copy nội dung công việc"
                           >
                             {copiedId === customer.id ? (
-                              <Check className="w-3.5 h-3.5 text-green-600" />
+                              <Check className="w-3.5 h-3.5 text-brand-green" />
                             ) : (
                               <Copy className="w-3.5 h-3.5" />
                             )}

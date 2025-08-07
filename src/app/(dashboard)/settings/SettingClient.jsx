@@ -22,14 +22,14 @@ import {
   EyeOff,
 } from "lucide-react";
 import { useSettings } from "@/contexts/SettingsContext";
-import { useToast } from "@/components/ui/toast";
+
 
 export default function SettingClient() {
   const [activeTab, setActiveTab] = useState("profile");
   const [showPassword, setShowPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const { showToast } = useToast();
+
   const {
     theme,
     language,
@@ -43,17 +43,17 @@ export default function SettingClient() {
 
   const handleThemeChange = (newTheme) => {
     updateTheme(newTheme);
-    showToast("Đã cập nhật giao diện", "success");
+    
   };
 
   const handleLanguageChange = (newLanguage) => {
     updateLanguage(newLanguage);
-    showToast("Đã cập nhật ngôn ngữ", "success");
+    
   };
 
   const handleFontSizeChange = (newSize) => {
     updateFontSize(newSize);
-    showToast("Đã cập nhật kích thước chữ", "success");
+    
   };
 
   const handleNotificationChange = (type, value) => {
@@ -61,29 +61,29 @@ export default function SettingClient() {
       ...notifications,
       [type]: value,
     });
-    showToast("Đã cập nhật cài đặt thông báo", "success");
+    
   };
 
   const tabs = [
-    { id: "profile", icon: User, label: "Thông tin cá nhân", desc: "Cập nhật thông tin tài khoản", color: "from-blue-500 to-indigo-600" },
-    { id: "notifications", icon: Bell, label: "Thông báo", desc: "Cài đặt thông báo", color: "from-green-500 to-emerald-600" },
-    { id: "appearance", icon: Palette, label: "Giao diện", desc: "Tùy chỉnh giao diện", color: "from-purple-500 to-pink-600" },
-    { id: "security", icon: Shield, label: "Bảo mật", desc: "Bảo vệ tài khoản", color: "from-red-500 to-orange-600" },
-    { id: "language", icon: Globe, label: "Ngôn ngữ", desc: "Cài đặt ngôn ngữ", color: "from-indigo-500 to-purple-600" },
-    { id: "password", icon: Key, label: "Mật khẩu", desc: "Đổi mật khẩu", color: "from-yellow-500 to-orange-600" },
+    { id: "profile", icon: User, label: "Thông tin cá nhân", desc: "Cập nhật thông tin tài khoản", color: "from-brand-green to-green-600" },
+    { id: "notifications", icon: Bell, label: "Thông báo", desc: "Cài đặt thông báo", color: "from-brand-green to-green-600" },
+    { id: "appearance", icon: Palette, label: "Giao diện", desc: "Tùy chỉnh giao diện", color: "from-brand-yellow to-yellow-600" },
+    { id: "security", icon: Shield, label: "Bảo mật", desc: "Bảo vệ tài khoản", color: "from-brand-green to-green-600" },
+    { id: "language", icon: Globe, label: "Ngôn ngữ", desc: "Cài đặt ngôn ngữ", color: "from-brand-yellow to-yellow-600" },
+    { id: "password", icon: Key, label: "Mật khẩu", desc: "Đổi mật khẩu", color: "from-brand-green to-green-600" },
   ];
 
   return (
-    <div className="h-[calc(100vh-80px)] bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 p-3 lg:p-4 overflow-hidden">
+    <div className="h-[calc(100vh-80px)] bg-gradient-to-br from-gray-50 via-green-50 to-yellow-50 p-3 lg:p-4 overflow-hidden">
       <div className="flex flex-col mx-auto max-w-5xl h-full">
         {/* Header */}
         <div className="flex-shrink-0 mb-4 lg:mb-6">
           <div className="flex gap-3 items-center mb-3 lg:mb-4">
-            <div className="p-2 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-lg shadow-lg lg:p-3 lg:rounded-xl">
+            <div className="p-2 bg-gradient-to-r from-brand-green to-brand-yellow rounded-lg shadow-lg lg:p-3 lg:rounded-xl">
               <SettingsIcon className="w-5 h-5 text-white lg:w-6 lg:h-6" />
             </div>
             <div>
-              <h1 className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600 lg:text-2xl xl:text-3xl">
+              <h1 className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-brand-green to-brand-yellow lg:text-2xl xl:text-3xl">
                 Cài đặt hệ thống
               </h1>
               <p className="text-sm text-gray-600 lg:text-base">
@@ -93,12 +93,12 @@ export default function SettingClient() {
           </div>
           <div className="flex justify-between items-center p-3 rounded-lg shadow-md backdrop-blur-sm lg:p-4 lg:rounded-xl bg-white/60">
             <div className="flex gap-2 items-center text-sm text-gray-600">
-              <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+              <span className="w-2 h-2 bg-brand-green rounded-full animate-pulse"></span>
               <span className="font-medium">Tất cả thay đổi được lưu tự động</span>
             </div>
             <button
-              className="flex gap-2 items-center px-3 py-2 text-sm font-medium text-white bg-gradient-to-r from-blue-500 to-indigo-600 rounded-lg shadow-md transition-all duration-200 lg:px-4 lg:rounded-xl hover:from-blue-600 hover:to-indigo-700 hover:shadow-lg hover:scale-105 lg:text-base"
-              onClick={() => showToast("Đã lưu tất cả thay đổi", "success")}
+              className="flex gap-2 items-center px-3 py-2 text-sm font-medium text-white bg-gradient-to-r from-brand-green to-brand-yellow rounded-lg shadow-md transition-all duration-200 lg:px-4 lg:rounded-xl hover:from-green-700 hover:to-yellow-600 hover:shadow-lg hover:scale-105 lg:text-base"
+                              onClick={() => {}}
             >
               <Save className="w-4 h-4" />
               <span>Lưu tất cả</span>

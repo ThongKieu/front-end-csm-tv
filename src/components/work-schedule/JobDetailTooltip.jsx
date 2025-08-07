@@ -74,7 +74,7 @@ const JobDetailTooltip = ({ job }) => {
           <div className="flex items-center space-x-2">
             <Image className="w-3 h-3 text-gray-500" />
             <span className="text-xs text-gray-600">Hình ảnh:</span>
-            <span className="text-xs font-medium text-blue-600">
+            <span className="text-xs font-medium text-brand-green">
               {job.images_count} ảnh
             </span>
           </div>
@@ -87,12 +87,12 @@ const JobDetailTooltip = ({ job }) => {
           <div className="text-xs text-gray-600">
             <span className="font-medium">Thợ đã phân công:</span>
             <div className="mt-1">
-              <p className="font-medium text-blue-600">
+              <p className="font-medium text-brand-green">
                 {job.worker_full_name} ({job.worker_code})
               </p>
               <div className="flex items-center mt-1 space-x-2">
-                <Phone className="w-3 h-3 text-blue-500" />
-                <span className="text-blue-600">
+                <Phone className="w-3 h-3 text-brand-green" />
+                <span className="text-brand-green">
                   {job.worker_phone_company || "Chưa có thông tin"}
                 </span>
               </div>

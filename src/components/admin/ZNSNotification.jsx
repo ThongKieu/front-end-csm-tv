@@ -474,9 +474,9 @@ export default function ZNSNotification() {
           </div>
         )}
         {success && (
-          <div className="mb-4 p-4 bg-green-50 rounded-lg flex items-center">
-            <AlertCircle className="w-5 h-5 text-green-500 mr-2" />
-            <span className="text-green-700">{success}</span>
+          <div className="mb-4 p-4 bg-brand-green/10 rounded-lg flex items-center">
+            <AlertCircle className="w-5 h-5 text-brand-green mr-2" />
+            <span className="text-brand-green">{success}</span>
           </div>
         )}
 

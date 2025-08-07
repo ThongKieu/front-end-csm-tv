@@ -31,7 +31,7 @@ export default function ReportsClient() {
       change: "+12.5%",
       changeType: "positive",
       icon: DollarSign,
-      color: "bg-green-500"
+      color: "bg-brand-green"
     },
     {
       title: "Dịch vụ hoàn thành",
@@ -39,7 +39,7 @@ export default function ReportsClient() {
       change: "+8.2%",
       changeType: "positive",
       icon: Award,
-      color: "bg-blue-500"
+      color: "bg-brand-green"
     },
     {
       title: "Khách hàng mới",
@@ -47,7 +47,7 @@ export default function ReportsClient() {
       change: "+15.3%",
       changeType: "positive",
       icon: Users,
-      color: "bg-purple-500"
+      color: "bg-brand-yellow"
     },
     {
       title: "Thời gian trung bình",
@@ -55,7 +55,7 @@ export default function ReportsClient() {
       change: "-5.1%",
       changeType: "negative",
       icon: Clock,
-      color: "bg-orange-500"
+      color: "bg-brand-yellow"
     }
   ];
 
@@ -65,42 +65,42 @@ export default function ReportsClient() {
       title: 'Tổng quan',
       description: 'Báo cáo tổng hợp tình hình kinh doanh',
       icon: BarChart3,
-      color: 'bg-blue-500'
+      color: 'bg-brand-green'
     },
     {
       id: 'revenue',
       title: 'Doanh thu',
       description: 'Phân tích chi tiết doanh thu theo thời gian',
       icon: TrendingUp,
-      color: 'bg-green-500'
+      color: 'bg-brand-green'
     },
     {
       id: 'services',
       title: 'Dịch vụ',
       description: 'Thống kê dịch vụ và hiệu suất',
       icon: Activity,
-      color: 'bg-purple-500'
+      color: 'bg-brand-yellow'
     },
     {
       id: 'customers',
       title: 'Khách hàng',
       description: 'Phân tích hành vi và sự hài lòng',
       icon: Users,
-      color: 'bg-orange-500'
+      color: 'bg-brand-yellow'
     },
     {
       id: 'workers',
       title: 'Nhân viên',
       description: 'Hiệu suất và phân công công việc',
       icon: Target,
-      color: 'bg-red-500'
+      color: 'bg-brand-green'
     },
     {
       id: 'locations',
       title: 'Khu vực',
       description: 'Phân tích theo địa lý và vùng miền',
       icon: MapPin,
-      color: 'bg-indigo-500'
+      color: 'bg-brand-yellow'
     }
   ];
 
@@ -137,7 +137,7 @@ export default function ReportsClient() {
       <div className="flex-shrink-0 px-4 py-3 bg-white border-b border-gray-200">
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-xl font-bold text-gray-900">Báo cáo & Thống kê</h1>
+            <h1 className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-brand-green to-brand-yellow">Báo cáo & Thống kê</h1>
             <p className="mt-0.5 text-sm text-gray-600">
               Phân tích dữ liệu và tạo báo cáo chi tiết
             </p>
@@ -148,7 +148,7 @@ export default function ReportsClient() {
             <select
               value={selectedPeriod}
               onChange={(e) => setSelectedPeriod(e.target.value)}
-              className="px-2 py-1.5 text-sm rounded-md border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="px-2 py-1.5 text-sm rounded-md border border-gray-200 focus:outline-none focus:ring-2 focus:ring-brand-green"
             >
               <option value="week">Tuần này</option>
               <option value="month">Tháng này</option>
@@ -157,7 +157,7 @@ export default function ReportsClient() {
             </select>
 
             {/* Export Button */}
-            <button className="inline-flex gap-1.5 items-center px-3 py-1.5 text-sm text-white bg-blue-600 rounded-md transition-colors hover:bg-blue-700">
+            <button className="inline-flex gap-1.5 items-center px-3 py-1.5 text-sm text-white bg-gradient-to-r from-brand-green to-brand-yellow rounded-md transition-colors hover:from-green-700 hover:to-yellow-600">
               <Download className="w-3.5 h-3.5" />
               Xuất báo cáo
             </button>

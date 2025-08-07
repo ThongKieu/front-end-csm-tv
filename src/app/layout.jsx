@@ -11,6 +11,7 @@ import CreateScheduleButton from '@/components/layout/CreateScheduleButton'
 import CreateScheduleModal from '@/components/layout/CreateScheduleModal'
 import { useSchedule } from '@/contexts/ScheduleContext'
 import { SettingsProvider } from '@/contexts/SettingsContext'
+import { ToastProvider } from '@/contexts/ToastContext'
 import { ToastContainer } from '@/components/ui/toast'
 import { useSelector } from 'react-redux'
 import { selectAuthLoading } from '@/store/slices/authSlice'
@@ -50,9 +51,11 @@ export default function RootLayout({ children }) {
           <AuthProvider>
             <SocketProvider>
               <SettingsProvider>
-                <ScheduleProvider>
-                  <AppContent>{children}</AppContent>
-                </ScheduleProvider>
+                <ToastProvider>
+                  <ScheduleProvider>
+                    <AppContent>{children}</AppContent>
+                  </ScheduleProvider>
+                </ToastProvider>
               </SettingsProvider>
             </SocketProvider>
           </AuthProvider>

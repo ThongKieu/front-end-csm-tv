@@ -190,8 +190,8 @@ export default function ProfilePage() {
 
             {/* Success Message */}
             {success && (
-              <div className="flex items-center p-4 mb-6 text-sm text-green-700 bg-green-50 rounded-lg border border-green-200">
-                <CheckCircle className="mr-3 w-5 h-5 text-green-500" />
+              <div className="flex items-center p-4 mb-6 text-sm text-brand-green bg-brand-green/10 rounded-lg border border-brand-green/20">
+                <CheckCircle className="mr-3 w-5 h-5 text-brand-green" />
                 <span className="font-medium">{success}</span>
               </div>
             )}

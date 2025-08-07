@@ -77,7 +77,7 @@ export default function WorkersPage() {
       change: "+2",
       changeType: "positive",
       icon: Users,
-      color: "bg-blue-500"
+      color: "bg-brand-green"
     },
     {
       title: "Đang hoạt động",
@@ -85,7 +85,7 @@ export default function WorkersPage() {
       change: "+1",
       changeType: "positive",
       icon: UserCheck,
-      color: "bg-green-500"
+      color: "bg-brand-green"
     },
     {
       title: "Tạm nghỉ",
@@ -93,7 +93,7 @@ export default function WorkersPage() {
       change: "0",
       changeType: "neutral",
       icon: UserX,
-      color: "bg-orange-500"
+      color: "bg-brand-yellow"
     },
     {
       title: "Hiệu suất TB",
@@ -118,8 +118,8 @@ export default function WorkersPage() {
   };
 
   const getPerformanceColor = (sales) => {
-    if (sales >= 5000000) return "text-green-600";
-    if (sales >= 3000000) return "text-yellow-600";
+    if (sales >= 5000000) return "text-brand-green";
+    if (sales >= 3000000) return "text-brand-yellow";
     return "text-red-600";
   };
 
@@ -140,7 +140,7 @@ export default function WorkersPage() {
       <div className="flex-shrink-0 px-4 py-3 bg-white border-b border-gray-200">
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-xl font-bold text-gray-900">Quản lý nhân viên</h1>
+            <h1 className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-brand-green to-brand-yellow">Quản lý nhân viên</h1>
             <p className="mt-0.5 text-sm text-gray-600">
               Quản lý thông tin và hiệu suất nhân viên
             </p>
@@ -153,7 +153,7 @@ export default function WorkersPage() {
                 onClick={() => setViewMode("grid")}
                 className={`p-1.5 rounded transition-all ${
                   viewMode === "grid" 
-                    ? "bg-white text-blue-600 shadow-sm" 
+                    ? "bg-white text-brand-green shadow-sm" 
                     : "text-gray-500 hover:text-gray-700"
                 }`}
               >
@@ -168,7 +168,7 @@ export default function WorkersPage() {
                 onClick={() => setViewMode("list")}
                 className={`p-1.5 rounded transition-all ${
                   viewMode === "list" 
-                    ? "bg-white text-blue-600 shadow-sm" 
+                    ? "bg-white text-brand-green shadow-sm" 
                     : "text-gray-500 hover:text-gray-700"
                 }`}
               >
@@ -187,13 +187,13 @@ export default function WorkersPage() {
                 placeholder="Tìm kiếm nhân viên..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="py-2 pr-4 pl-9 w-64 text-sm rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="py-2 pr-4 pl-9 w-64 text-sm rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-brand-green focus:border-transparent"
               />
               <Search className="absolute left-3 top-1/2 w-4 h-4 text-gray-400 -translate-y-1/2" />
             </div>
 
             {/* Add Worker Button */}
-            <button className="inline-flex gap-1.5 items-center px-3 py-2 text-sm text-white bg-blue-600 rounded-lg transition-colors hover:bg-blue-700">
+            <button className="inline-flex gap-1.5 items-center px-3 py-2 text-sm text-white bg-gradient-to-r from-brand-green to-brand-yellow rounded-lg transition-colors hover:from-green-700 hover:to-yellow-600">
               <Plus className="w-4 h-4" />
               Thêm nhân viên
             </button>
@@ -387,7 +387,7 @@ export default function WorkersPage() {
                       <tr key={worker.id} className="hover:bg-gray-50">
                         <td className="px-3 py-3">
                           <div className="flex gap-2 items-center">
-                            <div className="flex justify-center items-center w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full">
+                            <div className="flex justify-center items-center w-8 h-8 bg-gradient-to-br from-brand-green to-brand-yellow rounded-full">
                               <Users className="w-4 h-4 text-white" />
                             </div>
                             <span className="text-sm font-medium text-gray-900">{worker.worker_full_name}</span>
@@ -403,8 +403,8 @@ export default function WorkersPage() {
                         <td className="px-3 py-3">
                           <span className={`px-2 py-1 rounded-full text-xs font-medium ${
                             worker.worker_status === 1 
-                              ? 'bg-green-100 text-green-700' 
-                              : 'bg-orange-100 text-orange-700'
+                              ? 'bg-brand-green/10 text-brand-green' 
+                              : 'bg-brand-yellow/10 text-brand-yellow'
                           }`}>
                             {worker.worker_status === 1 ? 'Hoạt động' : 'Tạm nghỉ'}
                           </span>

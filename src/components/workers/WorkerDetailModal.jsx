@@ -11,9 +11,9 @@ export default function WorkerDetailModal({ worker, onClose, onEdit }) {
   const getWorkerStatus = (status) => {
     switch (status) {
       case 1:
-        return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">Đang hoạt động</span>;
+        return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-brand-green/10 text-brand-green">Đang hoạt động</span>;
       case 0:
-        return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">Không hoạt động</span>;
+        return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-brand-yellow/10 text-brand-yellow">Không hoạt động</span>;
       default:
         return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">Không xác định</span>;
     }
@@ -36,7 +36,7 @@ export default function WorkerDetailModal({ worker, onClose, onEdit }) {
           <div className="space-y-6">
             {/* Basic Info */}
             <div className="flex items-start space-x-4">
-              <div className="h-16 w-16 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
+              <div className="h-16 w-16 rounded-full bg-gradient-to-br from-brand-green to-brand-yellow flex items-center justify-center">
                 <User className="h-8 w-8 text-white" />
               </div>
               <div>
@@ -117,7 +117,7 @@ export default function WorkerDetailModal({ worker, onClose, onEdit }) {
                   <div className="flex items-center space-x-3">
                     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                       worker.account.is_online 
-                        ? "bg-green-100 text-green-800" 
+                        ? "bg-brand-green/10 text-brand-green" 
                         : "bg-gray-100 text-gray-800"
                     }`}>
                       {worker.account.is_online ? "Online" : "Offline"}
@@ -126,8 +126,8 @@ export default function WorkerDetailModal({ worker, onClose, onEdit }) {
                   <div className="flex items-center space-x-3">
                     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                       worker.account.ready_to_work 
-                        ? "bg-green-100 text-green-800" 
-                        : "bg-red-100 text-red-800"
+                        ? "bg-brand-green/10 text-brand-green" 
+                        : "bg-brand-yellow/10 text-brand-yellow"
                     }`}>
                       {worker.account.ready_to_work ? "Sẵn sàng" : "Bận"}
                     </span>
@@ -143,7 +143,7 @@ export default function WorkerDetailModal({ worker, onClose, onEdit }) {
                   onClose();
                   onEdit(worker);
                 }}
-                className="px-4 py-2 text-sm font-medium text-blue-600 hover:text-blue-700"
+                className="px-4 py-2 text-sm font-medium text-brand-green hover:text-brand-green/80"
               >
                 Chỉnh sửa
               </button>

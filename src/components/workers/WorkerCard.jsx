@@ -7,7 +7,7 @@ export default function WorkerCard({ worker, onViewDetails, onEdit, onDelete, fo
       <div className="flex items-start justify-between">
         <div className="flex items-start space-x-4">
           <div className="flex-shrink-0">
-            <div className="h-12 w-12 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
+            <div className="h-12 w-12 rounded-full bg-gradient-to-br from-brand-green to-brand-yellow flex items-center justify-center">
               <User className="h-6 w-6 text-white" />
             </div>
           </div>
@@ -48,19 +48,19 @@ export default function WorkerCard({ worker, onViewDetails, onEdit, onDelete, fo
           <div className="flex items-center space-x-4">
             <button
               onClick={() => onViewDetails(worker)}
-              className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+              className="text-sm text-brand-green hover:text-brand-green/80 font-medium"
             >
               Xem chi tiết
             </button>
             <button
               onClick={() => onEdit(worker)}
-              className="p-2 text-blue-600 hover:text-blue-900 rounded-full hover:bg-blue-50"
+              className="p-2 text-brand-green hover:text-brand-green/80 rounded-full hover:bg-brand-green/10"
             >
               <Edit className="h-5 w-5" />
             </button>
             <button 
               onClick={() => onDelete(worker)}
-              className="p-2 text-red-600 hover:text-red-900 rounded-full hover:bg-red-50"
+              className="p-2 text-brand-yellow hover:text-brand-yellow/80 rounded-full hover:bg-brand-yellow/10"
             >
               <Trash2 className="h-5 w-5" />
             </button>
@@ -78,15 +78,15 @@ export default function WorkerCard({ worker, onViewDetails, onEdit, onDelete, fo
             <div className="flex items-center space-x-2">
               <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                 worker.account.is_online 
-                  ? "bg-green-100 text-green-800" 
+                  ? "bg-brand-green/10 text-brand-green" 
                   : "bg-gray-100 text-gray-800"
               }`}>
                 {worker.account.is_online ? "Online" : "Offline"}
               </span>
               <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                 worker.account.ready_to_work 
-                  ? "bg-green-100 text-green-800" 
-                  : "bg-red-100 text-red-800"
+                  ? "bg-brand-green/10 text-brand-green" 
+                  : "bg-brand-yellow/10 text-brand-yellow"
               }`}>
                 {worker.account.ready_to_work ? "Sẵn sàng" : "Bận"}
               </span>

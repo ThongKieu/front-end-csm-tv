@@ -28,7 +28,7 @@ export default function AuthGuard({ children, requiredRole = null }) {
         // Thêm delay nhỏ để tránh redirect quá nhanh
         setTimeout(() => {
           router.push(ROUTES.LOGIN)
-        }, 200) // Tăng delay lên 200ms
+        }, 100) // Giảm delay xuống 100ms
         return
       }
 

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Calendar, Phone, Users, TrendingUp, Clock, CheckCircle, ArrowUpRight, ArrowDownRight, DollarSign, Briefcase, MessageSquare } from "lucide-react";
+import { Calendar, Phone, Users, TrendingUp, Clock, CheckCircle, ArrowUpRight, ArrowDownRight, DollarSign, Briefcase, MessageSquare, Crown } from "lucide-react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, Area, AreaChart } from "recharts";
 import { format, parseISO } from "date-fns";
 import { vi } from "date-fns/locale";
@@ -62,22 +62,22 @@ const initialStats = {
 };
 
 const StatCard = ({ title, value, icon: Icon, trend, trendValue, trendType, description }) => (
-  <Card className="bg-white transition-all duration-200 hover:shadow-lg">
+  <Card className="bg-white transition-all duration-200 hover:shadow-lg border-brand-green/20">
     <CardHeader className="flex flex-row justify-between items-center pb-2 space-y-0">
-      <CardTitle className="text-sm font-medium text-gray-500">{title}</CardTitle>
-      <div className="p-2 bg-gray-50 rounded-lg">
-        <Icon className="w-4 h-4 text-gray-600" />
+      <CardTitle className="text-sm font-medium text-gray-600">{title}</CardTitle>
+      <div className="p-2 bg-gradient-to-r from-brand-green/10 to-brand-yellow/10 rounded-lg">
+        <Icon className="w-4 h-4 text-brand-green" />
       </div>
     </CardHeader>
     <CardContent>
-      <div className="text-2xl font-bold text-gray-900">{value}</div>
+      <div className="text-2xl font-bold text-brand-green">{value}</div>
       <div className="flex items-center mt-2">
         {trendType === "up" ? (
-          <ArrowUpRight className="mr-1 w-4 h-4 text-green-500" />
+          <ArrowUpRight className="mr-1 w-4 h-4 text-brand-green" />
         ) : (
-          <ArrowDownRight className="mr-1 w-4 h-4 text-red-500" />
+          <ArrowDownRight className="mr-1 w-4 h-4 text-brand-yellow" />
         )}
-        <p className="text-xs text-gray-500">
+        <p className="text-xs text-gray-600">
           {trendValue} {trend}
         </p>
       </div>
@@ -91,15 +91,15 @@ const StatCard = ({ title, value, icon: Icon, trend, trendValue, trendType, desc
 const ActivityIcon = ({ type }) => {
   switch (type) {
     case 'appointment':
-      return <Calendar className="w-4 h-4 text-blue-500" />;
+      return <Calendar className="w-4 h-4 text-brand-green" />;
     case 'call':
-      return <Phone className="w-4 h-4 text-green-500" />;
+      return <Phone className="w-4 h-4 text-brand-green" />;
     case 'update':
-      return <CheckCircle className="w-4 h-4 text-yellow-500" />;
+      return <CheckCircle className="w-4 h-4 text-brand-yellow" />;
     case 'source':
-      return <Users className="w-4 h-4 text-purple-500" />;
+      return <Users className="w-4 h-4 text-brand-green" />;
     case 'feedback':
-      return <MessageSquare className="w-4 h-4 text-yellow-500" />;
+      return <MessageSquare className="w-4 h-4 text-brand-yellow" />;
     default:
       return <Calendar className="w-4 h-4 text-gray-500" />;
   }
@@ -141,18 +141,23 @@ export default function AdminDashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50">
+    <div className="min-h-screen bg-gradient-to-br from-brand-green/5 to-brand-yellow/5">
       <div className="flex flex-col p-6 h-full">
         <div className="space-y-6">
           {/* Header */}
           <div className="flex justify-between items-center">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
-              <p className="mt-1 text-sm text-gray-500">
+              <div className="flex items-center gap-2">
+                <Crown className="w-6 h-6 text-brand-green" />
+                <h1 className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-brand-green to-brand-yellow">
+                  Admin Dashboard
+                </h1>
+              </div>
+              <p className="mt-1 text-sm text-gray-600">
                 Tổng quan về hoạt động của hệ thống
               </p>
             </div>
-            <div className="px-4 py-2 text-sm text-gray-500 bg-white rounded-lg border border-gray-100 shadow-sm">
+            <div className="px-4 py-2 text-sm text-brand-green bg-white rounded-lg border border-brand-green/20 shadow-sm">
               Cập nhật lần cuối: {lastUpdated}
             </div>
           </div>
@@ -200,9 +205,9 @@ export default function AdminDashboard() {
           {/* Charts */}
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
             {/* Revenue Chart */}
-            <Card className="shadow-lg">
+            <Card className="shadow-lg border-brand-green/20">
               <CardHeader>
-                <CardTitle className="text-xl text-black">Doanh thu tuần</CardTitle>
+                <CardTitle className="text-xl text-brand-green">Doanh thu tuần</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="h-[300px]">
@@ -210,8 +215,8 @@ export default function AdminDashboard() {
                     <AreaChart data={chartData}>
                       <defs>
                         <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.8}/>
-                          <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
+                          <stop offset="5%" stopColor="#125d0d" stopOpacity={0.8}/>
+                          <stop offset="95%" stopColor="#f5d20d" stopOpacity={0}/>
                         </linearGradient>
                       </defs>
                       <CartesianGrid strokeDasharray="3 3" className="stroke-gray-200" />
@@ -237,7 +242,7 @@ export default function AdminDashboard() {
                       <Area
                         type="monotone"
                         dataKey="revenue"
-                        stroke="#3b82f6"
+                        stroke="#125d0d"
                         fillOpacity={1}
                         fill="url(#colorRevenue)"
                       />
@@ -248,9 +253,9 @@ export default function AdminDashboard() {
             </Card>
 
             {/* Activity Chart */}
-            <Card className="shadow-lg">
+            <Card className="shadow-lg border-brand-green/20">
               <CardHeader>
-                <CardTitle className="text-xl text-black">Hoạt động tuần</CardTitle>
+                <CardTitle className="text-xl text-brand-green">Hoạt động tuần</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="h-[300px]">
@@ -278,7 +283,7 @@ export default function AdminDashboard() {
                       <Line
                         type="monotone"
                         dataKey="appointments"
-                        stroke="#3b82f6"
+                        stroke="#125d0d"
                         name="Lịch hẹn"
                         strokeWidth={2}
                         dot={{ r: 4 }}
@@ -287,7 +292,7 @@ export default function AdminDashboard() {
                       <Line
                         type="monotone"
                         dataKey="calls"
-                        stroke="#22c55e"
+                        stroke="#f5d20d"
                         name="Cuộc gọi"
                         strokeWidth={2}
                         dot={{ r: 4 }}
@@ -296,7 +301,7 @@ export default function AdminDashboard() {
                       <Line
                         type="monotone"
                         dataKey="sources"
-                        stroke="#a855f7"
+                        stroke="#22c55e"
                         name="Nguồn"
                         strokeWidth={2}
                         dot={{ r: 4 }}
@@ -310,27 +315,27 @@ export default function AdminDashboard() {
           </div>
 
           {/* Recent Activity */}
-          <Card className="shadow-lg">
+          <Card className="shadow-lg border-brand-green/20">
             <CardHeader>
-              <CardTitle className="text-xl text-black">Hoạt động gần đây</CardTitle>
+              <CardTitle className="text-xl text-brand-green">Hoạt động gần đây</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
                 {stats.recentActivity.map((activity, index) => (
                   <div
                     key={index}
-                    className="flex justify-between items-center p-4 bg-white rounded-lg border border-gray-100 transition-colors duration-200 hover:bg-gray-50"
+                    className="flex justify-between items-center p-4 bg-white rounded-lg border border-brand-green/10 transition-colors duration-200 hover:bg-brand-green/5"
                   >
                     <div className="flex items-center space-x-4">
-                      <div className="p-2 bg-gray-50 rounded-full">
+                      <div className="p-2 bg-gradient-to-r from-brand-green/10 to-brand-yellow/10 rounded-full">
                         <ActivityIcon type={activity.type} />
                       </div>
                       <div>
                         <p className="font-medium text-gray-900">{activity.title}</p>
-                        <p className="text-sm text-gray-500">{activity.description}</p>
+                        <p className="text-sm text-gray-600">{activity.description}</p>
                       </div>
                     </div>
-                    <div className="px-3 py-1 text-sm text-gray-500 bg-gray-50 rounded-full">
+                    <div className="px-3 py-1 text-sm text-brand-green bg-brand-green/10 rounded-full">
                       {formatDate(activity.timestamp)}
                     </div>
                   </div>

@@ -34,14 +34,14 @@ const JobsList = ({ jobs = [], workers = [], onAssign, onEdit, onCopy, copiedWor
   };
 
   return (
-    <div className="h-full flex flex-col">
+    <div className="flex flex-col h-full">
       {/* Filter buttons */}
-      <div className="flex items-center gap-1 justify-end mb-2">
+      <div className="flex gap-1 justify-end items-center mb-2">
         <button
           onClick={() => handleWorkerTypeChange("all")}
           className={`px-1.5 py-0.5 text-xs font-medium rounded-full transition-all duration-200 ${
             selectedWorkerType === "all"
-              ? "bg-blue-600 text-white shadow-md"
+              ? "bg-brand-green text-[#125d0d] shadow-md"
               : "bg-gray-100 text-gray-700 hover:bg-gray-200"
           }`}
         >
@@ -53,7 +53,7 @@ const JobsList = ({ jobs = [], workers = [], onAssign, onEdit, onCopy, copiedWor
             onClick={() => handleWorkerTypeChange(category.kind_worker?.id)}
             className={`px-1.5 py-0.5 text-xs font-medium cursor-pointer rounded-full transition-all duration-200 ${
               selectedWorkerType === category.kind_worker?.id
-                ? "ring-1 ring-blue-500 shadow-sm"
+                ? "ring-1 ring-brand-green shadow-sm"
                 : ""
             } ${getWorkTypeColor(category.kind_worker?.id)}`}
           >
@@ -66,9 +66,9 @@ const JobsList = ({ jobs = [], workers = [], onAssign, onEdit, onCopy, copiedWor
       </div>
 
       {/* Jobs list */}
-      <div className="flex-1 overflow-y-auto space-y-1">
+      <div className="overflow-y-auto flex-1 space-y-1">
         {jobCategories.length === 0 ? (
-          <div className="p-4 text-center text-gray-500 text-xs">
+          <div className="p-4 text-xs text-center text-gray-500">
             <p>Không có công việc nào</p>
           </div>
         ) : (

@@ -1,7 +1,7 @@
 "use client";
 
 import React from 'react';
-import { BarChart3, Filter, Download, Building2, Trees, MapPin } from 'lucide-react';
+import { BarChart3, Filter, Download, Building2, Trees, MapPin, Building } from 'lucide-react';
 
 const WardStats = ({ wards, onFilterChange, filters }) => {
   const totalWards = wards.length;
@@ -34,14 +34,14 @@ const WardStats = ({ wards, onFilterChange, filters }) => {
     <div className="p-6 mb-6 rounded-2xl border shadow-sm backdrop-blur-sm bg-white/80 border-gray-200/50">
       <div className="flex flex-col gap-4 justify-between items-start mb-6 sm:flex-row sm:items-center">
         <div className="flex items-center">
-          <div className="flex justify-center items-center mr-3 w-10 h-10 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl">
+          <div className="flex justify-center items-center mr-3 w-10 h-10 bg-gradient-to-r from-brand-green to-brand-yellow rounded-xl">
             <BarChart3 className="w-5 h-5 text-white" />
           </div>
           <h2 className="text-xl font-bold text-gray-900">Bộ lọc & Thống kê</h2>
         </div>
         <button
           onClick={handleExportData}
-          className="flex items-center px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl shadow-lg transition-all duration-200 hover:from-blue-700 hover:to-indigo-700 hover:shadow-xl"
+          className="flex items-center px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-brand-green to-brand-yellow rounded-xl shadow-lg transition-all duration-200 hover:from-green-700 hover:to-yellow-600 hover:shadow-xl"
         >
           <Download className="mr-2 w-4 h-4" />
           Xuất CSV
@@ -76,15 +76,15 @@ const WardStats = ({ wards, onFilterChange, filters }) => {
           </div>
         </div>
 
-        <div className="p-4 bg-gradient-to-br from-green-50 to-emerald-100 rounded-xl border border-green-200">
+        <div className="p-4 bg-gradient-to-br from-brand-green/10 to-brand-yellow/10 rounded-xl border border-brand-green/20">
           <div className="flex items-center">
-            <div className="flex justify-center items-center mr-3 w-10 h-10 bg-green-600 rounded-lg">
-              <Trees className="w-5 h-5 text-white" />
+            <div className="flex justify-center items-center mr-3 w-10 h-10 bg-brand-green rounded-lg">
+              <MapPin className="w-5 h-5 text-white" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-green-900">{xaCount}</p>
-              <p className="text-sm font-medium text-green-700">
-                Xã ({((xaCount / totalWards) * 100).toFixed(1)}%)
+              <p className="text-2xl font-bold text-brand-green">{xaCount}</p>
+              <p className="text-sm font-medium text-brand-green">
+                Phường/Xã
               </p>
             </div>
           </div>

@@ -87,6 +87,19 @@ const WardSearch = () => {
     });
   }, [wards, searchTerm]);
 
+  const getWardTypeColor = (type) => {
+    switch (type) {
+      case 'district':
+        return 'bg-brand-green/20 text-brand-green';
+      case 'ward':
+        return 'bg-brand-yellow/20 text-brand-yellow';
+      case 'city':
+        return 'bg-brand-green/10 text-brand-green';
+      default:
+        return 'bg-gray-100 text-gray-800';
+    }
+  };
+
   return (
     <div className="flex h-[calc(100vh-70px)] bg-gray-50">
       {/* Sidebar */}
@@ -149,13 +162,9 @@ const WardSearch = () => {
               Thống kê
             </h3>
             <div className="space-y-2">
-              <div className="flex justify-between p-2 bg-blue-50 rounded">
-                <span className="text-xs">Tổng cộng</span>
-                <span className="text-sm font-bold text-blue-600">{wards.length}</span>
-              </div>
-              <div className="flex justify-between p-2 bg-green-50 rounded">
-                <span className="text-xs">Tìm thấy</span>
-                <span className="text-sm font-bold text-green-600">{filteredWards.length}</span>
+              <div className="flex justify-between p-2 bg-brand-green/10 rounded">
+                <span className="text-sm font-medium text-brand-green">Tổng số phường/xã:</span>
+                <span className="text-sm font-bold text-brand-green">{filteredWards.length}</span>
               </div>
             </div>
           </div>
@@ -251,7 +260,7 @@ const WardSearch = () => {
                   </div>
                 </div>
 
-                <div className="p-3 bg-green-50 rounded border">
+                <div className="p-3 bg-brand-green/10 rounded border">
                   <h3 className="mb-2 font-semibold">Thông tin sáp nhập</h3>
                   <MergeInfo ward={selectedWard} />
                 </div>

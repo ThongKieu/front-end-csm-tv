@@ -190,7 +190,7 @@ const AssignWorkerModal = ({ work, workers = [], onClose, onAssign, isChanging =
             <button
               type="submit"
               disabled={loading}
-              className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
+              className="px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-brand-green to-brand-yellow rounded-md hover:from-green-700 hover:to-yellow-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-green disabled:opacity-50"
             >
               {loading ? 'Đang xử lý...' : isChanging ? 'Đổi thợ' : 'Phân công'}
             </button>

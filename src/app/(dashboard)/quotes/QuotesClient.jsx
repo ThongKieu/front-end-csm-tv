@@ -156,9 +156,9 @@ export default function QuotesClient() {
   const getStatusColor = (status) => {
     switch (status) {
       case "pending":
-        return "bg-yellow-50 text-yellow-700 border-yellow-200";
+        return "bg-brand-yellow/10 text-brand-yellow border-brand-yellow/20";
       case "approved":
-        return "bg-green-50 text-green-700 border-green-200";
+        return "bg-brand-green/10 text-brand-green border-brand-green/20";
       case "rejected":
         return "bg-red-50 text-red-700 border-red-200";
       default:
@@ -360,8 +360,8 @@ export default function QuotesClient() {
                         <div className="flex gap-4 items-start">
                           {/* Quote Icon */}
                           <div className="flex-shrink-0">
-                            <div className="flex justify-center items-center w-10 h-10 bg-green-100 rounded-full">
-                              <FileText className="w-5 h-5 text-green-600" />
+                            <div className="flex justify-center items-center w-10 h-10 bg-brand-green/10 rounded-full">
+                              <FileText className="w-5 h-5 text-brand-green" />
                             </div>
                           </div>
                           

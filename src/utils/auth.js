@@ -12,17 +12,29 @@ export const saveAuthData = (token, user) => {
     console.log('saveAuthData: Token value:', token)
     console.log('saveAuthData: User value:', user)
     
-    // Lưu vào cookie (cho SSR)
-    Cookies.set('token', token, { expires: 7, secure: true, sameSite: 'strict' });
+    // Lưu vào cookie (cho SSR và middleware)
+    if (token) {
+      Cookies.set('token', token, { 
+        expires: 7, 
+        secure: process.env.NODE_ENV === 'production', 
+        sameSite: 'lax',
+        path: '/'
+      });
+    }
     
     // Lưu vào localStorage (cho client-side)
-    localStorage.setItem(TOKEN_KEY, token);
-    localStorage.setItem(USER_KEY, JSON.stringify(user));
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(TOKEN_KEY, token);
+      localStorage.setItem(USER_KEY, JSON.stringify(user));
+    }
     
     console.log('saveAuthData: Đã lưu thành công vào localStorage và cookie')
     console.log('saveAuthData: Kiểm tra localStorage sau khi lưu:')
-    console.log('saveAuthData: - auth_token:', localStorage.getItem(TOKEN_KEY))
-    console.log('saveAuthData: - auth_user:', localStorage.getItem(USER_KEY))
+    if (typeof window !== 'undefined') {
+      console.log('saveAuthData: - auth_token:', localStorage.getItem(TOKEN_KEY))
+      console.log('saveAuthData: - auth_user:', localStorage.getItem(USER_KEY))
+    }
+    console.log('saveAuthData: - cookie token:', Cookies.get('token'))
   } catch (error) {
     console.error('Error saving auth data:', error);
   }
@@ -65,9 +77,18 @@ export const getAuthUser = () => {
 // Xóa tất cả dữ liệu authentication
 export const clearAuthData = () => {
   try {
-    Cookies.remove('token');
-    localStorage.removeItem(TOKEN_KEY);
-    localStorage.removeItem(USER_KEY);
+    console.log('clearAuthData: Xóa tất cả dữ liệu authentication...')
+    
+    // Xóa cookie
+    Cookies.remove('token', { path: '/' });
+    
+    // Xóa localStorage
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem(TOKEN_KEY);
+      localStorage.removeItem(USER_KEY);
+    }
+    
+    console.log('clearAuthData: Đã xóa thành công')
   } catch (error) {
     console.error('Error clearing auth data:', error);
   }

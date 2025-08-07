@@ -18,7 +18,8 @@ import {
   Home,
   MessageSquare,
   DollarSign,
-  MapPin
+  MapPin,
+  Server
 } from 'lucide-react'
 
 const iconMap = {
@@ -32,7 +33,8 @@ const iconMap = {
   Home,
   MessageSquare,
   DollarSign,
-  MapPin
+  MapPin,
+  Server
 }
 
 export default function Sidebar() {
@@ -62,48 +64,62 @@ export default function Sidebar() {
     },
     {
       id: 2,
+      label: 'Quản lý người dùng',
+      icon: 'Users',
+      route: '/admin/users',
+      roles: ['admin']
+    },
+    {
+      id: 3,
       label: 'Quản lý thợ',
       icon: 'Users',
       route: '/admin/workers',
       roles: ['admin', 'manager']
     },
     {
-      id: 3,
+      id: 4,
       label: 'Lịch làm việc',
       icon: 'Calendar',
       route: ROUTES.WORKS,
       roles: ['admin', 'manager', 'user']
     },
     {
-      id: 4,
+      id: 5,
       label: 'Báo giá',
       icon: 'DollarSign',
       route: ROUTES.QUOTES,
       roles: ['admin', 'manager', 'accountant', 'user']
     },
     {
-      id: 5,
+      id: 6,
       label: 'Khách hàng',
       icon: 'Building2',
       route: '/customer',
       roles: ['admin', 'manager', 'accountant', 'user']
     },
     {
-      id: 6,
+      id: 7,
       label: 'Phường/Xã',
       icon: 'MapPin',
       route: ROUTES.WARDS,
       roles: ['admin', 'manager', 'accountant', 'user']
     },
     {
-      id: 7,
+      id: 8,
       label: 'Gửi ZNS',
       icon: 'MessageSquare',
       route: '/admin/zns',
       roles: ['admin']
     },
     {
-      id: 8,
+      id: 9,
+      label: 'Quản lý hệ thống',
+      icon: 'Server',
+      route: '/admin/system',
+      roles: ['admin']
+    },
+    {
+      id: 10,
       label: 'Cài đặt',
       icon: 'Settings',
       route: '/profile',
@@ -123,7 +139,7 @@ export default function Sidebar() {
       <div className="flex flex-col h-full">
         {/* Logo and Toggle button */}
         <div className="p-4 border-b flex items-center justify-between">
-          <h1 className={`text-blue-500 font-bold text-xl ${isCollapsed ? 'hidden' : ''}`}>
+          <h1 className={`text-brand-green font-bold text-xl ${isCollapsed ? 'hidden' : ''}`}>
             CSM TV
           </h1>
           <button
@@ -150,7 +166,7 @@ export default function Sidebar() {
                 href={item.route}
                 className={`flex items-center px-4 py-2 text-sm font-medium rounded-md transition-colors ${
                   isActive
-                    ? 'bg-indigo-100 text-indigo-700'
+                    ? 'bg-brand-green/10 text-brand-green'
                     : 'text-gray-600 hover:bg-gray-100'
                 }`}
               >

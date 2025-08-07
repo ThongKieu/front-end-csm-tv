@@ -38,7 +38,7 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex">
+    <div className="flex w-full min-h-screen">
       <LoginClient />
     </div>
   );

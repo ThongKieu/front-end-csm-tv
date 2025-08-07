@@ -26,7 +26,7 @@ export default function WorkerAddModal({ onClose, onSubmit, formData, setFormDat
                   required
                   value={formData.worker_full_name}
                   onChange={(e) => setFormData({...formData, worker_full_name: e.target.value})}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-brand-green focus:ring-brand-green"
                   placeholder="Nhập họ và tên"
                 />
               </div>
@@ -37,7 +37,7 @@ export default function WorkerAddModal({ onClose, onSubmit, formData, setFormDat
                   required
                   value={formData.worker_code}
                   onChange={(e) => setFormData({...formData, worker_code: e.target.value})}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-brand-green focus:ring-brand-green"
                   placeholder="Nhập mã thợ"
                 />
               </div>
@@ -52,7 +52,7 @@ export default function WorkerAddModal({ onClose, onSubmit, formData, setFormDat
                   required
                   value={formData.worker_phone_company}
                   onChange={(e) => setFormData({...formData, worker_phone_company: e.target.value})}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-brand-green focus:ring-brand-green"
                   placeholder="Nhập số điện thoại công ty"
                 />
               </div>
@@ -62,7 +62,7 @@ export default function WorkerAddModal({ onClose, onSubmit, formData, setFormDat
                   type="tel"
                   value={formData.worker_phone_personal}
                   onChange={(e) => setFormData({...formData, worker_phone_personal: e.target.value})}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-brand-green focus:ring-brand-green"
                   placeholder="Nhập số điện thoại cá nhân"
                 />
               </div>
@@ -74,7 +74,7 @@ export default function WorkerAddModal({ onClose, onSubmit, formData, setFormDat
                 type="text"
                 value={formData.worker_address}
                 onChange={(e) => setFormData({...formData, worker_address: e.target.value})}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-brand-green focus:ring-brand-green"
                 placeholder="Nhập địa chỉ"
               />
             </div>
@@ -88,7 +88,7 @@ export default function WorkerAddModal({ onClose, onSubmit, formData, setFormDat
                   required
                   value={formData.worker_daily_sales}
                   onChange={(e) => setFormData({...formData, worker_daily_sales: e.target.value})}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-brand-green focus:ring-brand-green"
                   placeholder="Nhập doanh số/ngày"
                 />
               </div>
@@ -99,7 +99,7 @@ export default function WorkerAddModal({ onClose, onSubmit, formData, setFormDat
                   required
                   value={formData.worker_daily_o_t_by_hour}
                   onChange={(e) => setFormData({...formData, worker_daily_o_t_by_hour: e.target.value})}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-brand-green focus:ring-brand-green"
                   placeholder="Nhập lương theo giờ"
                 />
               </div>
@@ -111,7 +111,7 @@ export default function WorkerAddModal({ onClose, onSubmit, formData, setFormDat
                 required
                 value={formData.worker_status}
                 onChange={(e) => setFormData({...formData, worker_status: parseInt(e.target.value)})}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-brand-green focus:ring-brand-green"
               >
                 <option value={1}>Đang hoạt động</option>
                 <option value={0}>Không hoạt động</option>
@@ -129,7 +129,7 @@ export default function WorkerAddModal({ onClose, onSubmit, formData, setFormDat
                     required
                     value={formData.email}
                     onChange={(e) => setFormData({...formData, email: e.target.value})}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-brand-green focus:ring-brand-green"
                     placeholder="Nhập email"
                   />
                 </div>
@@ -140,7 +140,7 @@ export default function WorkerAddModal({ onClose, onSubmit, formData, setFormDat
                     required
                     value={formData.password}
                     onChange={(e) => setFormData({...formData, password: e.target.value})}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-brand-green focus:ring-brand-green"
                     placeholder="Nhập mật khẩu"
                   />
                 </div>
@@ -158,7 +158,7 @@ export default function WorkerAddModal({ onClose, onSubmit, formData, setFormDat
               </button>
               <button
                 type="submit"
-                className="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md"
+                className="px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-brand-green to-brand-yellow hover:from-green-700 hover:to-yellow-600 rounded-md"
               >
                 Thêm thợ
               </button>

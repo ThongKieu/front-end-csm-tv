@@ -28,12 +28,12 @@ export default function WorkersHeader({
               placeholder="Tìm kiếm theo tên..."
               value={searchTerm}
               onChange={(e) => onSearchChange(e.target.value)}
-              className="pl-10 w-full sm:w-72 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500"
+              className="pl-10 w-full sm:w-72 rounded-lg border border-gray-300 focus:ring-brand-green focus:border-brand-green"
             />
           </div>
           <button 
             onClick={onAddClick}
-            className="inline-flex items-center px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+            className="inline-flex items-center px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-gradient-to-r from-brand-green to-brand-yellow hover:from-green-700 hover:to-yellow-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-green"
           >
             <Plus className="h-5 w-5 mr-2" />
             Thêm thợ
@@ -48,7 +48,7 @@ export default function WorkersHeader({
             onClick={() => onTabChange("all")}
             className={`${
               activeTab === "all"
-                ? "border-blue-500 text-blue-600"
+                ? "border-brand-green text-brand-green"
                 : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
             } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
           >
@@ -58,7 +58,7 @@ export default function WorkersHeader({
             onClick={() => onTabChange("active")}
             className={`${
               activeTab === "active"
-                ? "border-green-500 text-green-600"
+                ? "border-brand-green text-brand-green"
                 : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
             } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm flex items-center`}
           >
@@ -69,7 +69,7 @@ export default function WorkersHeader({
             onClick={() => onTabChange("inactive")}
             className={`${
               activeTab === "inactive"
-                ? "border-red-500 text-red-600"
+                ? "border-brand-yellow text-brand-yellow"
                 : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
             } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm flex items-center`}
           >

@@ -33,21 +33,21 @@ import EditAssignedWorkModal from "./EditAssignedWorkModal";
 export const getWorkTypeColor = (kindWork) => {
   switch (kindWork) {
     case 1:
-      return 'bg-blue-100 text-blue-800'; // Điện Nước
+      return 'bg-brand-green/20 text-brand-green'; // Điện Nước
     case 2:
-      return 'bg-green-100 text-green-800'; // Điện Lạnh
+      return 'bg-brand-green/20 text-brand-green'; // Điện Lạnh
     case 3:
-      return 'bg-yellow-100 text-yellow-800'; // Đồ gỗ
+      return 'bg-brand-yellow/20 text-brand-yellow'; // Đồ gỗ
     case 4:
-      return 'bg-orange-100 text-orange-800'; // Năng Lượng Mặt trời
+      return 'bg-brand-yellow/20 text-brand-yellow'; // Năng Lượng Mặt trời
     case 5:
-      return 'bg-red-100 text-red-800'; // Xây Dựng
+      return 'bg-brand-green/20 text-brand-green'; // Xây Dựng
     case 6:
-      return 'bg-purple-100 text-purple-800'; // Tài Xế
+      return 'bg-brand-yellow/20 text-brand-yellow'; // Tài Xế
     case 7:
-      return 'bg-indigo-100 text-indigo-800'; // Cơ Khí
+      return 'bg-brand-green/20 text-brand-green'; // Cơ Khí
     case 8:
-      return 'bg-pink-100 text-pink-800'; // Điện - Điện Tử
+      return 'bg-brand-yellow/20 text-brand-yellow'; // Điện - Điện Tử
     case 9:
       return 'bg-gray-100 text-gray-800'; // Văn Phòng
     default:
@@ -85,25 +85,25 @@ export const getStatusColor = (status) => {
     case 0:
       return 'bg-gray-100 text-gray-800 border border-gray-300'; // Chưa Phân
     case 1:
-      return 'bg-yellow-100 text-yellow-800 border border-yellow-300'; // Thuê Bao / Không nghe
+      return 'bg-brand-yellow/20 text-brand-yellow border border-brand-yellow/30'; // Thuê Bao / Không nghe
     case 2:
-      return 'bg-orange-100 text-orange-800 border border-orange-300'; // Khách Nhắc 1 lần
+      return 'bg-brand-yellow/30 text-brand-yellow border border-brand-yellow/40'; // Khách Nhắc 1 lần
     case 3:
-      return 'bg-red-100 text-red-800 border border-red-300'; // Khách nhắc nhiều lần
+      return 'bg-brand-yellow/20 text-brand-yellow border border-brand-yellow/30'; // Khách nhắc nhiều lần
     case 4:
-      return 'bg-purple-100 text-purple-800 border border-purple-300 font-semibold'; // Lịch Gấp/Ưu tiên
+      return 'bg-brand-green/30 text-brand-green border border-brand-green/40 font-semibold'; // Lịch Gấp/Ưu tiên
     case 5:
-      return 'bg-blue-100 text-blue-800 border border-blue-300'; // Đang xử lý
+      return 'bg-brand-green/20 text-brand-green border border-brand-green/30'; // Đang xử lý
     case 6:
-      return 'bg-green-100 text-green-800 border border-green-300'; // Lịch đã phân
+      return 'bg-brand-green/30 text-brand-green border border-brand-green/40'; // Lịch đã phân
     case 7:
-      return 'bg-red-200 text-red-900 border border-red-400'; // Lịch Hủy
+      return 'bg-brand-yellow/30 text-brand-yellow border border-brand-yellow/40'; // Lịch Hủy
     case 8:
       return 'bg-gray-200 text-gray-900 border border-gray-400'; // KXL
     case 9:
-      return 'bg-pink-100 text-pink-800 border border-pink-300 font-semibold'; // Khách quen
+      return 'bg-brand-yellow/30 text-brand-yellow border border-brand-yellow/40 font-semibold'; // Khách quen
     case 10:
-      return 'bg-indigo-100 text-indigo-800 border border-indigo-300 font-semibold'; // Lịch ưu tiên
+      return 'bg-brand-green/40 text-brand-green border border-brand-green/50 font-semibold'; // Lịch ưu tiên
     default:
       return 'bg-gray-100 text-gray-800 border border-gray-300';
   }
@@ -272,21 +272,21 @@ const WorkTable = ({ works = [], workers = [] }) => {
   const getWorkTypeGradient = (kindWork) => {
     switch (kindWork) {
       case 1:
-        return 'bg-gradient-to-r from-blue-500 to-blue-600'; // Điện Nước
+        return 'bg-gradient-to-r from-brand-green to-brand-green/80'; // Điện Nước
       case 2:
-        return 'bg-gradient-to-r from-green-500 to-green-600'; // Điện Lạnh
+        return 'bg-gradient-to-r from-brand-green to-brand-green/80'; // Điện Lạnh
       case 3:
-        return 'bg-gradient-to-r from-yellow-500 to-yellow-600'; // Đồ gỗ
+        return 'bg-gradient-to-r from-brand-yellow to-brand-yellow/80'; // Đồ gỗ
       case 4:
-        return 'bg-gradient-to-r from-orange-500 to-orange-600'; // Năng Lượng Mặt trời
+        return 'bg-gradient-to-r from-brand-yellow to-brand-yellow/80'; // Năng Lượng Mặt trời
       case 5:
-        return 'bg-gradient-to-r from-red-500 to-red-600'; // Xây Dựng
+        return 'bg-gradient-to-r from-brand-green to-brand-green/80'; // Xây Dựng
       case 6:
-        return 'bg-gradient-to-r from-purple-500 to-purple-600'; // Tài Xế
+        return 'bg-gradient-to-r from-brand-yellow to-brand-yellow/80'; // Tài Xế
       case 7:
-        return 'bg-gradient-to-r from-indigo-500 to-indigo-600'; // Cơ Khí
+        return 'bg-gradient-to-r from-brand-green to-brand-green/80'; // Cơ Khí
       case 8:
-        return 'bg-gradient-to-r from-pink-500 to-pink-600'; // Điện - Điện Tử
+        return 'bg-gradient-to-r from-brand-yellow to-brand-yellow/80'; // Điện - Điện Tử
       case 9:
         return 'bg-gradient-to-r from-gray-500 to-gray-600'; // Văn Phòng
       default:
@@ -359,7 +359,7 @@ const WorkTable = ({ works = [], workers = [] }) => {
                 return (
                   <div
                     key={work.id}
-                    className="p-3 bg-gray-50 rounded-lg border border-gray-100 transition-colors hover:border-blue-200"
+                    className="p-3 bg-gray-50 rounded-lg border border-gray-100 transition-colors hover:border-brand-green/30"
                   >
                     <div className="flex justify-between items-start">
                       <div className="space-y-1.5 flex-1 min-w-0">
@@ -409,11 +409,11 @@ const WorkTable = ({ works = [], workers = [] }) => {
                                 {getStatusName(work.status_work)}
                               </span>
                               <div className="flex items-center space-x-1">
-                                <p className="p-1 text-xs text-green-400 truncate rounded-md border border-green-400">
+                                <p className="p-1 text-xs text-brand-green truncate rounded-md border border-brand-green">
                                   {work.date_book}
                                 </p>
                                 {work.time_book && (
-                                  <p className="p-1 text-xs text-blue-400 truncate rounded-md border border-blue-400">
+                                  <p className="p-1 text-xs text-brand-yellow truncate rounded-md border border-brand-yellow">
                                     {work.time_book}
                                   </p>
                                 )}
@@ -423,7 +423,7 @@ const WorkTable = ({ works = [], workers = [] }) => {
                                                      <div className="flex items-center space-x-1">
                              <span className="font-medium text-gray-700">📍 Địa chỉ:</span>
                                                             <span 
-                                 className="text-gray-600 truncate cursor-pointer hover:text-blue-600 hover:bg-blue-50 px-1 py-0.5 rounded text-sm relative group"
+                                 className="text-gray-600 truncate cursor-pointer hover:text-brand-green hover:bg-brand-green/10 px-1 py-0.5 rounded text-sm relative group"
                                  title="Click để copy địa chỉ"
                                  onMouseEnter={(e) => {
                                    const address = (() => {
@@ -493,24 +493,24 @@ const WorkTable = ({ works = [], workers = [] }) => {
                             </p>
                           )}
                           
-                          {work.images_count > 0 && (
-                            <p className="text-xs text-blue-600">
-                              <span className="font-medium">Hình ảnh:</span> {work.images_count} ảnh
-                            </p>
-                          )}
+                                                      {work.images_count > 0 && (
+                              <p className="text-xs text-brand-yellow">
+                                <span className="font-medium">Hình ảnh:</span> {work.images_count} ảnh
+                              </p>
+                            )}
                         </div>
                         {assignedWorker && (
-                          <div className="p-2 mt-2 bg-blue-50 rounded-md border border-blue-100">
-                            <p className="mb-1 text-sm font-medium text-blue-700">
+                          <div className="p-2 mt-2 bg-brand-green/10 rounded-md border border-brand-green/20">
+                            <p className="mb-1 text-sm font-medium text-brand-green">
                               Thợ đã phân công:
                             </p>
                             <div className="space-y-1">
-                              <p className="text-sm text-blue-600 truncate">
+                              <p className="text-sm text-brand-green truncate">
                                 {work.worker_full_name} ({work.worker_code})
                               </p>
                               <div className="flex items-center space-x-1">
-                                <Phone className="w-3 h-3 text-blue-500" />
-                                <span className="text-sm text-blue-600 truncate">
+                                <Phone className="w-3 h-3 text-brand-green" />
+                                <span className="text-sm text-brand-green truncate">
                                   SĐT: {work.worker_phone_company || "Chưa có thông tin"}
                                 </span>
                               </div>
@@ -522,9 +522,9 @@ const WorkTable = ({ works = [], workers = [] }) => {
                         <button
                           onClick={() => handleCopy(work)}
                           className={`p-2 rounded-full transition-colors ${
-                            copiedWorkId === work.id
-                              ? "text-green-600 bg-green-50"
-                              : "text-gray-500 hover:text-blue-600 hover:bg-blue-50"
+                                                          copiedWorkId === work.id
+                                ? "text-brand-green bg-brand-green/10"
+                                : "text-gray-500 hover:text-brand-green hover:bg-brand-green/10"
                           }`}
                           title="Sao chép lịch"
                         >
@@ -534,14 +534,14 @@ const WorkTable = ({ works = [], workers = [] }) => {
                           <>
                             <button
                               onClick={() => handleChangeWorker(work)}
-                              className="p-2 text-gray-500 rounded-full transition-colors cursor-pointer hover:text-blue-600 hover:bg-blue-50"
+                              className="p-2 text-gray-500 rounded-full transition-colors cursor-pointer hover:text-brand-green hover:bg-brand-green/10"
                               title="Đổi thợ"
                             >
                               <UserCog className="w-5 h-5" />
                             </button>
                             <button
                               onClick={() => handleEditAssignedWork(work)}
-                              className="p-2 text-gray-500 rounded-full transition-colors hover:text-blue-600 hover:bg-blue-50"
+                              className="p-2 text-gray-500 rounded-full transition-colors hover:text-brand-green hover:bg-brand-green/10"
                               title="Nhập thu chi"
                             >
                               <DollarSign className="w-5 h-5" />
@@ -551,14 +551,14 @@ const WorkTable = ({ works = [], workers = [] }) => {
                           <div>
                             <button
                               onClick={() => handleAssignWorker(work)}
-                              className="p-2 text-gray-500 rounded-full transition-colors hover:text-blue-600 hover:bg-blue-50"
+                              className="p-2 text-gray-500 rounded-full transition-colors hover:text-brand-green hover:bg-brand-green/10"
                               title="Phân công thợ"
                             >
                               <UserPlus className="w-5 h-5" />
                             </button>
                             <button
                               onClick={() => handleEditWork(work)}
-                              className="p-2 text-gray-500 rounded-full transition-colors hover:text-blue-600 hover:bg-blue-50"
+                              className="p-2 text-gray-500 rounded-full transition-colors hover:text-brand-green hover:bg-brand-green/10"
                               title="Chỉnh sửa"
                             >
                               <Settings className="w-5 h-5" />
@@ -601,7 +601,7 @@ const WorkTable = ({ works = [], workers = [] }) => {
           onClick={() => handleWorkerTypeChange("all")}
           className={`px-1.5 py-0.5 text-xs font-medium rounded-full transition-all duration-200 ${
             selectedWorkerType === "all"
-              ? "bg-blue-600 text-white shadow-md"
+              ? "bg-brand-green text-white shadow-md"
               : "bg-gray-100 text-gray-700 hover:bg-gray-200"
           }`}
         >
@@ -614,7 +614,7 @@ const WorkTable = ({ works = [], workers = [] }) => {
               onClick={() => handleWorkerTypeChange(category.kind_worker?.id)}
               className={`px-1.5 py-0.5 text-xs font-medium cursor-pointer rounded-full transition-all duration-200 ${
                 selectedWorkerType === category.kind_worker?.id
-                  ? "ring-1 ring-blue-500 shadow-sm"
+                  ? "ring-1 ring-brand-green shadow-sm"
                   : ""
               } ${getWorkTypeColor(category.kind_worker?.id)}`}
             >

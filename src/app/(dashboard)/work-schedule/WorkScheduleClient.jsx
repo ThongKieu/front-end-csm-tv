@@ -75,11 +75,11 @@ export default function WorkScheduleClient() {
   const getStatusColor = (status) => {
     switch (status) {
       case "pending":
-        return "bg-yellow-50 text-yellow-700 border-yellow-200";
+        return "bg-brand-yellow/10 text-brand-yellow border-brand-yellow/20";
       case "in_progress":
-        return "bg-blue-50 text-blue-700 border-blue-200";
+        return "bg-brand-green/10 text-brand-green border-brand-green/20";
       case "completed":
-        return "bg-green-50 text-green-700 border-green-200";
+        return "bg-brand-green/10 text-brand-green border-brand-green/20";
       default:
         return "bg-gray-50 text-gray-700 border-gray-200";
     }
@@ -121,8 +121,8 @@ export default function WorkScheduleClient() {
           {/* Left Sidebar */}
           <div className="space-y-4 w-full lg:w-80 lg:flex-shrink-0">
             {/* Date Navigation */}
-            <div className="p-4 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg border border-blue-100 shadow-sm">
-              <h3 className="flex gap-2 items-center mb-3 text-sm font-semibold text-blue-900">
+            <div className="p-4 bg-gradient-to-br from-brand-green/10 to-brand-yellow/10 rounded-lg border border-brand-green/20 shadow-sm">
+              <h3 className="flex gap-2 items-center mb-3 text-sm font-semibold text-brand-green">
                 <CalendarIcon className="w-4 h-4" />
                 Chọn ngày
               </h3>
@@ -139,10 +139,10 @@ export default function WorkScheduleClient() {
                 />
               </div>
               <div className="p-2 mt-3 text-center bg-white rounded-lg">
-                <p className="text-sm font-medium text-blue-900">
+                <p className="text-sm font-medium text-brand-green">
                   {format(date, "EEEE, dd/MM/yyyy")}
                 </p>
-                <p className="mt-1 text-xs text-blue-600">
+                <p className="mt-1 text-xs text-brand-green/70">
                   {format(date, "dd 'tháng' MM, yyyy")}
                 </p>
               </div>
@@ -156,7 +156,7 @@ export default function WorkScheduleClient() {
                     <p className="text-xs font-medium text-gray-500">Tổng công việc</p>
                     <p className="text-xl font-bold text-gray-900">{works.length}</p>
                   </div>
-                  <FileText className="w-5 h-5 text-blue-500" />
+                  <FileText className="w-5 h-5 text-brand-green" />
                 </div>
               </div>
               
@@ -164,9 +164,9 @@ export default function WorkScheduleClient() {
                 <div className="flex justify-between items-center">
                   <div>
                     <p className="text-xs font-medium text-gray-500">Chờ xử lý</p>
-                    <p className="text-xl font-bold text-yellow-600">{works.filter(w => w.status_work === "pending").length}</p>
+                    <p className="text-xl font-bold text-brand-yellow">{works.filter(w => w.status_work === "pending").length}</p>
                   </div>
-                  <Clock className="w-5 h-5 text-yellow-500" />
+                  <Clock className="w-5 h-5 text-brand-yellow" />
                 </div>
               </div>
               
@@ -174,9 +174,9 @@ export default function WorkScheduleClient() {
                 <div className="flex justify-between items-center">
                   <div>
                     <p className="text-xs font-medium text-gray-500">Hoàn thành</p>
-                    <p className="text-xl font-bold text-green-600">{works.filter(w => w.status_work === "completed").length}</p>
+                    <p className="text-xl font-bold text-brand-green">{works.filter(w => w.status_work === "completed").length}</p>
                   </div>
-                  <CalendarIcon className="w-5 h-5 text-green-500" />
+                  <CalendarIcon className="w-5 h-5 text-brand-green" />
                 </div>
               </div>
             </div>
@@ -226,7 +226,7 @@ export default function WorkScheduleClient() {
                 {loading ? (
                   <div className="flex justify-center items-center py-12">
                     <div className="flex flex-col items-center space-y-3">
-                      <div className="w-8 h-8 rounded-full border-2 border-blue-200 animate-spin border-t-blue-600"></div>
+                      <div className="w-8 h-8 rounded-full border-2 border-brand-green/20 animate-spin border-t-brand-green"></div>
                       <p className="text-sm text-gray-600">Đang tải...</p>
                     </div>
                   </div>
@@ -249,9 +249,9 @@ export default function WorkScheduleClient() {
                         <div className="flex gap-4 items-start">
                           {/* Customer Avatar */}
                           <div className="flex-shrink-0">
-                            <div className="flex justify-center items-center w-10 h-10 bg-blue-100 rounded-full">
-                              <User className="w-5 h-5 text-blue-600" />
-                            </div>
+                                                      <div className="flex justify-center items-center w-10 h-10 bg-brand-green/10 rounded-full">
+                            <User className="w-5 h-5 text-brand-green" />
+                          </div>
                           </div>
                           
                           {/* Work Details */}
@@ -293,10 +293,10 @@ export default function WorkScheduleClient() {
                                 </span>
                                 
                                 <div className="flex gap-1 items-center">
-                                  <button className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors">
+                                  <button className="p-1.5 text-gray-400 hover:text-brand-green hover:bg-brand-green/10 rounded transition-colors">
                                     <Eye className="w-3.5 h-3.5" />
                                   </button>
-                                  <button className="p-1.5 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded transition-colors">
+                                  <button className="p-1.5 text-gray-400 hover:text-brand-green hover:bg-brand-green/10 rounded transition-colors">
                                     <Edit className="w-3.5 h-3.5" />
                                   </button>
                                   <button className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors">

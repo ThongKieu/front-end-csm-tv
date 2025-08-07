@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
 import { logout } from "@/store/slices/authSlice";
 import { ROUTES } from "@/config/routes";
@@ -29,6 +29,7 @@ import {
 
 export default function Header() {
   const pathname = usePathname();
+  const router = useRouter();
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -46,7 +47,34 @@ export default function Header() {
   }, []);
 
   const handleLogout = () => {
+    console.log('Header: Logout initiated');
+    
+    // Dispatch logout action
     dispatch(logout());
+    
+    // Close user menu
+    setIsUserMenuOpen(false);
+    setIsMenuOpen(false);
+    
+    // Clear any saved login info
+    try {
+      localStorage.removeItem('savedLoginInfo');
+    } catch (error) {
+      console.error('Error clearing saved login info:', error);
+    }
+    
+    // Force redirect to login page
+    console.log('Header: Redirecting to login page');
+    
+    // Sử dụng setTimeout để đảm bảo Redux state đã được cập nhật
+    setTimeout(() => {
+      router.push(ROUTES.LOGIN);
+      
+      // Force page reload to ensure clean state
+      setTimeout(() => {
+        window.location.href = ROUTES.LOGIN;
+      }, 100);
+    }, 200);
   };
 
   const isActive = (path) => {
@@ -131,12 +159,12 @@ export default function Header() {
     <header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-200 ${
         isScrolled
-          ? "bg-white/80 backdrop-blur-md shadow-sm"
+          ? "shadow-sm backdrop-blur-md bg-white/80"
           : "bg-white"
       }`}
     >
       <div className="container px-4 mx-auto">
-        <div className="flex items-center justify-between h-16">
+        <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <Link href="/" className="flex items-center space-x-2">
             <img
@@ -147,14 +175,14 @@ export default function Header() {
           </Link>
 
           {/* Desktop Navigation */}
-          <nav className="items-center hidden space-x-1 md:flex">
+          <nav className="hidden items-center space-x-1 md:flex">
             {menuItems.map((item) => (
               <Link
                 key={item.id}
                 href={item.route}
                 className={`px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
                   isActive(item.route)
-                    ? "bg-blue-50 text-blue-600"
+                    ? "bg-brand-green/10 text-brand-green"
                     : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
                 }`}
               >
@@ -167,17 +195,17 @@ export default function Header() {
           </nav>
 
           {/* Right Section */}
-          <div className="items-center hidden space-x-4 md:flex">
+          <div className="hidden items-center space-x-4 md:flex">
             {/* Search */}
             <div className="relative">
               <button
                 onClick={() => setIsSearchOpen(!isSearchOpen)}
-                className="p-2 text-gray-600 transition-colors rounded-full hover:text-gray-900 hover:bg-gray-100"
+                className="p-2 text-gray-600 rounded-full transition-colors hover:text-gray-900 hover:bg-gray-100"
               >
                 <Search className="w-5 h-5" />
               </button>
               {isSearchOpen && (
-                <div className="absolute right-0 p-2 mt-2 bg-white border rounded-lg shadow-lg w-72" onClick={() => setIsSearchOpen(false)}>
+                <div className="absolute right-0 p-2 mt-2 w-72 bg-white rounded-lg border shadow-lg" onClick={() => setIsSearchOpen(false)}>
                   <div className="flex items-center space-x-2" onClick={(e) => e.stopPropagation()}>
                     <Search className="w-4 h-4 text-gray-400" />
                     <input
@@ -191,18 +219,18 @@ export default function Header() {
             </div>
 
             {/* Notifications */}
-            <button className="relative p-2 text-gray-600 transition-colors rounded-full hover:text-gray-900 hover:bg-gray-100">
+            <button className="relative p-2 text-gray-600 rounded-full transition-colors hover:text-gray-900 hover:bg-gray-100">
               <Bell className="w-5 h-5" />
-              <span className="absolute w-2 h-2 bg-red-500 rounded-full top-1 right-1"></span>
+              <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
             </button>
 
             {/* User Menu */}
             <div className="relative">
               <button
                 onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-                className="flex items-center px-3 py-2 space-x-2 text-gray-600 transition-colors rounded-md hover:text-gray-900 hover:bg-gray-50"
+                className="flex items-center px-3 py-2 space-x-2 text-gray-600 rounded-md transition-colors hover:text-gray-900 hover:bg-gray-50"
               >
-                <div className="flex items-center justify-center w-8 h-8 bg-blue-100 rounded-full">
+                <div className="flex justify-center items-center w-8 h-8 bg-blue-100 rounded-full">
                   <span className="text-sm font-medium text-blue-600">
                     {getInitial()}
                   </span>
@@ -212,14 +240,14 @@ export default function Header() {
               </button>
 
               {isUserMenuOpen && (
-                <div className="absolute right-0 w-48 mt-2 overflow-hidden bg-white rounded-lg shadow-lg ring-1 ring-black ring-opacity-5">
+                <div className="overflow-hidden absolute right-0 mt-2 w-48 bg-white rounded-lg ring-1 ring-black ring-opacity-5 shadow-lg">
                   <div className="py-1">
                     <Link
                       href={ROUTES.PROFILE}
                       className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
                       onClick={() => setIsUserMenuOpen(false)}
                     >
-                      <User className="w-4 h-4 mr-2" />
+                      <User className="mr-2 w-4 h-4" />
                       Thông tin cá nhân
                     </Link>
                     <Link
@@ -227,7 +255,7 @@ export default function Header() {
                       className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
                       onClick={() => setIsUserMenuOpen(false)}
                     >
-                      <Settings className="w-4 h-4 mr-2" />
+                      <Settings className="mr-2 w-4 h-4" />
                       Cài đặt
                     </Link>
                     <Link
@@ -235,16 +263,26 @@ export default function Header() {
                       className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
                       onClick={() => setIsUserMenuOpen(false)}
                     >
-                      <Lock className="w-4 h-4 mr-2" />
+                      <Lock className="mr-2 w-4 h-4" />
                       Đổi mật khẩu
                     </Link>
+                    {(user?.role === 'admin' || user?.role === 'manager') && (
+                      <Link
+                        href="/admin"
+                        className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                        onClick={() => setIsUserMenuOpen(false)}
+                      >
+                        <Crown className="mr-2 w-4 h-4" />
+                        Chuyển qua Admin
+                      </Link>
+                    )}
                     {user?.role === 'admin' && (
                       <Link
                         href={ROUTES.ADMIN.SETTINGS}
                         className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
                         onClick={() => setIsUserMenuOpen(false)}
                       >
-                        <Shield className="w-4 h-4 mr-2" />
+                        <Shield className="mr-2 w-4 h-4" />
                         Cài đặt hệ thống
                       </Link>
                     )}
@@ -253,9 +291,9 @@ export default function Header() {
                         handleLogout();
                         setIsUserMenuOpen(false);
                       }}
-                      className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                      className="flex items-center px-4 py-2 w-full text-sm text-gray-700 hover:bg-gray-50"
                     >
-                      <LogOut className="w-4 h-4 mr-2" />
+                      <LogOut className="mr-2 w-4 h-4" />
                       Đăng xuất
                     </button>
                   </div>
@@ -301,7 +339,7 @@ export default function Header() {
               <div className="pt-4 pb-3 border-t border-gray-200">
                 <div className="flex items-center px-5">
                   <div className="flex-shrink-0">
-                    <div className="flex items-center justify-center w-10 h-10 bg-blue-100 rounded-full">
+                    <div className="flex justify-center items-center w-10 h-10 bg-blue-100 rounded-full">
                       <span className="text-lg font-medium text-blue-600">
                         {getInitial()}
                       </span>
@@ -322,7 +360,7 @@ export default function Header() {
                     className="flex items-center px-3 py-2 text-base font-medium text-gray-600 rounded-md hover:bg-gray-50 hover:text-gray-900"
                     onClick={() => setIsMenuOpen(false)}
                   >
-                    <User className="w-4 h-4 mr-2" />
+                    <User className="mr-2 w-4 h-4" />
                     Thông tin cá nhân
                   </Link>
                   <Link
@@ -330,7 +368,7 @@ export default function Header() {
                     className="flex items-center px-3 py-2 text-base font-medium text-gray-600 rounded-md hover:bg-gray-50 hover:text-gray-900"
                     onClick={() => setIsMenuOpen(false)}
                   >
-                    <Settings className="w-4 h-4 mr-2" />
+                    <Settings className="mr-2 w-4 h-4" />
                     Cài đặt
                   </Link>
                   <Link
@@ -338,17 +376,24 @@ export default function Header() {
                     className="flex items-center px-3 py-2 text-base font-medium text-gray-600 rounded-md hover:bg-gray-50 hover:text-gray-900"
                     onClick={() => setIsMenuOpen(false)}
                   >
-                    <Lock className="w-4 h-4 mr-2" />
+                    <Lock className="mr-2 w-4 h-4" />
                     Đổi mật khẩu
                   </Link>
+                  {(user?.role === 'admin' || user?.role === 'manager') && (
+                    <Link
+                      href="/admin"
+                      className="flex items-center px-3 py-2 text-base font-medium text-gray-600 rounded-md hover:bg-gray-50 hover:text-gray-900"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      <Crown className="mr-2 w-4 h-4" />
+                      Chuyển qua Admin
+                    </Link>
+                  )}
                   <button
-                    onClick={() => {
-                      handleLogout();
-                      setIsMenuOpen(false);
-                    }}
-                    className="flex items-center w-full px-3 py-2 text-base font-medium text-gray-600 rounded-md hover:bg-gray-50 hover:text-gray-900"
+                    onClick={handleLogout}
+                    className="flex items-center px-3 py-2 w-full text-base font-medium text-gray-600 rounded-md hover:bg-gray-50 hover:text-gray-900"
                   >
-                    <LogOut className="w-4 h-4 mr-2" />
+                    <LogOut className="mr-2 w-4 h-4" />
                     Đăng xuất
                   </button>
                 </div>

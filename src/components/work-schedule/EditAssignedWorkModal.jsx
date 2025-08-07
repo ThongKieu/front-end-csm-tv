@@ -121,7 +121,7 @@ const EditAssignedWorkModal = ({ work, onClose, onSave }) => {
                 name="work_content"
                 value={formData.work_content}
                 onChange={handleChange}
-                className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand-green"
                 rows="3"
                 readOnly
               />
@@ -135,7 +135,7 @@ const EditAssignedWorkModal = ({ work, onClose, onSave }) => {
                 name="status_cus"
                 value={formData.status_cus}
                 onChange={handleChange}
-                className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand-green"
               >
                 {getStatusOptions().map(option => (
                   <option key={option.value} value={option.value}>
@@ -156,7 +156,7 @@ const EditAssignedWorkModal = ({ work, onClose, onSave }) => {
                 name="name_cus"
                 value={formData.name_cus}
                 onChange={handleChange}
-                className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand-green"
                 readOnly
               />
             </div>
@@ -170,7 +170,7 @@ const EditAssignedWorkModal = ({ work, onClose, onSave }) => {
                 name="phone_number"
                 value={formData.phone_number}
                 onChange={handleChange}
-                className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand-green"
                 readOnly
               />
             </div>
@@ -186,7 +186,7 @@ const EditAssignedWorkModal = ({ work, onClose, onSave }) => {
                 name="street"
                 value={formData.street}
                 onChange={handleChange}
-                className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand-green"
                 readOnly
               />
             </div>
@@ -200,7 +200,7 @@ const EditAssignedWorkModal = ({ work, onClose, onSave }) => {
                 name="district"
                 value={formData.district}
                 onChange={handleChange}
-                className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand-green"
                 readOnly
               />
             </div>
@@ -216,7 +216,7 @@ const EditAssignedWorkModal = ({ work, onClose, onSave }) => {
                 name="income_total"
                 value={formData.income_total}
                 onChange={handleChange}
-                className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand-green"
                 min="0"
               />
             </div>
@@ -230,7 +230,7 @@ const EditAssignedWorkModal = ({ work, onClose, onSave }) => {
                 name="spending_total"
                 value={formData.spending_total}
                 onChange={handleChange}
-                className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand-green"
                 min="0"
               />
             </div>
@@ -246,7 +246,7 @@ const EditAssignedWorkModal = ({ work, onClose, onSave }) => {
                 name="vat"
                 value={formData.vat}
                 onChange={handleChange}
-                className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand-green"
                 min="0"
               />
             </div>
@@ -260,7 +260,7 @@ const EditAssignedWorkModal = ({ work, onClose, onSave }) => {
                 name="info_vat"
                 value={formData.info_vat}
                 onChange={handleChange}
-                className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand-green"
               />
             </div>
           </div>
@@ -274,7 +274,7 @@ const EditAssignedWorkModal = ({ work, onClose, onSave }) => {
                 name="debt"
                 value={formData.debt}
                 onChange={handleChange}
-                className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand-green"
               >
                 <option value={0}>Không có công nợ</option>
                 <option value={1}>Có công nợ</option>
@@ -289,7 +289,7 @@ const EditAssignedWorkModal = ({ work, onClose, onSave }) => {
                 name="status_work"
                 value={formData.status_work}
                 onChange={handleChange}
-                className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand-green"
               >
                 <option value={0}>Chưa hoàn thành</option>
                 <option value={1}>Đã hoàn thành</option>
@@ -305,7 +305,7 @@ const EditAssignedWorkModal = ({ work, onClose, onSave }) => {
               name="real_note"
               value={formData.real_note}
               onChange={handleChange}
-              className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand-green"
               rows="3"
             />
           </div>
@@ -327,7 +327,7 @@ const EditAssignedWorkModal = ({ work, onClose, onSave }) => {
             <button
               type="submit"
               disabled={loading}
-              className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
+              className="px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-brand-green to-brand-yellow rounded-md hover:from-green-700 hover:to-yellow-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-green disabled:opacity-50"
             >
               {loading ? 'Đang lưu...' : 'Lưu thay đổi'}
             </button>

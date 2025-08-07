@@ -40,7 +40,7 @@ export default function DashboardClient() {
   const loading = useSelector(selectLoading);
   const { user } = useSelector((state) => state.auth);
   const [error, setError] = useState(null);
-  const [viewMode, setViewMode] = useState("today");
+  const [viewMode, setViewMode] = useState("list");
   const [dateRange, setDateRange] = useState({ start: "", end: "" });
   const [isInitialized, setIsInitialized] = useState(false);
   const [copiedWorkId, setCopiedWorkId] = useState(null);
@@ -176,24 +176,24 @@ export default function DashboardClient() {
   // Show loading only during initial load
   if (!isInitialized && loading) {
     return (
-      <div className="flex items-center justify-center h-[calc(100vh-64px)] bg-gradient-to-br from-blue-50 to-indigo-50">
-        <div className="w-12 h-12 rounded-full border-b-2 border-blue-600 animate-spin"></div>
+      <div className="flex items-center justify-center h-[calc(100vh-64px)] bg-gradient-to-br from-brand-green/10 to-brand-yellow/10">
+        <div className="w-12 h-12 rounded-full border-b-2 animate-spin border-brand-green"></div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="flex items-center justify-center h-[calc(100vh-64px)] bg-gradient-to-br from-blue-50 to-indigo-50">
-        <div className="p-6 w-full max-w-md bg-white rounded-lg shadow-md">
-          <div className="flex items-center mb-4 space-x-3 text-red-600">
+      <div className="flex items-center justify-center h-[calc(100vh-64px)] bg-gradient-to-br from-brand-green/10 to-brand-yellow/10">
+        <div className="text-center">
+          <div className="flex items-center mb-4 space-x-3 text-brand-yellow">
             <AlertCircle className="w-6 h-6" />
-            <h2 className="text-lg font-semibold">Đã xảy ra lỗi</h2>
+            <h2 className="text-xl font-semibold">Lỗi tải dữ liệu</h2>
           </div>
           <p className="mb-4 text-gray-600">{error}</p>
           <button
-            onClick={() => fetchData(selectedDate)}
-            className="px-4 py-2 w-full text-white bg-blue-600 rounded-md transition-colors hover:bg-blue-700"
+            onClick={() => window.location.reload()}
+            className="px-4 py-2 w-full text-white rounded-md transition-colors bg-brand-green hover:bg-green-700"
           >
             Thử lại
           </button>
@@ -207,44 +207,41 @@ export default function DashboardClient() {
       {/* Compact Header */}
       <div className="flex justify-between items-center p-2 mb-2 bg-white rounded-lg shadow-sm">
         <div className="flex gap-3 items-center">
-          <h1 className="text-[15px] font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">
+          <h1 className="text-[15px] font-bold text-transparent bg-clip-text bg-gradient-to-r from-brand-green to-brand-yellow">
             Phân công công việc
           </h1>
 
           {/* Compact View Mode Tabs */}
           <div className="flex gap-0.5 items-center p-0.5 bg-gray-100 rounded-md">
-                          <button
-                onClick={() => handleViewModeChange("today")}
-                className={`flex items-center gap-1 px-2 py-1 rounded text-xs font-medium transition-all duration-200 ${
-                  viewMode === "today"
-                    ? "bg-white text-blue-600 shadow-sm"
-                    : "text-gray-600 hover:text-gray-800"
-                }`}
-              >
-                <Calendar className="w-3 h-3" />
-                <span>Hôm nay</span>
-              </button>
             <button
-              onClick={() => handleViewModeChange("history")}
-              className={`flex items-center gap-1 px-2 py-1 rounded text-xs font-medium transition-all duration-200 ${
-                viewMode === "history"
-                  ? "bg-white text-blue-600 shadow-sm"
-                  : "text-gray-600 hover:text-gray-800"
+              onClick={() => setViewMode('list')}
+              className={`px-3 py-1.5 text-xs font-medium rounded transition-colors ${
+                viewMode === 'list'
+                  ? "text-[#125d0d] bg-brand-green shadow-sm"
+                  : "text-gray-600 hover:text-gray-800 "
               }`}
             >
-              <History className="w-3 h-3" />
-              <span>Lịch sử</span>
+              Danh sách
             </button>
             <button
-              onClick={() => handleViewModeChange("pending")}
-              className={`flex items-center gap-1 px-2 py-1 rounded text-xs font-medium transition-all duration-200 ${
-                viewMode === "pending"
-                  ? "bg-white text-blue-600 shadow-sm"
+              onClick={() => setViewMode('calendar')}
+              className={`px-3 py-1.5 text-xs font-medium rounded transition-colors ${
+                viewMode === 'calendar'
+                  ? "text-[#125d0d] bg-brand-green shadow-sm"
                   : "text-gray-600 hover:text-gray-800"
               }`}
             >
-              <AlertTriangle className="w-3 h-3" />
-              <span>Chưa xử lý</span>
+              Lịch
+            </button>
+            <button
+              onClick={() => setViewMode('map')}
+              className={`px-3 py-1.5 text-xs font-medium rounded transition-colors ${
+                viewMode === 'map'
+                  ? "text-[#125d0d] bg-brand-green shadow-sm"
+                  : "text-gray-600 hover:text-gray-800"
+              }`}
+            >
+              Bản đồ
             </button>
           </div>
 
@@ -262,7 +259,7 @@ export default function DashboardClient() {
           {user?.role === "admin" && (
             <Link
               href={ROUTES.ADMIN.DASHBOARD}
-              className="flex items-center px-3 py-1.5 space-x-1 text-white transition-all duration-200 rounded-md shadow-sm bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-xs"
+              className="flex items-center px-3 py-1.5 space-x-1 text-white transition-all duration-200 rounded-md shadow-sm bg-gradient-to-r from-brand-green to-brand-yellow hover:from-green-700 hover:to-yellow-600 text-xs"
             >
               <Crown className="w-3 h-3" />
               <span className="font-medium">Admin</span>
@@ -285,7 +282,7 @@ export default function DashboardClient() {
                 onChange={(e) =>
                   setDateRange({ ...dateRange, start: e.target.value })
                 }
-                className="px-2 py-1 text-xs rounded-md border border-gray-200 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                className="px-2 py-1 text-xs rounded-md border border-gray-200 focus:outline-none focus:ring-1 focus:ring-brand-green"
               />
               <span className="text-xs text-gray-500">đến</span>
               <input
@@ -294,14 +291,14 @@ export default function DashboardClient() {
                 onChange={(e) =>
                   setDateRange({ ...dateRange, end: e.target.value })
                 }
-                className="px-2 py-1 text-xs rounded-md border border-gray-200 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                className="px-2 py-1 text-xs rounded-md border border-gray-200 focus:outline-none focus:ring-1 focus:ring-brand-green"
               />
               <button
                 onClick={() => {
                   // TODO: Implement date range filtering
                   console.log('Filtering date range:', dateRange);
                 }}
-                className="flex gap-1 items-center px-2 py-1 text-xs text-white bg-blue-600 rounded-md transition-colors hover:bg-blue-700"
+                className="flex gap-1 items-center px-2 py-1 text-xs text-white rounded-md transition-colors bg-brand-green hover:bg-green-700"
               >
                 <Filter className="w-3 h-3" />
                 Lọc
@@ -312,32 +309,31 @@ export default function DashboardClient() {
       )}
 
       {/* Content */}
-      {viewMode === "today" ? (
+      {viewMode === "list" ? (
         <div className="flex flex-col flex-1 min-h-0">
           {/* BỎ StatusLegend */}
           {/* <StatusLegend /> */}
-          
           <div className="grid flex-1 grid-cols-1 gap-2 mt-2 min-h-0 xl:grid-cols-2">
           {/* Unassigned Works */}
-          <div className="flex overflow-hidden flex-col h-full bg-white rounded-lg border border-blue-100 shadow-sm">
-            <div className="p-1.5 bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-blue-100 flex items-center justify-between">
-              <div>
-                <h2 className="flex items-center text-xs font-semibold text-blue-900">
-                  <span className="mr-1 w-1 h-1 bg-yellow-500 rounded-full"></span>
+          <div className="flex overflow-hidden flex-col h-full bg-white rounded-lg border shadow-sm border-brand-green/20">
+            <div className="p-1.5 bg-gradient-to-r from-brand-green/10 to-brand-yellow/10 border-b border-brand-green/20 flex items-center justify-between">
+              <div className="flex items-center">
+                <h2 className="flex items-center text-xs font-semibold text-brand-green">
+                  <span className="mr-1 w-1 h-1 rounded-full bg-brand-green"></span>
                   ⏳ Chưa phân công
-                  <span className="ml-1 text-xs font-normal text-blue-600 bg-blue-100 px-1 py-0.5 rounded-full">
+                  <span className="ml-1 text-xs font-normal text-brand-green bg-brand-green/20 px-1 py-0.5 rounded-full">
                     {stats.unassignedCount}
                   </span>
                 </h2>
-                <p className="mt-0.5 text-xs text-blue-700">
-                  🔥 Lịch gấp (high) • ⭐ Lịch ưu tiên • 👥 Khách quen (medium) • ⏳ Chưa phân (low)
-                </p>
               </div>
-              {/* StatusStats compact */}
-              <div className="ml-auto">
-                <StatusStats jobs={unassignedWorks.flatMap(category => category.data)} compact />
-              </div>
+              <p className="mt-0.5 text-xs text-brand-green">
+                🔥 Lịch gấp (high) • ⭐ Lịch ưu tiên • 🏠 Khách quen (medium) • ⏳ Chưa phân (low)
+              </p>
             </div>
+            {/* StatusStats compact */}
+            {/* <div className="ml-auto">
+              <StatusStats jobs={unassignedWorks.flatMap(category => category.data)} compact />
+            </div> */}
             <div className="overflow-hidden flex-1 p-2">
               <JobsList 
                 jobs={unassignedWorks.flatMap(category => category.data)} 
@@ -351,25 +347,25 @@ export default function DashboardClient() {
           </div>
 
           {/* Assigned Works */}
-          <div className="flex overflow-hidden flex-col h-full bg-white rounded-lg border border-green-100 shadow-sm">
-            <div className="p-1.5 bg-gradient-to-r from-green-50 to-emerald-50 border-b border-green-100 flex items-center justify-between">
-              <div>
-                <h2 className="flex items-center text-xs font-semibold text-green-900">
-                  <span className="mr-1 w-1 h-1 bg-green-500 rounded-full"></span>
+          <div className="flex overflow-hidden flex-col h-full bg-white rounded-lg border shadow-sm border-brand-green/20">
+            <div className="p-1.5 bg-gradient-to-r from-brand-green/10 to-brand-yellow/10 border-b border-brand-green/20 flex items-center justify-between">
+              <div className="flex items-center">
+                <h2 className="flex items-center text-xs font-semibold text-brand-green">
+                  <span className="mr-1 w-1 h-1 rounded-full bg-brand-green"></span>
                   ✅ Đã phân công
-                  <span className="ml-1 text-xs font-normal text-green-600 bg-green-100 px-1 py-0.5 rounded-full">
+                  <span className="ml-1 text-xs font-normal text-brand-green bg-brand-green/20 px-1 py-0.5 rounded-full">
                     {stats.assignedCount}
                   </span>
                 </h2>
-                <p className="mt-0.5 text-xs text-green-700">
-                  Công việc đã được giao cho thợ thực hiện
-                </p>
               </div>
-              {/* StatusStats compact */}
-              <div className="ml-auto">
-                <StatusStats jobs={assignedWorks.flatMap(category => category.data)} compact />
-              </div>
+              <p className="mt-0.5 text-xs text-brand-green">
+                Công việc đã được giao cho thợ thực hiện
+              </p>
             </div>
+            {/* StatusStats compact */}
+            {/* <div className="ml-auto">
+              <StatusStats jobs={assignedWorks.flatMap(category => category.data)} compact />
+            </div> */}
             <div className="overflow-hidden flex-1 p-2">
               <WorkTable works={assignedWorks} workers={workers} />
             </div>

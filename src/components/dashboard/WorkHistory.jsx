@@ -85,11 +85,11 @@ export default function WorkHistory({ viewMode }) {
   const getStatusIcon = useCallback((status) => {
     switch (status) {
       case "pending":
-        return <AlertTriangle className="w-3 h-3 text-orange-600" />;
+        return <AlertTriangle className="w-3 h-3 text-brand-yellow" />;
       case "completed":
-        return <CheckCircle className="w-3 h-3 text-green-600" />;
+        return <CheckCircle className="w-3 h-3 text-brand-green" />;
       default:
-        return <Clock className="w-3 h-3 text-blue-600" />;
+        return <Clock className="w-3 h-3 text-brand-green" />;
     }
   }, []);
 
@@ -107,22 +107,22 @@ export default function WorkHistory({ viewMode }) {
   const getStatusColor = useCallback((status) => {
     switch (status) {
       case "pending":
-        return "text-orange-600 bg-orange-50 border-orange-200";
+        return "text-brand-yellow bg-brand-yellow/10 border-brand-yellow/20";
       case "completed":
-        return "text-green-600 bg-green-50 border-green-200";
+        return "text-brand-green bg-brand-green/10 border-brand-green/20";
       default:
-        return "text-blue-600 bg-blue-50 border-blue-200";
+        return "text-brand-green bg-brand-green/10 border-brand-green/20";
     }
   }, []);
 
   const getServiceTypeColor = useCallback((serviceType) => {
     switch (serviceType) {
       case "Điện Nước":
-        return "from-blue-500 to-blue-600";
+        return "from-brand-green to-brand-green/80";
       case "Điện Lạnh":
-        return "from-green-500 to-green-600";
+        return "from-brand-green to-brand-green/80";
       case "Đồ gỗ":
-        return "from-yellow-500 to-yellow-600";
+        return "from-brand-yellow to-brand-yellow/80";
       default:
         return "from-gray-500 to-gray-600";
     }
@@ -192,7 +192,7 @@ export default function WorkHistory({ viewMode }) {
               <select
                 value={filterStatus}
                 onChange={handleFilterChange}
-                className="px-2 py-1 text-xs border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+                className="px-2 py-1 text-xs border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-brand-green"
               >
                 <option value="all">Tất cả</option>
                 <option value="pending">Chưa xử lý</option>
@@ -208,7 +208,7 @@ export default function WorkHistory({ viewMode }) {
               placeholder="Tìm kiếm..."
               value={searchTerm}
               onChange={handleSearchChange}
-              className="pl-7 pr-3 py-1.5 text-xs border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 w-full md:w-48"
+              className="pl-7 pr-3 py-1.5 text-xs border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-brand-green w-full md:w-48"
             />
           </div>
         </div>
@@ -308,12 +308,12 @@ export default function WorkHistory({ viewMode }) {
                             })}
                           </div>
                           {work.assigned_worker ? (
-                            <div className="flex items-center gap-1 text-xs text-green-600">
+                            <div className="flex items-center gap-1 text-xs text-brand-green">
                               <User className="w-3 h-3" />
                               <span>{work.assigned_worker}</span>
                             </div>
                           ) : (
-                            <div className="flex items-center gap-1 text-xs text-orange-600">
+                            <div className="flex items-center gap-1 text-xs text-brand-yellow">
                               <AlertCircle className="w-3 h-3" />
                               <span>Chưa phân công</span>
                             </div>

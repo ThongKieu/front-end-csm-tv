@@ -3,26 +3,27 @@
 import { useState, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import { CheckCircle, XCircle, AlertCircle, Info } from 'lucide-react'
+import { useToast } from '@/contexts/ToastContext'
 
 const TOAST_TYPES = {
   success: {
     icon: CheckCircle,
-    bgColor: 'bg-green-500',
+    bgColor: 'bg-brand-green',
     textColor: 'text-white'
   },
   error: {
     icon: XCircle,
-    bgColor: 'bg-red-500',
+    bgColor: 'bg-brand-yellow',
     textColor: 'text-white'
   },
   warning: {
     icon: AlertCircle,
-    bgColor: 'bg-yellow-500',
+    bgColor: 'bg-brand-yellow',
     textColor: 'text-white'
   },
   info: {
     icon: Info,
-    bgColor: 'bg-blue-500',
+    bgColor: 'bg-brand-green',
     textColor: 'text-white'
   }
 }
@@ -53,25 +54,6 @@ export function Toast({ message, type = 'success', duration = 3000, onClose }) {
     </div>,
     document.body
   )
-}
-
-export function useToast() {
-  const [toasts, setToasts] = useState([])
-
-  const showToast = (message, type = 'success', duration = 3000) => {
-    const id = Date.now()
-    setToasts((prev) => [...prev, { id, message, type, duration }])
-  }
-
-  const removeToast = (id) => {
-    setToasts((prev) => prev.filter((toast) => toast.id !== id))
-  }
-
-  return {
-    toasts,
-    showToast,
-    removeToast
-  }
 }
 
 export function ToastContainer() {

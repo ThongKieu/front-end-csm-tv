@@ -6,22 +6,22 @@ export default function WorkerStatusBadge({ status, showIcon = false }) {
       case 1:
         return {
           text: "Đang hoạt động",
-          bgColor: "bg-green-100",
-          textColor: "text-green-800",
+          bgColor: "bg-brand-green/10",
+          textColor: "text-brand-green",
           icon: showIcon ? <CheckCircle2 className="mr-1 w-4 h-4" /> : null
         };
       case 0:
         return {
           text: "Không hoạt động",
-          bgColor: "bg-red-100",
-          textColor: "text-red-800",
+          bgColor: "bg-brand-yellow/10",
+          textColor: "text-brand-yellow",
           icon: showIcon ? <XCircle className="mr-1 w-4 h-4" /> : null
         };
       default:
         return {
           text: "Không xác định",
-          bgColor: "bg-gray-100",
-          textColor: "text-gray-800",
+          bgColor: "bg-brand-yellow/10",
+          textColor: "text-brand-yellow",
           icon: null
         };
     }

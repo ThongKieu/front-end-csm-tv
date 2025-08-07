@@ -7,10 +7,13 @@ const publicRoutes = [
   '/register', 
   '/forgot-password',
   '/api/user/login',
+  '/api/user/create',
   '/api/auth/login',
   '/api/auth/check',
   '/api/auth/verify',
-  '/api/test-connection'
+  '/api/test-connection',
+  '/api/admin/users',
+  '/api/admin/stats'
 ]
 
 // Các route theo role
@@ -105,7 +108,7 @@ function isTokenValid(token) {
 }
 
 export function middleware(request) {
-  // Tạm thời vô hiệu hóa middleware để test
+  // Tạm thời vô hiệu hóa middleware để test login
   return NextResponse.next()
   
   const { pathname } = request.nextUrl

@@ -85,14 +85,14 @@ export default function QuoteDetailModal({ isOpen, onClose, quote }) {
 
   const getStatusColor = (status) => {
     switch (status) {
-      case "pending":
-        return "bg-yellow-50 text-yellow-700 border-yellow-200";
-      case "approved":
-        return "bg-green-50 text-green-700 border-green-200";
-      case "rejected":
-        return "bg-red-50 text-red-700 border-red-200";
+      case 'approved':
+        return "bg-brand-green/20 text-brand-green border-brand-green/30";
+      case 'pending':
+        return "bg-brand-yellow/20 text-brand-yellow border-brand-yellow/30";
+      case 'rejected':
+        return "bg-red-100 text-red-800 border-red-300";
       default:
-        return "bg-gray-50 text-gray-700 border-gray-200";
+        return "bg-gray-100 text-gray-800 border-gray-300";
     }
   };
 
@@ -141,7 +141,7 @@ export default function QuoteDetailModal({ isOpen, onClose, quote }) {
         <div className="overflow-y-auto max-h-[calc(90vh-140px)]">
           <div className="p-6 space-y-6">
             {/* Quote Header */}
-            <div className="p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg">
+            <div className="p-4 bg-gradient-to-r from-brand-green/10 to-brand-yellow/10 rounded-lg">
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <div>
                   <h3 className="mb-2 text-lg font-semibold text-gray-900">Thông tin báo giá</h3>
@@ -157,7 +157,7 @@ export default function QuoteDetailModal({ isOpen, onClose, quote }) {
                   </span>
                   <div className="mt-2 text-right">
                     <p className="text-sm text-gray-600">Tổng cộng</p>
-                    <p className="text-2xl font-bold text-green-600">
+                    <p className="text-2xl font-bold text-brand-green">
                       {formatCurrency(quote.vatEnabled ? totals.total : totals.subtotal)}
                     </p>
                   </div>
@@ -300,27 +300,27 @@ export default function QuoteDetailModal({ isOpen, onClose, quote }) {
                           <td colSpan={6} className="px-2 py-2 text-sm text-right text-gray-700">
                             Thuế VAT {rate}%:
                           </td>
-                          <td className="px-2 py-2 text-sm font-medium text-right text-green-600">
+                          <td className="px-2 py-2 text-sm font-medium text-right text-brand-green">
                             {formatCurrency(amount)}
                           </td>
                         </tr>
                       ))
                     )}
                     {quote.vatEnabled && totals.totalVat > 0 && (
-                      <tr className="bg-green-50">
+                      <tr className="bg-brand-green/10">
                         <td colSpan={6} className="px-2 py-3 font-semibold text-right text-gray-900">
                           Tổng thuế VAT:
                         </td>
-                        <td className="px-2 py-3 font-bold text-right text-green-600">
+                        <td className="px-2 py-3 font-bold text-right text-brand-green">
                           {formatCurrency(totals.totalVat)}
                         </td>
                       </tr>
                     )}
-                    <tr className="bg-emerald-50">
+                    <tr className="bg-brand-yellow/10">
                       <td colSpan={6} className="px-2 py-3 font-semibold text-right text-gray-900">
                         Tổng cộng:
                       </td>
-                      <td className="px-2 py-3 font-bold text-right text-emerald-600">
+                      <td className="px-2 py-3 font-bold text-right text-brand-yellow">
                         {formatCurrency(quote.vatEnabled ? totals.total : totals.subtotal)}
                       </td>
                     </tr>

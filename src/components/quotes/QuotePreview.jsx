@@ -317,7 +317,7 @@ export default function QuotePreview({ formData }) {
                 <span className="text-xs font-semibold text-gray-900">
                   Tổng Cộng Sau Thuế:
                 </span>
-                <span className="text-sm font-bold text-green-600">
+                <span className="text-sm font-bold text-brand-green">
                   {totals.total.toLocaleString("vi-VN")} VNĐ
                 </span>
               </div>

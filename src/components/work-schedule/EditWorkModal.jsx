@@ -132,7 +132,7 @@ const EditWorkModal = ({ work, onClose, onSave }) => {
                 name="work_content"
                 value={formData.work_content}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-green"
                 rows="3"
                 required
               />
@@ -146,7 +146,7 @@ const EditWorkModal = ({ work, onClose, onSave }) => {
                 name="kind_work"
                 value={formData.kind_work}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-green"
                 required
               >
                 <option value="">Chọn loại công việc</option>
@@ -173,7 +173,7 @@ const EditWorkModal = ({ work, onClose, onSave }) => {
                 name="name_cus"
                 value={formData.name_cus}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-green"
                 required
               />
             </div>
@@ -187,7 +187,7 @@ const EditWorkModal = ({ work, onClose, onSave }) => {
                 name="phone_number"
                 value={formData.phone_number}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-green"
                 required
               />
             </div>
@@ -203,7 +203,7 @@ const EditWorkModal = ({ work, onClose, onSave }) => {
                 name="street"
                 value={formData.street}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-green"
                 required
               />
             </div>
@@ -217,7 +217,7 @@ const EditWorkModal = ({ work, onClose, onSave }) => {
                 name="district"
                 value={formData.district}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-green"
                 required
               />
             </div>
@@ -232,7 +232,7 @@ const EditWorkModal = ({ work, onClose, onSave }) => {
               name="date_book"
               value={formData.date_book}
               onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-green"
               required
             />
           </div>
@@ -295,7 +295,7 @@ const EditWorkModal = ({ work, onClose, onSave }) => {
               name="work_note"
               value={formData.work_note}
               onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-green"
               rows="2"
             />
           </div>
@@ -317,7 +317,7 @@ const EditWorkModal = ({ work, onClose, onSave }) => {
             <button
               type="submit"
               disabled={loading}
-              className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
+              className="px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-brand-green to-brand-yellow rounded-md hover:from-green-700 hover:to-yellow-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-green disabled:opacity-50"
             >
               {loading ? 'Đang lưu...' : 'Lưu thay đổi'}
             </button>

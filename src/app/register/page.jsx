@@ -165,7 +165,7 @@ export default function RegisterPage() {
         </div>
         
         {error && <div className="p-2 text-sm text-red-700 bg-red-100 rounded">{error}</div>}
-        {success && <div className="p-2 text-sm text-green-700 bg-green-100 rounded">{success}</div>}
+        {success && <div className="p-2 text-sm text-brand-green bg-brand-green/10 rounded">{success}</div>}
         
         <div>
           <label className="block mb-1 text-sm font-medium">Tên đăng nhập *</label>

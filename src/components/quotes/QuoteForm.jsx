@@ -208,14 +208,14 @@ export default function QuoteForm({
   return (
     <div className="flex flex-col h-full bg-gradient-to-br from-gray-50 to-white rounded-lg border border-gray-200 shadow-sm">
       {/* Header with Quick Actions */}
-      <div className="flex gap-2 justify-between items-center p-3 pb-2 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-t-lg">
+      <div className="flex gap-2 justify-between items-center p-3 pb-2 bg-gradient-to-r rounded-t-lg from-brand-green to-brand-yellow">
         <div className="flex gap-2 items-center">
           <div className="flex justify-center items-center w-8 h-8 rounded-lg backdrop-blur-sm bg-white/20">
             <User className="w-4 h-4 text-white" />
           </div>
           <div>
             <h3 className="text-sm font-bold text-white">Thông tin khách hàng & Báo giá</h3>
-            <p className="text-xs text-purple-100">Nhập thông tin chi tiết để tạo báo giá</p>
+                            <p className="text-xs text-brand-green">Nhập thông tin chi tiết để tạo báo giá</p>
           </div>
         </div>
         
@@ -253,22 +253,22 @@ export default function QuoteForm({
 
       {/* Keyboard Shortcuts Help */}
       {showShortcuts && (
-        <div className="p-3 bg-yellow-50 border-b border-yellow-200">
+        <div className="p-3 bg-brand-yellow/10 border-b border-brand-yellow/20">
           <div className="grid grid-cols-2 gap-4 text-xs">
             <div>
-              <h4 className="mb-2 font-semibold text-yellow-800">Điều hướng</h4>
-              <div className="space-y-1 text-yellow-700">
-                <div><kbd className="px-1 py-0.5 bg-yellow-200 rounded text-xs">Ctrl + 1,2,3</kbd> Chuyển tab</div>
-                <div><kbd className="px-1 py-0.5 bg-yellow-200 rounded text-xs">Ctrl + ←/→</kbd> Tab trước/sau</div>
-                <div><kbd className="px-1 py-0.5 bg-yellow-200 rounded text-xs">Ctrl + ↑/↓</kbd> Dịch vụ trước/sau</div>
+              <h4 className="mb-2 font-semibold text-brand-yellow">Điều hướng</h4>
+              <div className="space-y-1 text-brand-yellow">
+                <div><kbd className="px-1 py-0.5 bg-brand-yellow/20 rounded text-xs">Ctrl + 1,2,3</kbd> Chuyển tab</div>
+                <div><kbd className="px-1 py-0.5 bg-brand-yellow/20 rounded text-xs">Ctrl + ←/→</kbd> Tab trước/sau</div>
+                <div><kbd className="px-1 py-0.5 bg-brand-yellow/20 rounded text-xs">Ctrl + ↑/↓</kbd> Dịch vụ trước/sau</div>
               </div>
             </div>
             <div>
-              <h4 className="mb-2 font-semibold text-yellow-800">Thao tác nhanh</h4>
-              <div className="space-y-1 text-yellow-700">
-                <div><kbd className="px-1 py-0.5 bg-yellow-200 rounded text-xs">Ctrl + Enter</kbd> Thêm dịch vụ</div>
-                <div><kbd className="px-1 py-0.5 bg-yellow-200 rounded text-xs">Ctrl + S</kbd> Lưu nhanh</div>
-                <div><kbd className="px-1 py-0.5 bg-yellow-200 rounded text-xs">Ctrl + /</kbd> Hiện/ẩn phím tắt</div>
+              <h4 className="mb-2 font-semibold text-brand-yellow">Thao tác nhanh</h4>
+              <div className="space-y-1 text-brand-yellow">
+                <div><kbd className="px-1 py-0.5 bg-brand-yellow/20 rounded text-xs">Ctrl + Enter</kbd> Thêm dịch vụ</div>
+                <div><kbd className="px-1 py-0.5 bg-brand-yellow/20 rounded text-xs">Ctrl + S</kbd> Lưu nhanh</div>
+                <div><kbd className="px-1 py-0.5 bg-brand-yellow/20 rounded text-xs">Ctrl + /</kbd> Hiện/ẩn phím tắt</div>
               </div>
             </div>
           </div>
@@ -283,7 +283,7 @@ export default function QuoteForm({
             onClick={() => setActiveTab(tab.id)}
             className={`flex-1 flex flex-col items-center py-2 px-3 text-xs font-medium transition-all relative ${
               activeTab === tab.id
-                ? 'text-purple-600 border-b-2 border-purple-600 bg-purple-50'
+                ? 'text-brand-green border-b-2 border-brand-green bg-brand-green/10'
                 : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
             }`}
           >
@@ -305,10 +305,10 @@ export default function QuoteForm({
             {/* Customer & Quote Info */}
             <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
               {/* Customer Information */}
-              <div className="p-3 space-y-2 bg-white rounded-lg border border-blue-100 shadow-sm transition-shadow hover:shadow-md">
+              <div className="p-3 space-y-2 bg-white rounded-lg border shadow-sm transition-shadow border-brand-green/20 hover:shadow-md">
                 <div className="flex gap-2 items-center">
-                  <div className="flex justify-center items-center w-6 h-6 bg-blue-100 rounded-lg">
-                    <User className="w-3 h-3 text-blue-600" />
+                  <div className="flex justify-center items-center w-6 h-6 rounded-lg bg-brand-green/10">
+                    <User className="w-3 h-3 text-brand-green" />
                   </div>
                   <h4 className="text-sm font-semibold text-gray-900">Thông tin khách hàng</h4>
                 </div>
@@ -322,7 +322,7 @@ export default function QuoteForm({
                       type="text"
                       value={formData.customerName}
                       onChange={(e) => handleInputChange("customerName", e.target.value)}
-                      className="h-8 text-xs rounded-lg border-gray-300 transition-all focus:border-blue-500 focus:ring-blue-500"
+                      className="h-8 text-xs rounded-lg border-gray-300 transition-all focus:border-brand-green focus:ring-brand-green"
                       placeholder="Nhập tên khách hàng"
                       required
                       onKeyDown={(e) => {
@@ -343,7 +343,7 @@ export default function QuoteForm({
                         type="tel"
                         value={formData.customerPhone}
                         onChange={(e) => handleInputChange("customerPhone", e.target.value)}
-                        className="h-8 text-xs rounded-lg border-gray-300 transition-all focus:border-blue-500 focus:ring-blue-500"
+                        className="h-8 text-xs rounded-lg border-gray-300 transition-all focus:border-brand-green focus:ring-brand-green"
                         placeholder="Số điện thoại"
                         onKeyDown={(e) => {
                           if (e.key === 'Enter') {
@@ -362,7 +362,7 @@ export default function QuoteForm({
                         type="email"
                         value={formData.customerEmail}
                         onChange={(e) => handleInputChange("customerEmail", e.target.value)}
-                        className="h-8 text-xs rounded-lg border-gray-300 transition-all focus:border-blue-500 focus:ring-blue-500"
+                        className="h-8 text-xs rounded-lg border-gray-300 transition-all focus:border-brand-green focus:ring-brand-green"
                         placeholder="Email"
                         onKeyDown={(e) => {
                           if (e.key === 'Enter') {
@@ -382,7 +382,7 @@ export default function QuoteForm({
                       type="text"
                       value={formData.customerAddress}
                       onChange={(e) => handleInputChange("customerAddress", e.target.value)}
-                      className="h-8 text-xs rounded-lg border-gray-300 transition-all focus:border-blue-500 focus:ring-blue-500"
+                      className="h-8 text-xs rounded-lg border-gray-300 transition-all focus:border-brand-green focus:ring-brand-green"
                       placeholder="Địa chỉ khách hàng"
                       onKeyDown={(e) => {
                         if (e.key === 'Enter') {
@@ -395,10 +395,10 @@ export default function QuoteForm({
               </div>
               
               {/* Quote Information */}
-              <div className="p-3 space-y-2 bg-white rounded-lg border border-green-100 shadow-sm transition-shadow hover:shadow-md">
+              <div className="p-3 space-y-2 bg-white rounded-lg border shadow-sm transition-shadow border-brand-green/20 hover:shadow-md">
                 <div className="flex gap-2 items-center">
-                  <div className="flex justify-center items-center w-6 h-6 bg-green-100 rounded-lg">
-                    <Building className="w-3 h-3 text-green-600" />
+                  <div className="flex justify-center items-center w-6 h-6 rounded-lg bg-brand-green/10">
+                    <Building className="w-3 h-3 text-brand-green" />
                   </div>
                   <h4 className="text-sm font-semibold text-gray-900">Thông tin báo giá</h4>
                 </div>
@@ -412,7 +412,7 @@ export default function QuoteForm({
                       type="text"
                       value={formData.subject}
                       onChange={(e) => handleInputChange("subject", e.target.value)}
-                      className="h-8 text-xs rounded-lg border-gray-300 transition-all focus:border-green-500 focus:ring-green-500"
+                      className="h-8 text-xs rounded-lg border-gray-300 transition-all focus:border-brand-green focus:ring-brand-green"
                       placeholder="Nhập tiêu đề báo giá"
                       onKeyDown={(e) => {
                         if (e.key === 'Enter') {
@@ -432,17 +432,17 @@ export default function QuoteForm({
                         type="date"
                         value={formData.validUntil}
                         onChange={(e) => handleInputChange("validUntil", e.target.value)}
-                        className="h-8 text-xs rounded-lg border-gray-300 transition-all focus:border-green-500 focus:ring-green-500"
+                        className="h-8 text-xs rounded-lg border-gray-300 transition-all focus:border-brand-green focus:ring-brand-green"
                       />
                     </div>
                     <div className="flex items-end">
-                      <div className="flex gap-2 items-center p-2 w-full bg-green-50 rounded-lg border border-green-200">
+                      <div className="flex gap-2 items-center p-2 w-full rounded-lg border bg-brand-green/10 border-brand-green/20">
                         <input
                           type="checkbox"
                           id="vatEnabled"
                           checked={formData.vatEnabled}
                           onChange={(e) => handleInputChange("vatEnabled", e.target.checked)}
-                          className="w-3 h-3 text-green-600 rounded border-gray-300 focus:ring-green-500"
+                          className="w-3 h-3 rounded border-gray-300 text-brand-green focus:ring-brand-green"
                         />
                         <label htmlFor="vatEnabled" className="text-xs font-medium text-gray-700">
                           Áp dụng VAT
@@ -455,10 +455,10 @@ export default function QuoteForm({
             </div>
 
             {/* Company Representative Information */}
-            <div className="p-3 space-y-2 bg-white rounded-lg border border-purple-100 shadow-sm transition-shadow hover:shadow-md">
+            <div className="p-3 space-y-2 bg-white rounded-lg border shadow-sm transition-shadow border-brand-green/20 hover:shadow-md">
               <div className="flex gap-2 items-center">
-                <div className="flex justify-center items-center w-6 h-6 bg-purple-100 rounded-lg">
-                  <Crown className="w-3 h-3 text-purple-600" />
+                <div className="flex justify-center items-center w-6 h-6 rounded-lg bg-brand-green/10">
+                  <Crown className="w-3 h-3 text-brand-green" />
                 </div>
                 <h4 className="text-sm font-semibold text-gray-900">Thông tin người làm báo giá</h4>
               </div>
@@ -473,7 +473,7 @@ export default function QuoteForm({
                     type="text"
                     value={formData.representativeName}
                     onChange={(e) => handleInputChange("representativeName", e.target.value)}
-                    className="h-8 text-xs rounded-lg border-gray-300 transition-all focus:border-purple-500 focus:ring-purple-500"
+                    className="h-8 text-xs rounded-lg border-gray-300 transition-all focus:border-brand-green focus:ring-brand-green"
                     placeholder="Tên đại diện"
                     onKeyDown={(e) => {
                       if (e.key === 'Enter') {
@@ -492,7 +492,7 @@ export default function QuoteForm({
                     type="text"
                     value={formData.representativePosition}
                     onChange={(e) => handleInputChange("representativePosition", e.target.value)}
-                    className="h-8 text-xs rounded-lg border-gray-300 transition-all focus:border-purple-500 focus:ring-purple-500"
+                    className="h-8 text-xs rounded-lg border-gray-300 transition-all focus:border-brand-green focus:ring-brand-green"
                     placeholder="Chức vụ"
                     onKeyDown={(e) => {
                       if (e.key === 'Enter') {
@@ -511,7 +511,7 @@ export default function QuoteForm({
                     type="email"
                     value={formData.representativeEmail}
                     onChange={(e) => handleInputChange("representativeEmail", e.target.value)}
-                    className="h-8 text-xs rounded-lg border-gray-300 transition-all focus:border-purple-500 focus:ring-purple-500"
+                    className="h-8 text-xs rounded-lg border-gray-300 transition-all focus:border-brand-green focus:ring-brand-green"
                     placeholder="Email đại diện"
                     onKeyDown={(e) => {
                       if (e.key === 'Enter') {
@@ -530,7 +530,7 @@ export default function QuoteForm({
                     type="tel"
                     value={formData.representativePhone}
                     onChange={(e) => handleInputChange("representativePhone", e.target.value)}
-                    className="h-8 text-xs rounded-lg border-gray-300 transition-all focus:border-purple-500 focus:ring-purple-500"
+                    className="h-8 text-xs rounded-lg border-gray-300 transition-all focus:border-brand-green focus:ring-brand-green"
                     placeholder="Số điện thoại"
                     onKeyDown={(e) => {
                       if (e.key === 'Enter') {
@@ -548,9 +548,9 @@ export default function QuoteForm({
         {activeTab === 1 && (
           <div className="space-y-3">
             {/* Quick Templates */}
-            <div className="p-3 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200">
-              <div className="flex gap-2 items-center mb-2">
-                <Zap className="w-4 h-4 text-blue-600" />
+            <div className="p-3 bg-gradient-to-r rounded-lg border from-brand-green/10 to-brand-yellow/10 border-brand-green/20">
+              <div className="flex gap-2 items-center">
+                <Zap className="w-4 h-4 text-brand-green" />
                 <h4 className="text-sm font-semibold text-gray-900">Dịch vụ nhanh</h4>
                 <span className="text-xs text-gray-500">Click để thêm nhanh</span>
               </div>
@@ -559,7 +559,7 @@ export default function QuoteForm({
                   <button
                     key={index}
                     onClick={() => addQuickTemplate(template)}
-                    className="px-3 py-1 text-xs bg-white rounded-lg border border-blue-200 transition-all hover:bg-blue-50 hover:border-blue-300"
+                    className="px-3 py-1 text-xs bg-white rounded-lg border transition-all border-brand-green/20 hover:bg-brand-green/10 hover:border-brand-green/30"
                   >
                     {template.name} - {parseInt(template.price).toLocaleString()}đ
                   </button>
@@ -568,18 +568,18 @@ export default function QuoteForm({
             </div>
 
             {/* Items Section */}
-            <div className="p-3 space-y-2 bg-white rounded-lg border border-indigo-100 shadow-sm transition-shadow hover:shadow-md">
+            <div className="p-3 space-y-2 bg-white rounded-lg border shadow-sm transition-shadow border-brand-yellow/20 hover:shadow-md">
               <div className="flex justify-between items-center">
                 <div className="flex gap-2 items-center">
-                  <div className="flex justify-center items-center w-6 h-6 bg-indigo-100 rounded-lg">
-                    <DollarSign className="w-3 h-3 text-indigo-600" />
+                  <div className="flex justify-center items-center w-6 h-6 rounded-lg bg-brand-yellow/10">
+                    <DollarSign className="w-3 h-3 text-brand-yellow" />
                   </div>
                   <h4 className="text-sm font-semibold text-gray-900">Danh sách dịch vụ</h4>
                 </div>
                 <button
                   type="button"
                   onClick={addItem}
-                  className="flex gap-1 items-center px-3 py-1 text-xs text-white bg-gradient-to-r from-indigo-500 to-purple-500 rounded-lg shadow-sm transition-all hover:from-indigo-600 hover:to-purple-600 hover:shadow-md"
+                  className="flex gap-1 items-center px-3 py-1 text-xs text-white bg-gradient-to-r rounded-lg shadow-sm transition-all from-brand-green to-brand-yellow hover:from-green-700 hover:to-yellow-600 hover:shadow-md"
                   title="Thêm dịch vụ (Ctrl + Enter)"
                 >
                   <Plus className="w-3 h-3" />
@@ -589,7 +589,7 @@ export default function QuoteForm({
 
               <div className="space-y-2">
                 {formData.items.map((item, index) => (
-                  <div key={index} className="p-3 bg-gradient-to-br from-gray-50 to-white rounded-lg border border-indigo-200 shadow-sm">
+                  <div key={index} className="p-3 bg-gradient-to-br from-gray-50 to-white rounded-lg border shadow-sm border-brand-yellow/20">
                     {/* Main Item Row */}
                     <div className="grid grid-cols-1 gap-2 mb-2 md:grid-cols-8">
                       <div className="md:col-span-2">
@@ -601,7 +601,7 @@ export default function QuoteForm({
                             onChange={(e) => handleItemChange(index, "name", e.target.value)}
                             placeholder="Nhập tên dịch vụ..."
                             rows={3}
-                            className="px-2 py-1 w-full text-xs leading-relaxed bg-white rounded-lg border border-gray-300 transition-all duration-200 resize-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 placeholder:text-gray-400"
+                            className="p-2 w-full text-xs rounded-lg border border-gray-200 transition-all duration-200 resize-none focus:border-brand-yellow focus:ring-2 focus:ring-brand-yellow/20 placeholder:text-gray-400"
                             required
                             onFocus={() => setLastFocusedIndex(index)}
                             onKeyDown={(e) => {
@@ -612,7 +612,7 @@ export default function QuoteForm({
                             }}
                           />
                           <div className="absolute top-2 right-2">
-                            <div className="w-1.5 h-1.5 bg-indigo-300 rounded-full"></div>
+                            <div className="w-1.5 h-1.5 bg-brand-yellow rounded-full"></div>
                           </div>
                         </div>
                       </div>
@@ -624,7 +624,7 @@ export default function QuoteForm({
                           value={item.unit}
                           onChange={(e) => handleItemChange(index, "unit", e.target.value)}
                           placeholder="Đơn vị"
-                          className="h-7 text-xs rounded-lg border-gray-300 transition-all focus:border-indigo-500 focus:ring-indigo-500"
+                          className="h-7 text-xs rounded-lg border-gray-300 transition-all focus:border-brand-yellow focus:ring-brand-yellow"
                           onKeyDown={(e) => {
                             if (e.key === 'Tab' && !e.shiftKey) {
                               e.preventDefault();
@@ -648,7 +648,7 @@ export default function QuoteForm({
                             setLastFocusedIndex(index);
                           }}
                           placeholder="SL"
-                          className="h-7 text-xs rounded-lg border-gray-300 transition-all focus:border-indigo-500 focus:ring-indigo-500"
+                          className="h-7 text-xs rounded-lg border-gray-300 transition-all focus:border-brand-yellow focus:ring-brand-yellow"
                           onKeyDown={(e) => {
                             if (e.key === 'Tab' && !e.shiftKey) {
                               e.preventDefault();
@@ -672,7 +672,7 @@ export default function QuoteForm({
                             setLastFocusedIndex(index);
                           }}
                           placeholder="Giá"
-                          className="h-7 text-xs rounded-lg border-gray-300 transition-all focus:border-indigo-500 focus:ring-indigo-500"
+                          className="h-7 text-xs rounded-lg border-gray-300 transition-all focus:border-brand-yellow focus:ring-brand-yellow"
                           onKeyDown={(e) => {
                             if (e.key === 'Tab' && !e.shiftKey) {
                               e.preventDefault();
@@ -687,7 +687,7 @@ export default function QuoteForm({
                           ref={(el) => inputRefs.current[`item-${index}-vat`] = el}
                           value={item.vatRate || 0}
                           onChange={(e) => handleItemChange(index, "vatRate", parseInt(e.target.value))}
-                          className="px-2 py-1 w-full text-xs rounded-lg border border-gray-300 transition-all focus:border-indigo-500 focus:ring-indigo-500"
+                          className="px-2 py-1 w-full text-xs rounded-lg border border-gray-300 transition-all focus:border-brand-yellow focus:ring-brand-yellow"
                           onKeyDown={(e) => {
                             if (e.key === 'Tab' && !e.shiftKey) {
                               e.preventDefault();
@@ -705,10 +705,10 @@ export default function QuoteForm({
                         </select>
                       </div>
                       <div className="flex items-end">
-                        <div className="p-1 w-full bg-indigo-50 rounded-lg border border-indigo-200">
-                          <p className="text-xs text-indigo-700">
+                        <div className="p-1 w-full bg-brand-yellow/10 rounded-lg border border-brand-yellow/20">
+                          <p className="text-xs text-brand-yellow">
                             <span className="font-medium">VAT:</span>
-                            <span className="block font-semibold text-indigo-600">
+                            <span className="block font-semibold text-brand-yellow">
                               {(() => {
                                 const vatInfo = calculateItemVat(item);
                                 return vatInfo.rate > 0 ? `${vatInfo.rate}%` : '0%';
@@ -732,11 +732,11 @@ export default function QuoteForm({
                     </div>
                     
                     {/* Item Summary */}
-                    <div className="p-2 space-y-1 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-lg border border-indigo-200">
+                    <div className="p-2 space-y-1 bg-gradient-to-r from-brand-yellow/10 to-brand-green/10 rounded-lg border border-brand-yellow/20">
                       <div className="flex flex-wrap gap-3 justify-between items-center text-xs">
                         <span className="text-gray-700">
                           <span className="font-medium">Đơn giá:</span> 
-                          <span className="ml-1 font-semibold text-indigo-600">
+                          <span className="ml-1 font-semibold text-brand-yellow">
                             {(parseInt(item.price) || 0).toLocaleString("vi-VN")} VNĐ
                           </span>
                         </span>
@@ -745,7 +745,7 @@ export default function QuoteForm({
                           return vatInfo.rate > 0 ? (
                             <span className="text-gray-700">
                               <span className="font-medium">VAT {vatInfo.rate}%:</span> 
-                              <span className="ml-1 font-semibold text-green-600">
+                              <span className="ml-1 font-semibold text-brand-green">
                                 +{vatInfo.amount.toLocaleString("vi-VN")} VNĐ
                               </span>
                             </span>
@@ -753,7 +753,7 @@ export default function QuoteForm({
                         })()}
                         <span className="text-gray-700">
                           <span className="font-medium">Thành tiền:</span> 
-                          <span className="ml-1 font-semibold text-indigo-600">
+                          <span className="ml-1 font-semibold text-brand-yellow">
                             {(item.total || 0).toLocaleString("vi-VN")} VNĐ
                           </span>
                         </span>
@@ -763,7 +763,7 @@ export default function QuoteForm({
                           return vatInfo.rate > 0 ? (
                             <span className="text-gray-700">
                               <span className="font-medium">Tổng VAT:</span> 
-                              <span className="ml-1 font-semibold text-green-600">
+                              <span className="ml-1 font-semibold text-brand-green">
                                 +{totalVat.toLocaleString("vi-VN")} VNĐ
                               </span>
                             </span>
@@ -771,7 +771,7 @@ export default function QuoteForm({
                         })()}
                         <span className="text-gray-700">
                           <span className="font-medium">Tổng có VAT:</span> 
-                          <span className="ml-1 font-semibold text-emerald-600">
+                          <span className="ml-1 font-semibold text-brand-green">
                             {calculateItemTotalWithVat(item).toLocaleString("vi-VN")} VNĐ
                           </span>
                         </span>
@@ -783,19 +783,19 @@ export default function QuoteForm({
             </div>
 
             {/* Total Summary Section */}
-            <div className="p-3 space-y-2 bg-gradient-to-br from-emerald-50 to-green-50 rounded-lg border border-emerald-200 shadow-sm">
+            <div className="p-3 space-y-2 bg-gradient-to-br from-brand-green/10 to-brand-yellow/10 rounded-lg border border-brand-green/20 shadow-sm">
               <div className="flex gap-2 items-center">
-                <div className="flex justify-center items-center w-6 h-6 bg-emerald-100 rounded-lg">
-                  <Calculator className="w-3 h-3 text-emerald-600" />
+                <div className="flex justify-center items-center w-6 h-6 bg-brand-green/10 rounded-lg">
+                  <Calculator className="w-3 h-3 text-brand-green" />
                 </div>
                 <h4 className="text-sm font-semibold text-gray-900">Tổng kết báo giá</h4>
               </div>
               
               <div className="space-y-2">
                 {/* Subtotal */}
-                <div className="flex justify-between items-center p-2 bg-white rounded-lg border border-emerald-200 shadow-sm">
+                <div className="flex justify-between items-center p-2 bg-white rounded-lg border border-brand-green/20 shadow-sm">
                   <span className="text-xs font-medium text-gray-700">Tổng tiền hàng:</span>
-                  <span className="text-xs font-semibold text-emerald-600">
+                  <span className="text-xs font-semibold text-brand-green">
                     {totals.subtotal.toLocaleString("vi-VN")} VNĐ
                   </span>
                 </div>
@@ -804,9 +804,9 @@ export default function QuoteForm({
                 {formData.vatEnabled && Object.keys(totals.vatDetails).length > 0 && (
                   <div className="space-y-1">
                     {Object.entries(totals.vatDetails).map(([rate, amount]) => (
-                      <div key={rate} className="flex justify-between items-center p-2 bg-white rounded-lg border border-emerald-200 shadow-sm">
+                      <div key={rate} className="flex justify-between items-center p-2 bg-white rounded-lg border border-brand-green/20 shadow-sm">
                         <span className="text-xs font-medium text-gray-700">Thuế VAT {rate}%:</span>
-                        <span className="text-xs font-semibold text-green-600">
+                        <span className="text-xs font-semibold text-brand-green">
                           {amount.toLocaleString("vi-VN")} VNĐ
                         </span>
                       </div>
@@ -816,9 +816,9 @@ export default function QuoteForm({
 
                 {/* Total VAT */}
                 {formData.vatEnabled && totals.totalVat > 0 && (
-                  <div className="flex justify-between items-center p-2 bg-green-50 rounded-lg border border-green-200 shadow-sm">
+                  <div className="flex justify-between items-center p-2 bg-brand-green/10 rounded-lg border border-brand-green/20 shadow-sm">
                     <span className="text-xs font-medium text-gray-700">Tổng thuế VAT:</span>
-                    <span className="text-xs font-semibold text-green-600">
+                    <span className="text-xs font-semibold text-brand-green">
                       {totals.totalVat.toLocaleString("vi-VN")} VNĐ
                     </span>
                   </div>
@@ -826,16 +826,16 @@ export default function QuoteForm({
 
                 {/* Grand Total */}
                 {formData.vatEnabled ? (
-                  <div className="flex justify-between items-center p-2 bg-gradient-to-r from-emerald-100 to-green-100 rounded-lg border border-emerald-300 shadow-sm">
-                    <span className="text-sm font-semibold text-emerald-900">Tổng cộng:</span>
-                    <span className="text-sm font-bold text-emerald-900">
+                  <div className="flex justify-between items-center p-2 bg-gradient-to-r from-brand-green/10 to-brand-yellow/10 rounded-lg border border-brand-green/20 shadow-sm">
+                    <span className="text-sm font-semibold text-brand-green">Tổng cộng:</span>
+                    <span className="text-sm font-bold text-brand-green">
                       {totals.total.toLocaleString("vi-VN")} VNĐ
                     </span>
                   </div>
                 ) : (
-                  <div className="flex justify-between items-center p-2 bg-gradient-to-r from-emerald-100 to-green-100 rounded-lg border border-emerald-300 shadow-sm">
-                    <span className="text-sm font-semibold text-emerald-900">Tổng cộng:</span>
-                    <span className="text-sm font-bold text-emerald-900">
+                  <div className="flex justify-between items-center p-2 bg-gradient-to-r from-brand-green/10 to-brand-yellow/10 rounded-lg border border-brand-green/20 shadow-sm">
+                    <span className="text-sm font-semibold text-brand-green">Tổng cộng:</span>
+                    <span className="text-sm font-bold text-brand-green">
                       {totals.subtotal.toLocaleString("vi-VN")} VNĐ
                     </span>
                   </div>
@@ -844,8 +844,8 @@ export default function QuoteForm({
 
               {/* VAT Info */}
               {formData.vatEnabled && (
-                <div className="p-2 bg-blue-50 rounded-lg border border-blue-200">
-                  <p className="text-xs text-blue-700">
+                <div className="p-2 rounded-lg border bg-brand-green/10 border-brand-green/20">
+                  <p className="text-xs text-brand-green">
                     <span className="font-medium">💡 Hướng dẫn VAT:</span>
                     <span className="block mt-1">
                       • Chọn "Tự động (10%)" để áp dụng VAT 10% mặc định
@@ -864,18 +864,18 @@ export default function QuoteForm({
         {activeTab === 2 && (
           <div className="space-y-3">
             {/* Notes Section */}
-            <div className="p-3 space-y-2 bg-white rounded-lg border border-yellow-100 shadow-sm transition-shadow hover:shadow-md">
+            <div className="p-3 space-y-2 bg-white rounded-lg border shadow-sm transition-shadow border-brand-yellow/20 hover:shadow-md">
               <div className="flex justify-between items-center">
                 <div className="flex gap-2 items-center">
-                  <div className="flex justify-center items-center w-6 h-6 bg-yellow-100 rounded-lg">
-                    <FileText className="w-3 h-3 text-yellow-600" />
+                  <div className="flex justify-center items-center w-6 h-6 rounded-lg bg-brand-yellow/10">
+                    <FileText className="w-3 h-3 text-brand-yellow" />
                   </div>
                   <h4 className="text-sm font-semibold text-gray-900">Ghi chú bổ sung</h4>
                 </div>
                 <button
                   type="button"
                   onClick={addNote}
-                  className="flex gap-1 items-center px-3 py-1 text-xs text-white bg-gradient-to-r from-yellow-500 to-orange-500 rounded-lg shadow-sm transition-all hover:from-yellow-600 hover:to-orange-600 hover:shadow-md"
+                  className="flex gap-1 items-center px-3 py-1 text-xs text-white bg-gradient-to-r rounded-lg shadow-sm transition-all from-brand-yellow to-brand-yellow hover:shadow-md"
                 >
                   <Plus className="w-3 h-3" />
                   Thêm
@@ -893,7 +893,7 @@ export default function QuoteForm({
                         value={note}
                         onChange={(e) => updateNote(index, e.target.value)}
                         rows={2}
-                        className="px-2 py-1 w-full text-xs rounded-lg border border-gray-300 transition-all resize-none focus:border-yellow-500 focus:ring-2 focus:ring-yellow-200 placeholder:text-gray-400"
+                        className="px-2 py-1 w-full text-xs rounded-lg border border-gray-300 transition-all resize-none focus:border-brand-yellow focus:ring-2 focus:ring-brand-yellow/20 placeholder:text-gray-400"
                         placeholder={`Nhập ghi chú ${index + 1}...`}
                         onKeyDown={(e) => {
                           if (e.key === 'Tab' && !e.shiftKey) {

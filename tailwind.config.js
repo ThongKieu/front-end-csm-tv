@@ -22,12 +22,32 @@ module.exports = {
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         primary: {
-          DEFAULT: "hsl(var(--primary))",
-          foreground: "hsl(var(--primary-foreground))",
+          DEFAULT: "#125d0d", // Xanh chính
+          foreground: "#ffffff",
+          50: "#f0f9f0",
+          100: "#dcf2dc",
+          200: "#bce4bc",
+          300: "#8dd08d",
+          400: "#5bb55b",
+          500: "#125d0d", // Xanh chính
+          600: "#0f4c0b",
+          700: "#0d3f09",
+          800: "#0b3307",
+          900: "#092a06",
         },
         secondary: {
-          DEFAULT: "hsl(var(--secondary))",
-          foreground: "hsl(var(--secondary-foreground))",
+          DEFAULT: "#f5d20d", // Vàng chính
+          foreground: "#000000",
+          50: "#fefdf0",
+          100: "#fef9d1",
+          200: "#fdf2a3",
+          300: "#fce875",
+          400: "#fbdd47",
+          500: "#f5d20d", // Vàng chính
+          600: "#d4b30b",
+          700: "#b39409",
+          800: "#927507",
+          900: "#715605",
         },
         destructive: {
           DEFAULT: "hsl(var(--destructive))",
@@ -38,8 +58,8 @@ module.exports = {
           foreground: "hsl(var(--muted-foreground))",
         },
         accent: {
-          DEFAULT: "hsl(var(--accent))",
-          foreground: "hsl(var(--accent-foreground))",
+          DEFAULT: "#f5d20d", // Vàng làm accent
+          foreground: "#000000",
         },
         popover: {
           DEFAULT: "hsl(var(--popover))",
@@ -48,6 +68,11 @@ module.exports = {
         card: {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
+        },
+        // Custom colors cho ứng dụng
+        brand: {
+          yellow: "#f5d20d",
+          green: "#125d0d",
         },
       },
       borderRadius: {
