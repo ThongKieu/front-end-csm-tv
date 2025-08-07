@@ -11,7 +11,7 @@ const publicRoutes = [
   '/api/auth/login',
   '/api/auth/check',
   '/api/auth/verify',
-  '/api/test-connection',
+
   '/api/admin/users',
   '/api/admin/stats'
 ]
@@ -108,7 +108,7 @@ function isTokenValid(token) {
 }
 
 export function middleware(request) {
-  // Tạm thời vô hiệu hóa middleware để test login
+  // Tạm thời vô hiệu hóa middleware
   return NextResponse.next()
   
   const { pathname } = request.nextUrl
