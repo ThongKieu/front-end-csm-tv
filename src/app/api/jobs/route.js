@@ -1,12 +1,13 @@
 import { NextResponse } from 'next/server';
 import { transformJobData } from '@/utils/jobDataTransformer';
+import { API_URLS } from '@/config/constants';
 
 export async function POST(request) {
   try {
     const { date } = await request.json();
     
     // Gọi API mới
-    const response = await fetch('http://192.168.1.27/api/web/job/get-by-date', {
+    const response = await fetch(API_URLS.JOB_GET_BY_DATE, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

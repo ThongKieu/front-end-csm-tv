@@ -26,7 +26,7 @@ const DateNavigator = ({
     const status = getDateStatus(date);
     switch (status) {
       case "today":
-        return <Clock className="w-3 h-3 text-brand-green" />;
+        return <Clock className="w-3 h-3 text-green-700" />;
       case "past":
         return <AlertTriangle className="w-3 h-3 text-orange-600" />;
       case "future":
@@ -64,7 +64,7 @@ const DateNavigator = ({
           
           <button
             onClick={onToday}
-            className="flex-1 p-2 text-xs font-medium text-white rounded-md transition-colors bg-brand-green hover:bg-green-700"
+            className="flex-1 p-2 text-xs font-medium text-green-700 rounded-md transition-colors hover:text-white hover:bg-green-700"
           >
             Hôm nay
           </button>
@@ -114,7 +114,7 @@ const DateNavigator = ({
       
       <button
         onClick={onToday}
-        className="p-1 rounded-md transition-colors bg-brand-green hover:bg-green-700 hover:text-white"
+        className="p-1 text-green-700 rounded-md transition-colors bg-brand-green hover:bg-green-700 hover:text-white"
       >
         <span className="text-[12px]">Hôm nay</span>
       </button>

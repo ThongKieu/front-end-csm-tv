@@ -28,14 +28,14 @@ export default function ConfigManager() {
   };
 
   return (
-    <div className="p-6 bg-white rounded-lg shadow-lg max-w-2xl mx-auto">
+    <div className="p-6 mx-auto max-w-2xl bg-white rounded-lg shadow-lg">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl font-bold">Cấu hình hệ thống</h2>
         <div className="space-x-2">
           {!isEditing ? (
             <button
               onClick={() => setIsEditing(true)}
-              className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+              className="px-4 py-2 text-white bg-blue-500 rounded hover:bg-blue-600"
             >
               Chỉnh sửa
             </button>
@@ -43,13 +43,13 @@ export default function ConfigManager() {
             <>
               <button
                 onClick={handleSave}
-                className="px-4 py-2 bg-brand-green text-white rounded hover:bg-green-600"
+                className="px-4 py-2 text-white rounded bg-brand-green hover:bg-green-600"
               >
                 Lưu
               </button>
               <button
                 onClick={handleCancel}
-                className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
+                className="px-4 py-2 text-white bg-gray-500 rounded hover:bg-gray-600"
               >
                 Hủy
               </button>
@@ -60,12 +60,12 @@ export default function ConfigManager() {
 
       <div className="space-y-4">
         {/* Backend Configuration */}
-        <div className="border rounded p-4">
-          <h3 className="font-semibold mb-3">Cấu hình Backend</h3>
+        <div className="p-4 rounded border">
+          <h3 className="mb-3 font-semibold">Cấu hình Backend</h3>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div>
-              <label className="block text-sm font-medium mb-1">Base URL</label>
+              <label className="block mb-1 text-sm font-medium">Base URL</label>
               {isEditing ? (
                 <input
                   type="text"
@@ -74,18 +74,18 @@ export default function ConfigManager() {
                     ...prev,
                     BACKEND: { ...prev.BACKEND, BASE_URL: e.target.value }
                   }))}
-                  className="w-full px-3 py-2 border rounded"
-                  placeholder="http://192.168.1.27"
+                  className="px-3 py-2 w-full rounded border"
+                  // placeholder="http://192.168.1.27"
                 />
               ) : (
-                <div className="px-3 py-2 bg-gray-100 rounded font-mono text-sm">
+                <div className="px-3 py-2 font-mono text-sm bg-gray-100 rounded">
                   {currentConfig.BACKEND.BASE_URL}
                 </div>
               )}
             </div>
             
             <div>
-              <label className="block text-sm font-medium mb-1">Port (tùy chọn)</label>
+              <label className="block mb-1 text-sm font-medium">Port (tùy chọn)</label>
               {isEditing ? (
                 <input
                   type="text"
@@ -94,11 +94,11 @@ export default function ConfigManager() {
                     ...prev,
                     BACKEND: { ...prev.BACKEND, PORT: e.target.value }
                   }))}
-                  className="w-full px-3 py-2 border rounded"
+                  className="px-3 py-2 w-full rounded border"
                   placeholder="3000"
                 />
               ) : (
-                <div className="px-3 py-2 bg-gray-100 rounded font-mono text-sm">
+                <div className="px-3 py-2 font-mono text-sm bg-gray-100 rounded">
                   {currentConfig.BACKEND.PORT || 'Không có'}
                 </div>
               )}
@@ -106,16 +106,16 @@ export default function ConfigManager() {
           </div>
 
           <div className="mt-3">
-            <label className="block text-sm font-medium mb-1">URL hoàn chỉnh</label>
-            <div className="px-3 py-2 bg-blue-50 rounded font-mono text-sm border">
+            <label className="block mb-1 text-sm font-medium">URL hoàn chỉnh</label>
+            <div className="px-3 py-2 font-mono text-sm bg-blue-50 rounded border">
               {getBackendUrl()}
             </div>
           </div>
         </div>
 
         {/* API Endpoints */}
-        <div className="border rounded p-4">
-          <h3 className="font-semibold mb-3">API Endpoints</h3>
+        <div className="p-4 rounded border">
+          <h3 className="mb-3 font-semibold">API Endpoints</h3>
           <div className="space-y-2 text-sm">
             <div className="flex justify-between">
               <span>User Create:</span>
@@ -137,8 +137,8 @@ export default function ConfigManager() {
         </div>
 
         {/* App Info */}
-        <div className="border rounded p-4">
-          <h3 className="font-semibold mb-3">Thông tin ứng dụng</h3>
+        <div className="p-4 rounded border">
+          <h3 className="mb-3 font-semibold">Thông tin ứng dụng</h3>
           <div className="space-y-2 text-sm">
             <div className="flex justify-between">
               <span>Tên ứng dụng:</span>
@@ -153,7 +153,7 @@ export default function ConfigManager() {
       </div>
 
       {isEditing && (
-        <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded">
+        <div className="p-3 mt-4 bg-yellow-50 rounded border border-yellow-200">
           <p className="text-sm text-yellow-800">
             <strong>Lưu ý:</strong> Sau khi thay đổi config, trang sẽ được reload để áp dụng cấu hình mới.
           </p>

@@ -121,12 +121,12 @@ export default function WorkScheduleClient() {
           {/* Left Sidebar */}
           <div className="space-y-4 w-full lg:w-80 lg:flex-shrink-0">
             {/* Date Navigation */}
-            <div className="p-4 bg-gradient-to-br from-brand-green/10 to-brand-yellow/10 rounded-lg border border-brand-green/20 shadow-sm">
+            <div className="p-4 bg-gradient-to-br rounded-lg border shadow-sm from-brand-green/10 to-brand-yellow/10 border-brand-green/20">
               <h3 className="flex gap-2 items-center mb-3 text-sm font-semibold text-brand-green">
                 <CalendarIcon className="w-4 h-4" />
                 Chọn ngày
               </h3>
-              <div className="p-3 bg-white rounded-lg shadow-sm">
+              <div className="p-3 text-green-700 bg-white rounded-lg shadow-sm">
                 <DateNavigator
                   selectedDate={format(date, "yyyy-MM-dd")}
                   onDateChange={handleDateChange}
@@ -138,11 +138,11 @@ export default function WorkScheduleClient() {
                   compact={true}
                 />
               </div>
-              <div className="p-2 mt-3 text-center bg-white rounded-lg">
+              <div className="p-2 mt-3 text-center text-green-700 bg-white rounded-lg">
                 <p className="text-sm font-medium text-brand-green">
                   {format(date, "EEEE, dd/MM/yyyy")}
                 </p>
-                <p className="mt-1 text-xs text-brand-green/70">
+                <p className="mt-1 text-xs text-green/70">
                   {format(date, "dd 'tháng' MM, yyyy")}
                 </p>
               </div>
@@ -226,7 +226,7 @@ export default function WorkScheduleClient() {
                 {loading ? (
                   <div className="flex justify-center items-center py-12">
                     <div className="flex flex-col items-center space-y-3">
-                      <div className="w-8 h-8 rounded-full border-2 border-brand-green/20 animate-spin border-t-brand-green"></div>
+                      <div className="w-8 h-8 rounded-full border-2 animate-spin border-brand-green/20 border-t-brand-green"></div>
                       <p className="text-sm text-gray-600">Đang tải...</p>
                     </div>
                   </div>
@@ -249,7 +249,7 @@ export default function WorkScheduleClient() {
                         <div className="flex gap-4 items-start">
                           {/* Customer Avatar */}
                           <div className="flex-shrink-0">
-                                                      <div className="flex justify-center items-center w-10 h-10 bg-brand-green/10 rounded-full">
+                                                      <div className="flex justify-center items-center w-10 h-10 rounded-full bg-brand-green/10">
                             <User className="w-5 h-5 text-brand-green" />
                           </div>
                           </div>

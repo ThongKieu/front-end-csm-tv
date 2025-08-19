@@ -13,6 +13,7 @@ import {
   MapPin,
 } from "lucide-react";
 import wardsData from "../../data/tphcm-wards-complete.json";
+import { API_URLS } from "../../config/constants";
 
 // CSS để buộc hiển thị format 24h cho input time
 const timeInputStyles = `
@@ -441,7 +442,7 @@ export default function CreateScheduleModal({
       }
 
       const response = await axios.post(
-        "http://192.168.1.27/api/web/job/create",
+        API_URLS.JOB_CREATE,
         formData,
         {
           headers: {
