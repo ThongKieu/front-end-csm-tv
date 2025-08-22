@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState, useEffect, useRef, useCallback } from 'react';
 import axios from 'axios';
 import { getClientApiUrl, CONFIG } from '@/config/constants';
 
@@ -11,8 +11,8 @@ export function ScheduleProvider({ children }) {
   const [isCreateScheduleModalOpen, setIsCreateScheduleModalOpen] = useState(false);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
 
-  // Fetch workers
-  const fetchWorkers = async () => {
+  // Fetch workers - chỉ gọi 1 lần khi mount
+  const fetchWorkers = useCallback(async () => {
     try {
       console.log('Fetching workers from:', getClientApiUrl(CONFIG.API.WORKER.GET_ALL));
       const response = await axios.get(getClientApiUrl(CONFIG.API.WORKER.GET_ALL));
@@ -39,16 +39,22 @@ export function ScheduleProvider({ children }) {
       ];
       setWorkers(fallbackWorkers);
     }
-  };
+  }, []);
 
   // Refresh data function
-  const refreshData = () => {
+  const refreshData = useCallback(() => {
     setRefreshTrigger(prev => prev + 1);
-  };
-
-  useEffect(() => {
-    fetchWorkers();
   }, []);
+
+  // Chỉ gọi API 1 lần khi mount, sử dụng ref để tránh gọi lại
+  const hasInitialized = useRef(false);
+  
+  useEffect(() => {
+    if (!hasInitialized.current) {
+      hasInitialized.current = true;
+      fetchWorkers();
+    }
+  }, [fetchWorkers]);
 
   const value = {
     workers,

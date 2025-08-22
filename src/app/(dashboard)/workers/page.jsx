@@ -25,13 +25,11 @@ import {
   RefreshCw,
   X
 } from "lucide-react";
-import { useSelector, useDispatch } from "react-redux";
-import { fetchWorkers, selectWorkers, selectLoading } from "@/store/slices/workSlice";
+import { useSchedule } from "@/contexts/ScheduleContext";
 
 export default function WorkersPage() {
-  const dispatch = useDispatch();
-  const workers = useSelector(selectWorkers);
-  const loading = useSelector(selectLoading);
+  const { workers } = useSchedule();
+  const loading = false; // Không cần loading state nữa vì đã có trong ScheduleContext
   
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedFilter, setSelectedFilter] = useState("all");
@@ -40,9 +38,7 @@ export default function WorkersPage() {
   const [sortBy, setSortBy] = useState("name"); // name, performance, status
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
 
-  useEffect(() => {
-    dispatch(fetchWorkers());
-  }, [dispatch]);
+  // Không cần useEffect nữa vì workers đã được fetch trong ScheduleContext
 
   // Filter and sort workers
   const filteredWorkers = workers

@@ -4,7 +4,7 @@ export async function GET() {
   try {
     // Gọi API backend để lấy danh sách thợ
     const backendUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://192.168.1.46'
-    const apiUrl = `${backendUrl}/api/web/workers`
+    const apiUrl = `${backendUrl}/api/user/get-workers`
     
     console.log('Fetching workers from:', apiUrl)
     

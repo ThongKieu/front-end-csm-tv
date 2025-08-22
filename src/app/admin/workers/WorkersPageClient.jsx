@@ -8,6 +8,7 @@ import WorkerAddModal from "@/components/workers/WorkerAddModal";
 import WorkersHeader from "@/components/workers/WorkersHeader";
 import WorkerCard from "@/components/workers/WorkerCard";
 import { getClientApiUrl, CONFIG } from "@/config/constants";
+import { useSchedule } from "@/contexts/ScheduleContext";
 
 export default function WorkersPageClient() {
   const [workers, setWorkers] = useState([]);
@@ -42,21 +43,15 @@ export default function WorkersPageClient() {
     password: ""
   });
 
+  // Sử dụng workers từ ScheduleContext thay vì gọi API riêng
+  const { workers: contextWorkers } = useSchedule();
+  
   useEffect(() => {
-    const fetchWorkers = async () => {
-      try {
-        const response = await fetch(getClientApiUrl(CONFIG.API.WORKER.GET_ALL));
-        const data = await response.json();
-        setWorkers(data);
-        setLoading(false);
-      } catch (error) {
-        console.error("Error fetching workers:", error);
-        setLoading(false);
-      }
-    };
-
-    fetchWorkers();
-  }, []);
+    if (contextWorkers && contextWorkers.length > 0) {
+      setWorkers(contextWorkers);
+      setLoading(false);
+    }
+  }, [contextWorkers]);
 
   const handleViewDetails = (worker) => {
     setSelectedWorker(worker);

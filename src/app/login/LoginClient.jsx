@@ -119,6 +119,10 @@ export default function LoginClient() {
         } else {
           clearSavedLoginInfo();
         }
+        
+        // Redirect đến dashboard sau khi đăng nhập thành công
+        console.log('LoginClient: Đăng nhập thành công, redirect đến dashboard');
+        router.push('/dashboard');
       } else {
         throw new Error(data.message || "Đăng nhập thất bại");
       }

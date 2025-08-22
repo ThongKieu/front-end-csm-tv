@@ -16,12 +16,10 @@ import {
 import {
   fetchAssignedWorks,
   fetchUnassignedWorks,
-  fetchWorkers,
   setSelectedDate,
   selectSelectedDate,
   selectAssignedWorks,
   selectUnassignedWorks,
-  selectWorkers,
   selectLoading,
 } from "@/store/slices/workSlice";
 import { ROUTES } from "@/config/routes";
@@ -32,7 +30,8 @@ export default function DashboardClient() {
   const selectedDate = useSelector(selectSelectedDate);
   const assignedWorks = useSelector(selectAssignedWorks);
   const unassignedWorks = useSelector(selectUnassignedWorks);
-  const workers = useSelector(selectWorkers);
+  // Sử dụng workers từ ScheduleContext thay vì Redux
+  const { workers } = useSchedule();
   const loading = useSelector(selectLoading);
   const { user } = useSelector((state) => state.auth);
   const [error, setError] = useState(null);
@@ -134,13 +133,13 @@ export default function DashboardClient() {
       dispatch(setSelectedDate(today));
     }
   }, [selectedDate, dispatch]);
-  // Fetch data khi selectedDate thay đổi
+  // Fetch data khi selectedDate thay đổi - KHÔNG gọi fetchWorkers vì đã có trong ScheduleContext
   useEffect(() => {
     if (selectedDate && !isInitialized) {
       const initializeData = async () => {
         try {
           setError(null);
-          await dispatch(fetchWorkers());
+          // KHÔNG gọi fetchWorkers() ở đây nữa - đã có trong ScheduleContext
           await fetchData(selectedDate);
           setIsInitialized(true);
         } catch (err) {
@@ -150,7 +149,7 @@ export default function DashboardClient() {
       
       initializeData();
     }
-  }, [selectedDate, isInitialized, dispatch, fetchData]);
+  }, [selectedDate, isInitialized, fetchData]);
 
   // Memoize date change handler
   const handleDateChange = useCallback(

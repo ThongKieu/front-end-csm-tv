@@ -35,8 +35,8 @@ export default function UsersPageClient() {
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   
-  // Sử dụng CreateScheduleModal từ context
-  const { setIsCreateScheduleModalOpen } = useSchedule()
+  // Sử dụng CreateScheduleModal và workers từ context
+  const { setIsCreateScheduleModalOpen, workers: contextWorkers } = useSchedule()
 
   useEffect(() => {
     const fetchData = async () => {
@@ -52,22 +52,7 @@ export default function UsersPageClient() {
         const usersData = await usersResponse.json()
         setUsers(usersData)
 
-        // Fetch workers
-        const fetchWorkers = async () => {
-          try {
-            const response = await fetch(getClientApiUrl(CONFIG.API.WORKER.GET_ALL))
-            if (!response.ok) {
-              throw new Error('Failed to fetch workers')
-            }
-            const workersData = await response.json()
-            setWorkers(workersData)
-          } catch (error) {
-            console.error('Error fetching workers:', error)
-            setError('Không thể tải danh sách thợ')
-          }
-        }
-        
-        await fetchWorkers()
+        // Không cần fetch workers nữa - sẽ sử dụng từ ScheduleContext
       } catch (error) {
         console.error('Error fetching data:', error)
         setError('Không thể tải dữ liệu')
@@ -78,6 +63,13 @@ export default function UsersPageClient() {
 
     fetchData()
   }, [])
+
+  // Cập nhật workers từ ScheduleContext
+  useEffect(() => {
+    if (contextWorkers && contextWorkers.length > 0) {
+      setWorkers(contextWorkers);
+    }
+  }, [contextWorkers]);
 
   const handleRegistrationInputChange = (field, value) => {
     setRegistrationForm(prev => ({ ...prev, [field]: value }))
