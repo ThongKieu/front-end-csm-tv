@@ -18,8 +18,14 @@ export async function POST(request) {
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
-
     const data = await response.json();
+    // Kiểm tra cấu trúc dữ liệu
+    if (!data.data) {
+      return NextResponse.json(
+        { error: 'Invalid API response format' },
+        { status: 500 }
+      );
+    }
     
     // Chuyển đổi dữ liệu từ format mới sang format cũ
     const transformedData = transformJobData(data.data);

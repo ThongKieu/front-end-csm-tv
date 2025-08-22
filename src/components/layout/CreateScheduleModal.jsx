@@ -9,10 +9,12 @@ import {
   Briefcase,
   CheckCircle2,
   Clipboard,
-  ZoomIn,
   MapPin,
 } from "lucide-react";
 import wardsData from "../../data/tphcm-wards-complete.json";
+import keywordsData from "../../data/keywords.json";
+import actionsData from "../../data/actions.json";
+import materialServicesData from "../../data/material_services.json";
 import { API_URLS } from "../../config/constants";
 
 // CSS để buộc hiển thị format 24h cho input time
@@ -50,6 +52,8 @@ export default function CreateScheduleModal({
 }) {
 
   const fileInputRef = useRef(null);
+  const submissionRef = useRef(false); // Track submission state
+  const requestIdRef = useRef(null); // Track unique request ID
 
   // Date & time helpers
   const getTodayDate = () => new Date().toISOString().split("T")[0];
@@ -64,9 +68,10 @@ export default function CreateScheduleModal({
     has_appointment_time: false, // Thêm field để kiểm soát việc có hẹn giờ hay không
     job_customer_ward: "", // Thêm field cho phường/xã
     job_customer_district: "", // Thêm field cho quận
-    job_content_construction: "", // Thêm field cho thi công
-    job_content_installation: "", // Thêm field cho lắp đặt
-    job_content_aircon: "", // Thêm field cho máy lạnh
+    // Thêm các field mới cho 3 dropdown
+    selected_keyword: "",
+    selected_action: "",
+    selected_material_service: "",
   });
   const defaultFormData = getDefaultFormData();
 
@@ -76,8 +81,6 @@ export default function CreateScheduleModal({
   const [imageViewerOpen, setImageViewerOpen] = useState(false);
   const [phoneError, setPhoneError] = useState(false);
   const [currentTime, setCurrentTime] = useState(getCurrentTime());
-  const [imageZoom, setImageZoom] = useState(1);
-  const [imagePosition, setImagePosition] = useState({ x: 0, y: 0 });
   const [wardSearchTerm, setWardSearchTerm] = useState("");
   const [showWardDropdown, setShowWardDropdown] = useState(false);
   const [districtSearchTerm, setDistrictSearchTerm] = useState("");
@@ -108,7 +111,11 @@ export default function CreateScheduleModal({
             ...defaultFormData, 
             ...parsedData,
             has_appointment_time: hasAppointmentTime,
-            job_appointment_time: appointmentTime
+            job_appointment_time: appointmentTime,
+            // Bỏ các field không còn sử dụng
+            job_content_construction: undefined,
+            job_content_installation: undefined,
+            job_content_aircon: undefined
           });
           
           setWardSearchTerm(parsedData.job_customer_ward || "");
@@ -315,46 +322,19 @@ export default function CreateScheduleModal({
   const handleImageClick = (file, index) => { 
     setSelectedImage({ file, index }); 
     setImageViewerOpen(true); 
-    setImageZoom(1);
-    setImagePosition({ x: 0, y: 0 });
   };
   const handleCloseImageViewer = () => { 
     setImageViewerOpen(false); 
     setSelectedImage(null); 
-    setImageZoom(1);
-    setImagePosition({ x: 0, y: 0 });
-  };
-  const handleImageWheel = (e) => {
-    e.preventDefault();
-    const delta = e.deltaY > 0 ? -0.2 : 0.2;
-    const newZoom = Math.max(0.5, Math.min(3, imageZoom + delta));
-    setImageZoom(newZoom);
-  };
-
-  const handleImageMouseDown = (e) => {
-    if (imageZoom <= 1) return;
-    e.preventDefault();
-    const startX = e.clientX - imagePosition.x;
-    const startY = e.clientY - imagePosition.y;
-    
-    const handleMouseMove = (e) => {
-      setImagePosition({
-        x: e.clientX - startX,
-        y: e.clientY - startY
-      });
-    };
-    
-    const handleMouseUp = () => {
-      document.removeEventListener('mousemove', handleMouseMove);
-      document.removeEventListener('mouseup', handleMouseUp);
-    };
-    
-    document.addEventListener('mousemove', handleMouseMove);
-    document.addEventListener('mouseup', handleMouseUp);
   };
 
   const handleCreateSchedule = async (e) => {
     e.preventDefault();
+
+    // Prevent multiple submissions
+    if (submissionRef.current) {
+      return;
+    }
 
     // Validation
     const requiredFields = [
@@ -363,6 +343,7 @@ export default function CreateScheduleModal({
       { field: "job_customer_phone", message: "Vui lòng nhập số điện thoại" },
       { field: "job_type_id", message: "Vui lòng chọn loại công việc" },
       { field: "job_source", message: "Vui lòng chọn nguồn" },
+      // Bỏ validation bắt buộc cho priority - cho phép "không chọn"
     ];
 
     // Validate nội dung công việc
@@ -370,34 +351,43 @@ export default function CreateScheduleModal({
       return;
     }
 
+    // Priority không bắt buộc nữa - có thể để trống
+
     for (const { field, message } of requiredFields) {
       if (!scheduleData[field] || !scheduleData[field].toString().trim()) {
-
         return;
       }
     }
 
-      // Validate giờ hẹn
-  if (scheduleData.has_appointment_time && (!scheduleData.job_appointment_time || !scheduleData.job_appointment_time.trim())) {
-    return;
-  }
-
-  if (scheduleData.has_appointment_time && scheduleData.job_appointment_time) {
-    const timeRegex = /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/;
-    if (!timeRegex.test(scheduleData.job_appointment_time)) {
+    // Validate giờ hẹn
+    if (scheduleData.has_appointment_time && (!scheduleData.job_appointment_time || !scheduleData.job_appointment_time.trim())) {
       return;
     }
-  }
+
+    if (scheduleData.has_appointment_time && scheduleData.job_appointment_time) {
+      const timeRegex = /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/;
+      if (!timeRegex.test(scheduleData.job_appointment_time)) {
+        return;
+      }
+    }
 
     // Validate phone number format
     if (!isPhoneValid()) {
-      
       return;
     }
-
-    setIsSubmitting(true);
+    
+    // Generate unique request ID to prevent duplicates
+    const requestId = `job_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    requestIdRef.current = requestId;
+    
+    submissionRef.current = true; // Set submission state to true
 
     try {
+      // Check if this request is still valid (not superseded by another)
+      if (requestIdRef.current !== requestId) {
+        return;
+      }
+
       // Chuẩn bị dữ liệu gửi đi với format chính xác
       const requestData = {
         job_content: scheduleData.job_content.trim(),
@@ -417,13 +407,23 @@ export default function CreateScheduleModal({
         job_customer_district: scheduleData.job_customer_district.trim() || "",
         job_type_id: parseInt(scheduleData.job_type_id), // Đảm bảo là số
         job_source: scheduleData.job_source,
-        job_priority: scheduleData.job_priority,
+        job_priority: scheduleData.job_priority.trim(), // Đảm bảo priority được gửi đúng
         user_id: parseInt(scheduleData.user_id) || 1, // Đảm bảo là số
         // Thêm các field có thể cần thiết
         job_status: "pending", // Trạng thái mặc định
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       };
+
+      // Final validation: priority có thể để trống hoặc là giá trị hợp lệ
+      if (requestData.job_priority && requestData.job_priority !== "") {
+        // Nếu có chọn priority thì phải là giá trị hợp lệ
+        const validPriorities = ["high", "medium"];
+        if (!validPriorities.includes(requestData.job_priority)) {
+          console.error("Invalid priority value:", requestData.job_priority);
+          throw new Error("Invalid priority value");
+        }
+      }
 
       const formData = new FormData();
 
@@ -440,7 +440,7 @@ export default function CreateScheduleModal({
           formData.append("job_images[]", file);
         });
       }
-
+      
       const response = await axios.post(
         API_URLS.JOB_CREATE,
         formData,
@@ -448,12 +448,31 @@ export default function CreateScheduleModal({
           headers: {
             "Content-Type": "multipart/form-data",
             Accept: "application/json",
+            "X-Request-ID": requestId, // Add request ID to headers
           },
           timeout: 30000, // 30 giây timeout
         }
       );
 
+      // Check if this request is still valid
+      if (requestIdRef.current !== requestId) {
+        return;
+      }
+
       if (response.status === 200 || response.status === 201) {
+        // Check if this request is still valid
+        if (requestIdRef.current !== requestId) {
+          return;
+        }
+        
+        // Validate response data to ensure only one job was created
+        if (response.data) {
+          // Check if response indicates duplicate creation
+          if (response.data.message && response.data.message.includes("duplicate")) {
+            console.error("API indicates duplicate job creation");
+            throw new Error("Duplicate job detected by API");
+          }
+        }
 
         clearSavedData();
 
@@ -464,8 +483,16 @@ export default function CreateScheduleModal({
 
         onClose();
         resetForm();
+      } else {
+        console.error("Unexpected response status:", response.status);
+        throw new Error(`Unexpected response status: ${response.status}`);
       }
     } catch (error) {
+      // Check if this request is still valid
+      if (requestIdRef.current !== requestId) {
+        return;
+      }
+      
       console.error("Error creating job:", error);
       console.error("Error response:", error.response);
       console.error("Error request:", error.request);
@@ -475,8 +502,6 @@ export default function CreateScheduleModal({
       if (error.response) {
         const status = error.response.status;
         const responseData = error.response.data;
-
-        console.error("Response data:", responseData);
 
         const messages = {
           400: "Dữ liệu không hợp lệ",
@@ -503,9 +528,15 @@ export default function CreateScheduleModal({
         errorMessage = "Request timeout, vui lòng thử lại";
       }
 
-      
+      // TODO: Hiển thị error message cho user
+      console.error("Error message:", errorMessage);
     } finally {
-      setIsSubmitting(false);
+      // Check if this request is still valid
+      if (requestIdRef.current !== requestId) {
+        return;
+      }
+      
+      submissionRef.current = false; // Reset submission state
     }
   };
 
@@ -515,6 +546,20 @@ export default function CreateScheduleModal({
   };
 
   if (!isOpen) return null;
+
+  // Hàm tự động cập nhật job_content khi 3 dropdown thay đổi
+  const updateJobContent = (keyword, materialService, action) => {
+    const parts = [];
+    if (keyword) parts.push(keyword);
+    if (materialService) parts.push(materialService);
+    if (action) parts.push(action);
+    
+    const combinedContent = parts.join(" ");
+    setScheduleData(prev => ({
+      ...prev,
+      job_content: combinedContent
+    }));
+  };
 
   return (
     <>
@@ -548,7 +593,23 @@ export default function CreateScheduleModal({
           </div>
 
           <div className="overflow-y-auto flex-1">
-            <form onSubmit={handleCreateSchedule} className="p-6 space-y-6">
+            <form 
+              onSubmit={(e) => {
+                // Prevent form submission if already submitting
+                if (submissionRef.current) {
+                  e.preventDefault();
+                  return false;
+                }
+                handleCreateSchedule(e);
+              }} 
+              className="p-6 space-y-6"
+              onKeyDown={(e) => {
+                // Prevent form submission on Enter key if already submitting
+                if (e.key === 'Enter' && submissionRef.current) {
+                  e.preventDefault();
+                }
+              }}
+            >
               {/* Thông tin khách hàng - Ưu tiên cao nhất */}
               <div className="space-y-4">
                 <div className="flex items-center space-x-2">
@@ -752,110 +813,144 @@ export default function CreateScheduleModal({
                   </h3>
                 </div>
 
-                                {/* Nội dung công việc */}
-                <div>
+                                {/* Nội dung công việc - 3 dropdown */}
+                <div className="space-y-3">
                   <label className="block mb-2 text-xs font-medium text-gray-700">
                     Nội dung công việc <span className="text-red-500">*</span>
                   </label>
+                  
+                  {/* 3 dropdown để chọn nội dung */}
                   <div className="grid grid-cols-1 gap-3 lg:grid-cols-3">
-                    {/* Thi công */}
+                    {/* Keyword dropdown */}
                     <div>
-                      <label className="block mb-2 text-xs font-medium text-gray-600">
-                        Thi công
+                      <label className="block mb-1.5 text-xs font-medium text-gray-600">
+                        Hành động chính
                       </label>
                       <select
-                        value={scheduleData.job_content_construction || ""}
-                        onChange={(e) =>
-                          setScheduleData({
-                            ...scheduleData,
-                            job_content_construction: e.target.value,
-                            job_content: [
-                              e.target.value,
-                              scheduleData.job_content_installation || "",
-                              scheduleData.job_content_aircon || ""
-                            ].filter(Boolean).join(", ")
-                          })
-                        }
+                        value={scheduleData.selected_keyword}
+                        onChange={(e) => {
+                          const selectedKeyword = e.target.value;
+                          setScheduleData(prev => ({
+                            ...prev,
+                            selected_keyword: selectedKeyword
+                          }));
+                          updateJobContent(
+                            selectedKeyword,
+                            scheduleData.selected_material_service,
+                            scheduleData.selected_action
+                          );
+                        }}
                         className="w-full rounded-lg border-gray-200 shadow-sm focus:border-brand-green focus:ring-brand-green bg-white text-sm px-3 py-2.5 transition-colors"
                       >
-                        <option value="">Chọn loại thi công</option>
-                        <option value="Thi công điện">Thi công điện</option>
-                        <option value="Thi công nước">Thi công nước</option>
-                        <option value="Thi công xây dựng">Thi công xây dựng</option>
-                        <option value="Thi công cơ khí">Thi công cơ khí</option>
-                        <option value="Thi công nội thất">Thi công nội thất</option>
-                        <option value="Thi công năng lượng mặt trời">Thi công năng lượng mặt trời</option>
+                        <option value="">Chọn hành động</option>
+                        {keywordsData.keywords.map((keyword) => (
+                          <option key={keyword.id} value={keyword.name}>
+                            {keyword.name}
+                          </option>
+                        ))}
                       </select>
                     </div>
 
-                    {/* Lắp đặt */}
+                    {/* Material/Service dropdown */}
                     <div>
-                      <label className="block mb-2 text-xs font-medium text-gray-600">
-                        Lắp đặt
+                      <label className="block mb-1.5 text-xs font-medium text-gray-600">
+                        Vị trí/Vật liệu
                       </label>
                       <select
-                        value={scheduleData.job_content_installation || ""}
-                        onChange={(e) =>
-                          setScheduleData({
-                            ...scheduleData,
-                            job_content_installation: e.target.value,
-                            job_content: [
-                              scheduleData.job_content_construction || "",
-                              e.target.value,
-                              scheduleData.job_content_aircon || ""
-                            ].filter(Boolean).join(", ")
-                          })
-                        }
+                        value={scheduleData.selected_material_service}
+                        onChange={(e) => {
+                          const selectedMaterialService = e.target.value;
+                          setScheduleData(prev => ({
+                            ...prev,
+                            selected_material_service: selectedMaterialService
+                          }));
+                          updateJobContent(
+                            scheduleData.selected_keyword,
+                            selectedMaterialService,
+                            scheduleData.selected_action
+                          );
+                        }}
                         className="w-full rounded-lg border-gray-200 shadow-sm focus:border-brand-green focus:ring-brand-green bg-white text-sm px-3 py-2.5 transition-colors"
                       >
-                        <option value="">Chọn loại lắp đặt</option>
-                        <option value="Lắp đặt thiết bị điện">Lắp đặt thiết bị điện</option>
-                        <option value="Lắp đặt thiết bị nước">Lắp đặt thiết bị nước</option>
-                        <option value="Lắp đặt nội thất">Lắp đặt nội thất</option>
-                        <option value="Lắp đặt hệ thống">Lắp đặt hệ thống</option>
-                        <option value="Lắp đặt camera">Lắp đặt camera</option>
-                        <option value="Lắp đặt cửa cuốn">Lắp đặt cửa cuốn</option>
+                        <option value="">Chọn vị trí</option>
+                        {materialServicesData.material_services.map((material) => (
+                          <option key={material.id} value={material.name}>
+                            {material.name}
+                          </option>
+                        ))}
                       </select>
                     </div>
 
-                    {/* Máy lạnh */}
+                    {/* Action dropdown */}
                     <div>
-                      <label className="block mb-2 text-xs font-medium text-gray-600">
-                        Máy lạnh
+                      <label className="block mb-1.5 text-xs font-medium text-gray-600">
+                        Đối tượng
                       </label>
                       <select
-                        value={scheduleData.job_content_aircon || ""}
-                        onChange={(e) =>
-                          setScheduleData({
-                            ...scheduleData,
-                            job_content_aircon: e.target.value,
-                            job_content: [
-                              scheduleData.job_content_construction || "",
-                              scheduleData.job_content_installation || "",
-                              e.target.value
-                            ].filter(Boolean).join(", ")
-                          })
-                        }
+                        value={scheduleData.selected_action}
+                        onChange={(e) => {
+                          const selectedAction = e.target.value;
+                          setScheduleData(prev => ({
+                            ...prev,
+                            selected_action: selectedAction
+                          }));
+                          updateJobContent(
+                            scheduleData.selected_keyword,
+                            scheduleData.selected_material_service,
+                            selectedAction
+                          );
+                        }}
                         className="w-full rounded-lg border-gray-200 shadow-sm focus:border-brand-green focus:ring-brand-green bg-white text-sm px-3 py-2.5 transition-colors"
                       >
-                        <option value="">Chọn loại máy lạnh</option>
-                        <option value="Lắp đặt máy lạnh">Lắp đặt máy lạnh</option>
-                        <option value="Sửa chữa máy lạnh">Sửa chữa máy lạnh</option>
-                        <option value="Bảo trì máy lạnh">Bảo trì máy lạnh</option>
-                        <option value="Vệ sinh máy lạnh">Vệ sinh máy lạnh</option>
-                        <option value="Nạp gas máy lạnh">Nạp gas máy lạnh</option>
-                        <option value="Thay linh kiện máy lạnh">Thay linh kiện máy lạnh</option>
+                        <option value="">Chọn đối tượng</option>
+                        {actionsData.actions.map((action) => (
+                          <option key={action.id} value={action.name}>
+                            {action.name}
+                          </option>
+                        ))}
                       </select>
                     </div>
                   </div>
-                  
-                  {/* Hiển thị nội dung đã chọn */}
-                  {scheduleData.job_content && (
-                    <div className="p-3 mt-3 bg-gray-50 rounded-lg">
-                      <div className="mb-1 text-xs font-medium text-gray-700">Nội dung đã chọn:</div>
-                      <div className="text-sm text-gray-900">{scheduleData.job_content}</div>
+
+                  {/* Hiển thị nội dung đã ghép */}
+                  <div className="p-3 bg-gray-50 rounded-lg border border-gray-200">
+                    <div className="flex justify-between items-center">
+                      <label className="block text-xs font-medium text-gray-600">
+                        Nội dung đã ghép:
+                      </label>
+                      {scheduleData.job_content && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setScheduleData(prev => ({
+                              ...prev,
+                              selected_keyword: "",
+                              selected_action: "",
+                              selected_material_service: "",
+                              job_content: ""
+                            }));
+                          }}
+                          className="text-xs text-red-500 transition-colors hover:text-red-600"
+                          title="Xóa tất cả"
+                        >
+                          × Xóa
+                        </button>
+                      )}
                     </div>
-                  )}
+                    <div className="mt-1.5 p-2 bg-white rounded border border-gray-200 min-h-[2.5rem] flex items-center">
+                      {scheduleData.job_content ? (
+                        <span className="text-sm font-medium text-gray-800">
+                          {scheduleData.job_content}
+                        </span>
+                      ) : (
+                        <span className="text-sm italic text-gray-400">
+                          Chọn từ 3 dropdown trên để tạo nội dung công việc
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+
                 </div>
 
                 <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
@@ -932,33 +1027,38 @@ export default function CreateScheduleModal({
                     <label className="block mb-2 text-xs font-medium text-gray-700">
                       Mức độ ưu tiên
                     </label>
-                    <div className="flex gap-1">
+                    <div className="flex gap-1.5">
                       {jobPriorities.map((priority) => (
                         <label
                           key={priority.value}
-                          className={`flex items-center space-x-1 px-2 py-1.5 rounded-md cursor-pointer hover:bg-gray-50 transition-colors text-xs font-medium ${
+                          className={`flex items-center space-x-1.5 px-2.5 py-1.5 rounded-md cursor-pointer transition-all duration-200 text-xs font-medium border ${
                             scheduleData.job_priority === priority.value
-                              ? "bg-brand-green/10 border border-brand-green/20"
-                              : "border border-gray-200"
+                              ? priority.value === ""
+                                ? "bg-gray-600 text-white border-gray-600 shadow-sm"
+                                : priority.value === "medium"
+                                ? "bg-blue-600 text-white border-blue-600 shadow-sm"
+                                : "bg-red-600 text-white border-red-600 shadow-sm"
+                              : "bg-white border-gray-200 text-gray-600 hover:border-gray-300 hover:bg-gray-50"
                           }`}
                         >
                           <input
                             type="radio"
                             name="job_priority"
                             value={priority.value}
-                            checked={
-                              scheduleData.job_priority === priority.value
-                            }
-                            onChange={(e) =>
-                              setScheduleData({
-                                ...scheduleData,
-                                job_priority: e.target.value,
-                              })
-                            }
+                            checked={scheduleData.job_priority === priority.value}
+                            onChange={(e) => {
+                              const newPriority = e.target.value;
+                              setScheduleData(prev => ({
+                                ...prev,
+                                job_priority: newPriority,
+                              }));
+                            }}
                             className="w-3 h-3 border-gray-300 text-brand-green focus:ring-brand-green"
                           />
-                          <span className={priority.color}>
-                            {priority.label}
+                          <span className={scheduleData.job_priority === priority.value ? "text-white" : priority.color}>
+                            {priority.value === "" ? "Không chọn" : 
+                             priority.value === "medium" ? "Khách quen" : 
+                             priority.value === "high" ? "Lịch ưu tiên" : priority.label}
                           </span>
                         </label>
                       ))}
@@ -1204,6 +1304,14 @@ export default function CreateScheduleModal({
                         ? "opacity-50 cursor-not-allowed from-green-700 to-yellow-600"
                         : "hover:from-green-700 hover:to-yellow-600"
                     }`}
+                    onClick={(e) => {
+                      // Additional protection against duplicate clicks
+                      if (submissionRef.current) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        return false;
+                      }
+                    }}
                   >
                     {isSubmitting ? (
                       <>
@@ -1239,42 +1347,16 @@ export default function CreateScheduleModal({
             </button>
             <div 
               className="flex justify-center items-center w-full h-full"
-              onWheel={handleImageWheel}
             >
               <img
                 src={URL.createObjectURL(selectedImage.file)}
                 alt={`Ảnh ${selectedImage.index + 1}`}
                 className="object-contain max-w-full max-h-full rounded-lg transition-transform duration-200 select-none"
-                style={{
-                  transform: `scale(${imageZoom}) translate(${imagePosition.x}px, ${imagePosition.y}px)`,
-                  cursor: imageZoom > 1 ? 'grab' : 'default'
-                }}
-                onClick={(e) => e.stopPropagation()}
-                onMouseDown={handleImageMouseDown}
-                draggable={false}
               />
             </div>
             <div className="absolute bottom-4 left-4 px-3 py-1 text-sm text-white rounded-lg bg-black/50">
               Ảnh {selectedImage.index + 1} / {scheduleData.job_images.length} 
-              {imageZoom !== 1 && ` (${Math.round(imageZoom * 100)}%)`}
             </div>
-            {imageZoom !== 1 && (
-              <div className="flex absolute right-4 bottom-4 items-center px-3 py-1 space-x-2 text-sm text-white rounded-lg bg-black/50">
-                <button
-                  onClick={() => {
-                    setImageZoom(1);
-                    setImagePosition({ x: 0, y: 0 });
-                  }}
-                  className="transition-colors hover:text-gray-300"
-                >
-                  Reset
-                </button>
-                <span className="text-gray-300">|</span>
-                <span className="text-xs text-gray-300">
-                  {Math.abs(imagePosition.x) > 5 || Math.abs(imagePosition.y) > 5 ? 'Kéo để di chuyển' : 'Lăn chuột để zoom'}
-                </span>
-              </div>
-            )}
           </div>
         </div>
       )}

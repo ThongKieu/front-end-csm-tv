@@ -1,8 +1,7 @@
 import CreateQuotePage from './CreateQuotePage';
-export const metadata = {
-  title: 'Tạo báo giá',
-  description: 'Tạo báo giá',
-}
+
+export const dynamic = 'force-dynamic'
+
 export default function CreateQuotePageWrapper() {
   return <CreateQuotePage />;
 } 

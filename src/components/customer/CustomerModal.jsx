@@ -4,6 +4,7 @@ import { Fragment, useEffect, useState, useCallback, memo } from 'react'
 import {  Dialog, DialogPanel, DialogTitle, TransitionChild,Transition } from '@headlessui/react'
 import { X, Search, UserPlus, Phone, MapPin, Mail } from 'lucide-react'
 import axios from 'axios'
+import { getClientApiUrl, CONFIG } from '@/config/constants'
 
 const CustomerModal = memo(function CustomerModal({ isOpen, onClose, onSelect }) {
   const [searchTerm, setSearchTerm] = useState('')
@@ -40,7 +41,7 @@ const CustomerModal = memo(function CustomerModal({ isOpen, onClose, onSelect })
       setError(null)
 
       try {
-        const response = await axios.get('https://csm.thoviet.net/api/web/old-cus-search', {
+        const response = await axios.get(getClientApiUrl('/api/web/old-cus-search'), {
           params: { search_key: debouncedSearchTerm },
         })
         setCustomers(response.data)

@@ -62,7 +62,7 @@ export default function LoginClient() {
     setError("");
 
     try {
-      const response = await fetch("/api/user/login", {
+      const response = await fetch("http://192.168.1.46/api/user/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -74,76 +74,57 @@ export default function LoginClient() {
       });
 
       const data = await response.json();
-      console.log('LoginClient: Response data từ API:', data);
-      
       if (!response.ok) {
         throw new Error(data.message || "Đăng nhập thất bại");
       }
       
-      // Xử lý các format response khác nhau từ backend
-      let loginData = data;
-      
-      // Nếu backend trả về format { success: true, data: { token, user } }
+      // Xử lý response format mới: { success: true, message: "...", data: { user info } }
       if (data.success && data.data) {
-        loginData = data.data;
-      }
-      // Nếu backend trả về format { success: true, token, user }
-      else if (data.success && data.token && data.user) {
-        loginData = { token: data.token, user: data.user };
-      }
-      // Nếu backend trả về trực tiếp { token, user }
-      else if (data.token && data.user) {
-        loginData = data;
-      }
-      else {
-        console.error('LoginClient: Response không chứa token hoặc user:', data);
-        throw new Error("Dữ liệu đăng nhập không hợp lệ");
-      }
-      
-      console.log('LoginClient: Login data đã xử lý:', loginData);
-      
-      // Save login info if remember me is checked
-      if (rememberMe) {
-        try {
+        
+        // Tạo token giả để tương thích với hệ thống hiện tại
+        const fakeToken = `token_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+        
+        // Chuẩn bị dữ liệu user theo format cũ
+        const userData = {
+          id: data.data.id,
+          name: data.data.full_name,
+          user_name: data.data.user_name,
+          email: data.data.user_name, // Sử dụng user_name làm email
+          role: data.data.role,
+          type: data.data.type,
+          code: data.data.code,
+          full_name: data.data.full_name,
+          date_of_birth: data.data.date_of_birth,
+          address: data.data.address,
+          phone_business: data.data.phone_business,
+          phone_personal: data.data.phone_personal,
+          phone_family: data.data.phone_family,
+          avatar: data.data.avatar
+        };
+        
+        
+        // Dispatch login action với dữ liệu đã xử lý
+        dispatch(login({
+          token: fakeToken,
+          user: userData
+        }));
+        
+        // Lưu thông tin đăng nhập nếu rememberMe được chọn
+        if (rememberMe) {
           localStorage.setItem('savedLoginInfo', JSON.stringify({
             user_name: formData.user_name,
             password: formData.password,
             rememberMe: true
           }));
-        } catch (error) {
-          console.error('Error saving login info:', error);
+        } else {
+          clearSavedLoginInfo();
         }
       } else {
-        // Remove saved login info if remember me is unchecked
-        localStorage.removeItem('savedLoginInfo');
+        throw new Error(data.message || "Đăng nhập thất bại");
       }
-      
-      console.log('LoginClient: Dispatching login với data:', loginData);
-      console.log('LoginClient: Token sẽ được lưu:', loginData.token);
-      console.log('LoginClient: User sẽ được lưu:', loginData.user);
-      
-      // Dispatch login action
-      dispatch(login(loginData));
-      
-      // Kiểm tra xem token có được lưu vào localStorage không
-      setTimeout(() => {
-        const savedToken = localStorage.getItem('auth_token');
-        const savedUser = localStorage.getItem('auth_user');
-        console.log('LoginClient: Kiểm tra sau khi dispatch - Token:', savedToken ? 'Có' : 'Không');
-        console.log('LoginClient: Kiểm tra sau khi dispatch - User:', savedUser ? 'Có' : 'Không');
-      }, 100);
-      
-      // Redirect sau khi đăng nhập thành công
-      console.log('LoginClient: Redirecting to:', from);
-      
-      // Sử dụng setTimeout để đảm bảo Redux state đã được cập nhật
-      setTimeout(() => {
-        router.push(from);
-      }, 200);
-      
     } catch (error) {
-      console.error('LoginClient: Error during login:', error);
-      setError(error.message);
+      console.error('LoginClient: Login error:', error);
+      setError(error.message || "Có lỗi xảy ra khi đăng nhập");
     } finally {
       setIsLoading(false);
     }

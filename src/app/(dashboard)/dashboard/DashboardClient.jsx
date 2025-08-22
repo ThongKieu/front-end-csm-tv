@@ -4,18 +4,14 @@ import { useEffect, useCallback, useState, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import Link from "next/link";
 import WorkTable from "@/components/work-schedule/WorkTable";
-import JobsList from "@/components/work-schedule/JobsList";
-import StatusLegend from "@/components/work-schedule/StatusLegend";
-import StatusStats from "@/components/work-schedule/StatusStats";
+import NewJobsList from "@/components/work-schedule/NewJobsList";
 import WorkHistory from "@/components/dashboard/WorkHistory";
 import DateNavigator from "@/components/ui/DateNavigator";
+import AssignWorkerModal from "@/components/work-schedule/AssignWorkerModal";
 import {
   AlertCircle,
   Crown,
-  History,
   Filter,
-  Calendar,
-  AlertTriangle,
 } from "lucide-react";
 import {
   fetchAssignedWorks,
@@ -44,19 +40,81 @@ export default function DashboardClient() {
   const [dateRange, setDateRange] = useState({ start: "", end: "" });
   const [isInitialized, setIsInitialized] = useState(false);
   const [copiedWorkId, setCopiedWorkId] = useState(null);
+  const [isAssignModalOpen, setIsAssignModalOpen] = useState(false);
+  const [selectedWork, setSelectedWork] = useState(null);
+  const [isChangingWorker, setIsChangingWorker] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   
   // Lấy refreshTrigger từ ScheduleContext
   const { refreshTrigger } = useSchedule();
 
+
+
+  // Khôi phục ngày từ localStorage ngay khi component mount
+  useEffect(() => {
+    const savedDate = localStorage.getItem('selectedWorkDate');
+    if (savedDate && savedDate !== selectedDate) {
+      dispatch(setSelectedDate(savedDate));
+    }
+  }, []); // Chỉ chạy một lần khi component mount
+
+  // Memoize fetchData to prevent unnecessary re-creations
+  const fetchData = useCallback(
+    async (date) => {
+      try {
+        setIsRefreshing(true);
+        setError(null);
+        await Promise.all([
+          dispatch(fetchAssignedWorks(date)),
+          dispatch(fetchUnassignedWorks(date)),
+        ]);
+      } catch (err) {
+        console.error("❌ Error fetching data:", err);
+        setError("Không thể tải dữ liệu. Vui lòng thử lại sau.");
+      } finally {
+        setIsRefreshing(false);
+      }
+    },
+    [dispatch]
+  );
+
+  // Fetch data ngay khi component mount
+  useEffect(() => {
+    if (selectedDate) {
+      fetchData(selectedDate);
+    }
+  }, [selectedDate, fetchData]);
+
   // Handler functions for JobsList
   const handleAssign = (work, isChanging = false) => {
+    setSelectedWork(work);
+    setIsChangingWorker(isChanging);
+    setIsAssignModalOpen(true);
+  };
 
-    // TODO: Implement assign functionality
+  const handleAssignSubmit = async (updatedWork) => {
+    try {
+      // Refresh cả hai bảng để cập nhật dữ liệu
+      await fetchData(selectedDate);
+    } catch (error) {
+      console.error('Error refreshing data after assignment:', error);
+    } finally {
+      // Luôn đóng modal
+      setIsAssignModalOpen(false);
+      setSelectedWork(null);
+      setIsChangingWorker(false);
+    }
+  };
+
+  const handleCloseAssignModal = () => {
+    setIsAssignModalOpen(false);
+    setSelectedWork(null);
+    setIsChangingWorker(false);
   };
 
   const handleEdit = (work, isAssigned = false) => {
-
     // TODO: Implement edit functionality
+    console.log('Edit work:', work, 'isAssigned:', isAssigned);
   };
 
   const handleCopy = async (work) => {
@@ -69,28 +127,38 @@ export default function DashboardClient() {
     }
   };
 
-  // Memoize fetchData to prevent unnecessary re-creations
-  const fetchData = useCallback(
-    async (date) => {
-      try {
-        setError(null);
-        await Promise.all([
-          dispatch(fetchAssignedWorks(date)),
-          dispatch(fetchUnassignedWorks(date)),
-        ]);
-      } catch (err) {
-        console.error("Error fetching data:", err);
-        setError("Không thể tải dữ liệu. Vui lòng thử lại sau.");
-      }
-    },
-    [dispatch]
-  );
+  // Đảm bảo selectedDate luôn có giá trị
+  useEffect(() => {
+    if (!selectedDate) {
+      const today = new Date().toLocaleDateString('en-CA');
+      dispatch(setSelectedDate(today));
+    }
+  }, [selectedDate, dispatch]);
+  // Fetch data khi selectedDate thay đổi
+  useEffect(() => {
+    if (selectedDate && !isInitialized) {
+      const initializeData = async () => {
+        try {
+          setError(null);
+          await dispatch(fetchWorkers());
+          await fetchData(selectedDate);
+          setIsInitialized(true);
+        } catch (err) {
+          setError("Không thể tải dữ liệu. Vui lòng thử lại sau.");
+        }
+      };
+      
+      initializeData();
+    }
+  }, [selectedDate, isInitialized, dispatch, fetchData]);
 
   // Memoize date change handler
   const handleDateChange = useCallback(
     (e) => {
       const newDate = e.target.value;
       dispatch(setSelectedDate(newDate));
+      // Lưu ngày đã chọn vào localStorage
+      localStorage.setItem('selectedWorkDate', newDate);
       fetchData(newDate);
     },
     [dispatch, fetchData]
@@ -113,6 +181,8 @@ export default function DashboardClient() {
     prevDate.setDate(prevDate.getDate() - 1);
     const newDate = prevDate.toISOString().split("T")[0];
     dispatch(setSelectedDate(newDate));
+    // Lưu ngày đã chọn vào localStorage
+    localStorage.setItem('selectedWorkDate', newDate);
     fetchData(newDate);
   }, [selectedDate, dispatch, fetchData]);
 
@@ -121,57 +191,55 @@ export default function DashboardClient() {
     nextDate.setDate(nextDate.getDate() + 1);
     const newDate = nextDate.toISOString().split("T")[0];
     dispatch(setSelectedDate(newDate));
+    // Lưu ngày đã chọn vào localStorage
+    localStorage.setItem('selectedWorkDate', newDate);
     fetchData(newDate);
   }, [selectedDate, dispatch, fetchData]);
 
   const handleToday = useCallback(() => {
-    const today = new Date().toISOString().split("T")[0];
+    const today = new Date().toLocaleDateString('en-CA');
     dispatch(setSelectedDate(today));
+    // Lưu ngày đã chọn vào localStorage
+    localStorage.setItem('selectedWorkDate', today);
     fetchData(today);
   }, [dispatch, fetchData]);
 
   // Memoize statistics
   const stats = useMemo(
-    () => ({
-      unassignedCount: unassignedWorks.reduce(
-        (acc, cat) => acc + cat.data.length,
+    () => {
+      const unassignedCount = (unassignedWorks?.job_priority?.length || 0) + 
+                             (unassignedWorks?.job_normal?.length || 0) + 
+                             (unassignedWorks?.job_cancelled?.length || 0) + 
+                             (unassignedWorks?.job_no_answer?.length || 0) + 
+                             (unassignedWorks?.job_worker_return?.length || 0);
+      
+      const assignedCount = (assignedWorks || []).reduce(
+        (acc, cat) => acc + (cat.data ? cat.data.length : 0),
         0
-      ),
-      assignedCount: assignedWorks.reduce(
-        (acc, cat) => acc + cat.data.length,
-        0
-      ),
-    }),
+      );
+      
+      
+      return {
+        unassignedCount,
+        assignedCount,
+      };
+    },
     [unassignedWorks, assignedWorks]
   );
-
-  // Initialize data only once
-  useEffect(() => {
-    const initializeData = async () => {
-      if (isInitialized) return;
-
-      try {
-        setError(null);
-        // Fetch workers first, then data
-        await dispatch(fetchWorkers());
-        await fetchData(selectedDate);
-        setIsInitialized(true);
-      } catch (err) {
-        console.error("Error initializing data:", err);
-        setError("Không thể tải dữ liệu. Vui lòng thử lại sau.");
-      }
-    };
-
-    initializeData();
-  }, [dispatch, fetchData, selectedDate, isInitialized]);
 
   // Lắng nghe refreshTrigger để tự động refresh data
   useEffect(() => {
     if (isInitialized && refreshTrigger > 0) {
-  
       fetchData(selectedDate);
     }
   }, [refreshTrigger, isInitialized, fetchData, selectedDate]);
+
+  // Lưu ngày đã chọn vào localStorage mỗi khi selectedDate thay đổi
+  useEffect(() => {
+    if (selectedDate) {
+      localStorage.setItem('selectedWorkDate', selectedDate);
+    }
+  }, [selectedDate]);
 
   // Show loading only during initial load
   if (!isInitialized && loading) {
@@ -202,6 +270,7 @@ export default function DashboardClient() {
     );
   }
 
+
   return (
     <div className="flex flex-col h-[calc(100vh-64px)] p-2 mx-auto">
       {/* Compact Header */}
@@ -210,6 +279,14 @@ export default function DashboardClient() {
           <h1 className="text-[15px] font-bold text-transparent bg-clip-text bg-gradient-to-r from-brand-green to-brand-yellow">
             Phân công công việc
           </h1>
+
+          {/* Loading indicator when refreshing */}
+          {isRefreshing && (
+            <div className="flex items-center space-x-2 text-xs text-brand-green">
+              <div className="w-3 h-3 rounded-full border-2 animate-spin border-brand-green border-t-transparent"></div>
+              <span>Đang cập nhật...</span>
+            </div>
+          )}
 
           {/* Compact View Mode Tabs */}
           <div className="flex gap-0.5 items-center p-0.5 bg-gray-100 rounded-md">
@@ -245,13 +322,17 @@ export default function DashboardClient() {
             </button>
           </div>
 
-          {/* Date Navigation */}
+          {/* Date Navigator */}
           <DateNavigator
             selectedDate={selectedDate}
             onDateChange={handleDateChange}
             onPreviousDay={handlePreviousDay}
             onNextDay={handleNextDay}
             onToday={handleToday}
+            onViewModeChange={handleViewModeChange}
+            viewMode={viewMode}
+            dateRange={dateRange}
+            onDateRangeChange={setDateRange}
           />
         </div>
 
@@ -326,23 +407,35 @@ export default function DashboardClient() {
                   </span>
                 </h2>
               </div>
-              <p className="mt-0.5 text-xs text-brand-green">
-                🔥 Lịch gấp (high) • ⭐ Lịch ưu tiên • 🏠 Khách quen (medium) • ⏳ Chưa phân (low)
+                                           <p className="mt-0.5 text-xs text-brand-green">
+                🔥 Lịch gấp (Priority) • 🏠 Thường (Normal) • ❌ Đã hủy • 📞 Không nghe • 🔄 Thợ về
               </p>
             </div>
             {/* StatusStats compact */}
             {/* <div className="ml-auto">
               <StatusStats jobs={unassignedWorks.flatMap(category => category.data)} compact />
             </div> */}
-            <div className="overflow-hidden flex-1 p-2">
-              <JobsList 
-                jobs={unassignedWorks.flatMap(category => category.data)} 
-                workers={workers}
-                onAssign={handleAssign}
-                onEdit={handleEdit}
-                onCopy={handleCopy}
-                copiedWorkId={copiedWorkId}
-              />
+            <div className="overflow-hidden flex-1 p-2">              
+              {unassignedWorks ? (
+                <NewJobsList 
+                  jobs={unassignedWorks} 
+                  workers={workers}
+                  onAssign={handleAssign}
+                  onEdit={handleEdit}
+                  onCopy={handleCopy}
+                  copiedWorkId={copiedWorkId}
+                />
+              ) : (
+                <div className="flex justify-center items-center h-full text-gray-500">
+                  <div className="text-center">
+                    <p>Đang tải dữ liệu...</p>
+                    <p className="mt-1 text-xs">unassignedWorks: {unassignedWorks === null ? 'null' : unassignedWorks === undefined ? 'undefined' : 'empty'}</p>
+                    <p className="mt-1 text-xs">selectedDate: {selectedDate}</p>
+                    <p className="mt-1 text-xs">isInitialized: {isInitialized.toString()}</p>
+                    <p className="mt-1 text-xs">loading: {loading.toString()}</p>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 
@@ -367,7 +460,19 @@ export default function DashboardClient() {
               <StatusStats jobs={assignedWorks.flatMap(category => category.data)} compact />
             </div> */}
             <div className="overflow-hidden flex-1 p-2">
-              <WorkTable works={assignedWorks} workers={workers} />
+              {assignedWorks ? (
+                <WorkTable works={assignedWorks} workers={workers} />
+              ) : (
+                <div className="flex justify-center items-center h-full text-gray-500">
+                  <div className="text-center">
+                    <p>Đang tải dữ liệu...</p>
+                    <p className="mt-1 text-xs">assignedWorks: {JSON.stringify(assignedWorks)}</p>
+                    <p className="mt-1 text-xs">selectedDate: {selectedDate}</p>
+                    <p className="mt-1 text-xs">isInitialized: {isInitialized.toString()}</p>
+                    <p className="mt-1 text-xs">loading: {loading.toString()}</p>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -377,6 +482,16 @@ export default function DashboardClient() {
           <WorkHistory viewMode={viewMode} dateRange={dateRange} />
         </div>
       )}
+
+      {/* Assign Worker Modal */}
+      {isAssignModalOpen && selectedWork ? (
+        <AssignWorkerModal
+          work={selectedWork}
+          onClose={handleCloseAssignModal}
+          onAssign={handleAssignSubmit}
+          isChanging={isChangingWorker}
+        />
+      ) : null}
     </div>
   );
 }

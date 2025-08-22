@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { ArrowRight, Percent, Search, Star, Users, Clock, Filter, Grid, List } from "lucide-react";
 import Image from "next/image";
+import { getClientApiUrl, getBackendUrl, CONFIG } from "@/config/constants";
 
 export default function ServiceClient() {
   const [categories, setCategories] = useState([]);
@@ -18,8 +19,8 @@ export default function ServiceClient() {
     const fetchData = async () => {
       try {
         const [categoriesRes, servicesRes] = await Promise.all([
-          fetch('https://csm.thoviet.net/api/web/hot-ser/cat'),
-          fetch('https://csm.thoviet.net/api/web/hot-ser')
+          fetch(getClientApiUrl('/api/web/hot-ser/cat')),
+          fetch(getClientApiUrl('/api/web/hot-ser'))
         ]);
         
         const categoriesData = await categoriesRes.json();
@@ -218,7 +219,7 @@ export default function ServiceClient() {
                           viewMode === 'list' ? 'w-24 h-24 flex-shrink-0' : 'h-40'
                         }`}>
                           <Image
-                            src={`https://csm.thoviet.net/${service.image_hot}`}
+                            src={`${getBackendUrl()}/${service.image_hot}`}
                             alt={service.title_hot}
                             fill
                             className="object-cover transition-transform duration-200 group-hover:scale-105"

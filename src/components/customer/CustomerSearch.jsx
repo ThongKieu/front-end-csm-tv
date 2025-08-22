@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { Search, Phone, MapPin, Calendar, FileText, DollarSign, Clock, User, Copy, MoreVertical, Check, ChevronDown, ChevronUp } from "lucide-react";
 import axios from "axios";
+import { getClientApiUrl, CONFIG } from '@/config/constants';
 
 const ITEMS_PER_PAGE = 10;
 
@@ -62,7 +63,7 @@ const CustomerSearch = ({ onSearchResults }) => {
 
       try {
         const response = await axios.get(
-          "https://csm.thoviet.net/api/web/old-cus-search",
+          getClientApiUrl("/api/web/old-cus-search"),
           {
             params: {
               search_key: debouncedSearchTerm || "",

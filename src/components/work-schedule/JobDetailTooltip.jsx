@@ -17,7 +17,7 @@ const JobDetailTooltip = ({ job }) => {
       {/* Nội dung công việc */}
       <div className="mb-2">
         <p className="text-sm font-medium text-gray-900">
-          {job.work_content || "Không có nội dung"}
+          {job.job_content || job.work_content || "Không có nội dung"}
         </p>
       </div>
       
@@ -26,14 +26,14 @@ const JobDetailTooltip = ({ job }) => {
         <div className="flex items-center space-x-2">
           <span className="text-xs text-gray-600">Khách hàng:</span>
           <span className="text-xs font-medium text-gray-900">
-            {job.name_cus || "Chưa có thông tin"}
+            {job.job_customer_name || job.name_cus || "Chưa có thông tin"}
           </span>
         </div>
         <div className="flex items-center space-x-2">
           <Phone className="w-3 h-3 text-gray-500" />
           <span className="text-xs text-gray-600">SĐT:</span>
           <span className="text-xs text-gray-900">
-            {job.phone_number || "Chưa có thông tin"}
+            {job.job_customer_phone || job.phone_number || "Chưa có thông tin"}
           </span>
         </div>
       </div>
@@ -45,23 +45,21 @@ const JobDetailTooltip = ({ job }) => {
           <div className="text-xs text-gray-600">
             <span className="font-medium">Địa chỉ:</span>
             <p className="text-gray-900">
-              {job.street
-                ? `${job.street}${job.district ? `, ${job.district}` : ''}`
-                : "Chưa có thông tin"}
+              {job.job_customer_address || job.street || "Chưa có thông tin"}
             </p>
           </div>
         </div>
       </div>
       
       {/* Ghi chú */}
-      {job.work_note && (
+      {(job.job_customer_note || job.work_note) && (
         <div className="mb-2">
           <div className="flex items-start space-x-2">
             <FileText className="w-3 h-3 text-gray-500 mt-0.5 flex-shrink-0" />
             <div className="text-xs text-gray-600">
               <span className="font-medium">Ghi chú:</span>
               <p className="text-gray-900">
-                {job.work_note}
+                {job.job_customer_note || job.work_note}
               </p>
             </div>
           </div>

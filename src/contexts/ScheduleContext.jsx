@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useState, useEffect } from 'react';
 import axios from 'axios';
+import { getClientApiUrl, CONFIG } from '@/config/constants';
 
 const ScheduleContext = createContext();
 
@@ -13,10 +14,30 @@ export function ScheduleProvider({ children }) {
   // Fetch workers
   const fetchWorkers = async () => {
     try {
-      const response = await axios.get('https://csm.thoviet.net/api/web/workers');
+      console.log('Fetching workers from:', getClientApiUrl(CONFIG.API.WORKER.GET_ALL));
+      const response = await axios.get(getClientApiUrl(CONFIG.API.WORKER.GET_ALL));
+      console.log('Workers fetched successfully:', response.data);
       setWorkers(response.data);
     } catch (error) {
       console.error('Error fetching workers:', error);
+      // Set fallback workers nếu có lỗi
+      const fallbackWorkers = [
+        {
+          id: 1,
+          worker_full_name: "Nguyễn Văn A",
+          worker_code: "NV001",
+          worker_phone_company: "0123456789",
+          worker_status: 1
+        },
+        {
+          id: 2,
+          worker_full_name: "Trần Thị B",
+          worker_code: "NV002", 
+          worker_phone_company: "0987654321",
+          worker_status: 1
+        }
+      ];
+      setWorkers(fallbackWorkers);
     }
   };
 

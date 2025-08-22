@@ -1,0 +1,336 @@
+{
+  "actions": [
+    {
+      "id": 1,
+      "name": "Toà nhà"
+    },
+    {
+      "id": 2,
+      "name": "Van/luppe"
+    },
+    {
+      "id": 3,
+      "name": "Máy bơm công nghiệp"
+    },
+    {
+      "id": 4,
+      "name": "nước"
+    },
+    {
+      "id": 5,
+      "name": "nội thất"
+    },
+    {
+      "id": 6,
+      "name": "nhà"
+    },
+    {
+      "id": 7,
+      "name": "chung cư"
+    },
+    {
+      "id": 8,
+      "name": "quán ăn"
+    },
+    {
+      "id": 9,
+      "name": "shop"
+    },
+    {
+      "id": 10,
+      "name": "mái tôn"
+    },
+    {
+      "id": 11,
+      "name": "thạch cao"
+    },
+    {
+      "id": 12,
+      "name": "dỡ nhà"
+    },
+    {
+      "id": 13,
+      "name": "hàng hoá"
+    },
+    {
+      "id": 14,
+      "name": "quả cầu gió"
+    },
+    {
+      "id": 15,
+      "name": "giếng trời"
+    },
+    {
+      "id": 16,
+      "name": "mái hiên/mái che"
+    },
+    {
+      "id": 17,
+      "name": "nhôm/kính"
+    },
+    {
+      "id": 18,
+      "name": "cầu thang sắt"
+    },
+    {
+      "id": 19,
+      "name": "cửa sắt"
+    },
+    {
+      "id": 20,
+      "name": "lan can sắt"
+    },
+    {
+      "id": 21,
+      "name": "máng xối"
+    },
+    {
+      "id": 22,
+      "name": "nội thất"
+    },
+    {
+      "id": 23,
+      "name": "tổ ong"
+    },
+    {
+      "id": 24,
+      "name": "panel"
+    },
+    {
+      "id": 25,
+      "name": "chống nóng"
+    },
+    {
+      "id": 26,
+      "name": "nhà tiền chế"
+    },
+    {
+      "id": 27,
+      "name": "nhà xưởng"
+    },
+    {
+      "id": 28,
+      "name": "cửa cuốn"
+    },
+    {
+      "id": 29,
+      "name": "bếp ga"
+    },
+    {
+      "id": 30,
+      "name": "bếp âm"
+    },
+    {
+      "id": 31,
+      "name": "lò nướng"
+    },
+    {
+      "id": 32,
+      "name": "bếp điện từ"
+    },
+    {
+      "id": 33,
+      "name": "máy tắm nóng"
+    },
+    {
+      "id": 34,
+      "name": "máy giặt"
+    },
+    {
+      "id": 35,
+      "name": "máy sấy"
+    },
+    {
+      "id": 36,
+      "name": "máy lạnh"
+    },
+    {
+      "id": 37,
+      "name": "tủ lạnh"
+    },
+    {
+      "id": 38,
+      "name": "lò vi sóng"
+    },
+    {
+      "id": 39,
+      "name": "kho lạnh"
+    },
+    {
+      "id": 40,
+      "name": "quạt hơi nước"
+    },
+    {
+      "id": 41,
+      "name": "tủ đông - tủ mát"
+    },
+    {
+      "id": 42,
+      "name": "ống đồng"
+    },
+    {
+      "id": 43,
+      "name": "điện"
+    },
+    {
+      "id": 44,
+      "name": "điện nước"
+    },
+    {
+      "id": 45,
+      "name": "nước"
+    },
+    {
+      "id": 46,
+      "name": "bồn nước"
+    },
+    {
+      "id": 47,
+      "name": "phao bồn nước"
+    },
+    {
+      "id": 48,
+      "name": "đồng hồ điện"
+    },
+    {
+      "id": 49,
+      "name": "đồng hồ nước"
+    },
+    {
+      "id": 50,
+      "name": "đèn"
+    },
+    {
+      "id": 51,
+      "name": "ống nước"
+    },
+    {
+      "id": 52,
+      "name": "bồn cầu"
+    },
+    {
+      "id": 53,
+      "name": "lavabo"
+    },
+    {
+      "id": 54,
+      "name": "led dây"
+    },
+    {
+      "id": 55,
+      "name": "đèn exit"
+    },
+    {
+      "id": 56,
+      "name": "quạt thông gió"
+    },
+    {
+      "id": 57,
+      "name": "quạt trần"
+    },
+    {
+      "id": 58,
+      "name": "máy nlmt"
+    },
+    {
+      "id": 59,
+      "name": "hàn ống"
+    },
+    {
+      "id": 60,
+      "name": "máy bơm"
+    },
+    {
+      "id": 61,
+      "name": "bồn rửa"
+    },
+    {
+      "id": 62,
+      "name": "máy lọc nước"
+    },
+    {
+      "id": 63,
+      "name": "máy rửa chén"
+    },
+    {
+      "id": 64,
+      "name": "bộ xả bồn cầu"
+    },
+    {
+      "id": 65,
+      "name": "lõi lọc nước"
+    },
+    {
+      "id": 66,
+      "name": "van nước"
+    },
+    {
+      "id": 67,
+      "name": "vòi nước"
+    },
+    {
+      "id": 68,
+      "name": "vòi xịt"
+    },
+    {
+      "id": 69,
+      "name": "gỗ"
+    },
+    {
+      "id": 70,
+      "name": "gác lửng"
+    },
+    {
+      "id": 71,
+      "name": "dò nước"
+    },
+    {
+      "id": 72,
+      "name": "hút hầm cầu"
+    },
+    {
+      "id": 73,
+      "name": "cống"
+    },
+    {
+      "id": 74,
+      "name": "hố ga"
+    },
+    {
+      "id": 75,
+      "name": "tivi"
+    },
+    {
+      "id": 76,
+      "name": "chống hôi"
+    },
+    {
+      "id": 77,
+      "name": "chống thấm"
+    },
+    {
+      "id": 78,
+      "name": "sân thượng"
+    },
+    {
+      "id": 79,
+      "name": "nhà vệ sinh"
+    },
+    {
+      "id": 80,
+      "name": "sắt"
+    },
+    {
+      "id": 81,
+      "name": "bể nước"
+    },
+    {
+      "id": 82,
+      "name": "sàn/công nghiệp"
+    },
+    {
+      "id": 83,
+      "name": "đường ống nước"
+    }
+  ]
+}

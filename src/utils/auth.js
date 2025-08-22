@@ -3,51 +3,36 @@ import Cookies from 'js-cookie';
 const TOKEN_KEY = 'auth_token';
 const USER_KEY = 'auth_user';
 
-// Lưu token vào cả cookie và localStorage
 export const saveAuthData = (token, user) => {
   try {
-    console.log('saveAuthData: Lưu authentication data...')
-    console.log('saveAuthData: Token:', token ? 'Có' : 'Không')
-    console.log('saveAuthData: User:', user ? 'Có' : 'Không')
-    console.log('saveAuthData: Token value:', token)
-    console.log('saveAuthData: User value:', user)
+    // Lưu vào localStorage
+    localStorage.setItem(TOKEN_KEY, token);
+    localStorage.setItem(USER_KEY, JSON.stringify(user));
     
-    // Lưu vào cookie (cho SSR và middleware)
-    if (token) {
-      Cookies.set('token', token, { 
-        expires: 7, 
-        secure: process.env.NODE_ENV === 'production', 
-        sameSite: 'lax',
-        path: '/'
-      });
-    }
+    // Lưu vào cookie (7 ngày)
+    Cookies.set('token', token, { expires: 7 });
+    Cookies.set('user', JSON.stringify(user), { expires: 7 });
     
-    // Lưu vào localStorage (cho client-side)
-    if (typeof window !== 'undefined') {
-      localStorage.setItem(TOKEN_KEY, token);
-      localStorage.setItem(USER_KEY, JSON.stringify(user));
-    }
+    // Lưu vào sessionStorage để dễ truy cập
+    sessionStorage.setItem(TOKEN_KEY, token);
+    sessionStorage.setItem(USER_KEY, JSON.stringify(user));
     
-    console.log('saveAuthData: Đã lưu thành công vào localStorage và cookie')
-    console.log('saveAuthData: Kiểm tra localStorage sau khi lưu:')
-    if (typeof window !== 'undefined') {
-      console.log('saveAuthData: - auth_token:', localStorage.getItem(TOKEN_KEY))
-      console.log('saveAuthData: - auth_user:', localStorage.getItem(USER_KEY))
-    }
-    console.log('saveAuthData: - cookie token:', Cookies.get('token'))
+    return true;
   } catch (error) {
     console.error('Error saving auth data:', error);
+    return false;
   }
 };
 
-// Lấy token từ localStorage (ưu tiên) hoặc cookie
 export const getAuthToken = () => {
   try {
-    // Thử lấy từ localStorage trước
-    const localToken = localStorage.getItem(TOKEN_KEY);
-    if (localToken) {
-      return localToken;
-    }
+    // Thử lấy từ sessionStorage trước
+    let token = sessionStorage.getItem(TOKEN_KEY);
+    if (token) return token;
+    
+    // Fallback về localStorage
+    token = localStorage.getItem(TOKEN_KEY);
+    if (token) return token;
     
     // Fallback về cookie
     return Cookies.get('token');
@@ -57,124 +42,153 @@ export const getAuthToken = () => {
   }
 };
 
-// Lấy thông tin user từ localStorage
 export const getAuthUser = () => {
   try {
-    const userStr = localStorage.getItem(USER_KEY);
-    // Kiểm tra nếu userStr là "undefined" hoặc null hoặc rỗng
-    if (!userStr || userStr === 'undefined' || userStr === 'null') {
-      return null;
-    }
-    return JSON.parse(userStr);
+    // Thử lấy từ sessionStorage trước
+    let user = sessionStorage.getItem(USER_KEY);
+    if (user) return JSON.parse(user);
+    
+    // Fallback về localStorage
+    user = localStorage.getItem(USER_KEY);
+    if (user) return JSON.parse(user);
+    
+    // Fallback về cookie
+    user = Cookies.get('user');
+    return user ? JSON.parse(user) : null;
   } catch (error) {
     console.error('Error getting auth user:', error);
-    // Xóa dữ liệu hỏng
-    localStorage.removeItem(USER_KEY);
     return null;
   }
 };
 
-// Xóa tất cả dữ liệu authentication
+export const getAuthData = () => {
+  try {
+    // Ưu tiên lấy từ sessionStorage trước
+    let token = sessionStorage.getItem(TOKEN_KEY);
+    let user = sessionStorage.getItem(USER_KEY);
+    
+    // Nếu không có trong sessionStorage, lấy từ localStorage
+    if (!token) {
+      token = localStorage.getItem(TOKEN_KEY);
+    }
+    if (!user) {
+      user = localStorage.getItem(USER_KEY);
+    }
+    
+    // Nếu vẫn không có, lấy từ cookie
+    if (!token) {
+      token = Cookies.get('token');
+    }
+    if (!user) {
+      user = Cookies.get('user');
+    }
+    
+    return {
+      token: token || null,
+      user: user ? JSON.parse(user) : null
+    };
+  } catch (error) {
+    console.error('Error getting auth data:', error);
+    return { token: null, user: null };
+  }
+};
+
 export const clearAuthData = () => {
   try {
-    console.log('clearAuthData: Xóa tất cả dữ liệu authentication...')
+    // Xóa khỏi tất cả storage
+    localStorage.removeItem(TOKEN_KEY);
+    localStorage.removeItem(USER_KEY);
+    sessionStorage.removeItem(TOKEN_KEY);
+    sessionStorage.removeItem(USER_KEY);
+    Cookies.remove('token');
+    Cookies.remove('user');
     
-    // Xóa cookie
-    Cookies.remove('token', { path: '/' });
-    
-    // Xóa localStorage
-    if (typeof window !== 'undefined') {
-      localStorage.removeItem(TOKEN_KEY);
-      localStorage.removeItem(USER_KEY);
-    }
-    
-    console.log('clearAuthData: Đã xóa thành công')
+    return true;
   } catch (error) {
     console.error('Error clearing auth data:', error);
+    return false;
   }
 };
 
-// Xóa dữ liệu authentication bị hỏng
 export const clearCorruptedAuthData = () => {
   try {
-    // Xóa tất cả dữ liệu authentication
     clearAuthData();
-    console.log('Cleared corrupted authentication data');
+    return true;
   } catch (error) {
     console.error('Error clearing corrupted auth data:', error);
+    return false;
   }
 };
 
-// Kiểm tra token có hợp lệ không
 export const isTokenValid = (token) => {
-  if (!token || typeof token !== 'string') return false;
+  if (!token) return false;
   
   try {
-    // Kiểm tra format JWT (3 phần được phân tách bởi dấu chấm)
+    // Kiểm tra token có phải JWT không
     const parts = token.split('.');
-    if (parts.length !== 3) {
-      return false;
-    }
+    if (parts.length !== 3) return false;
     
     // Decode payload
     const payload = JSON.parse(atob(parts[1]));
-    const currentTime = Date.now() / 1000;
+    const currentTime = Math.floor(Date.now() / 1000);
     
-    // Kiểm tra thời gian hết hạn
+    // Kiểm tra expiration
     if (payload.exp && payload.exp < currentTime) {
       return false;
     }
     
     return true;
   } catch (error) {
-    console.error('Error validating token:', error);
     return false;
   }
 };
 
-// Khôi phục trạng thái authentication
-export const restoreAuthState = () => {
+export const validateAndCleanAuthData = () => {
   try {
-    console.log('restoreAuthState: Bắt đầu khôi phục...')
+    const { token, user } = getAuthData();
     
-    // Kiểm tra xem localStorage có sẵn sàng không
-    if (typeof window === 'undefined' || !window.localStorage) {
-      console.log('restoreAuthState: localStorage không sẵn sàng')
-      return null;
-    }
-    
-    const token = getAuthToken();
-    const user = getAuthUser();
-    
-    console.log('restoreAuthState: Token từ storage:', token ? 'Có' : 'Không')
-    console.log('restoreAuthState: User từ storage:', user ? 'Có' : 'Không')
-    
-    // Kiểm tra nếu có token và user hợp lệ
-    if (token && user && isTokenValid(token)) {
-      console.log('restoreAuthState: Token và user hợp lệ, khôi phục thành công')
-      return { token, user };
-    }
-    
-    console.log('restoreAuthState: Token hoặc user không hợp lệ')
-    console.log('restoreAuthState: Token valid:', token ? isTokenValid(token) : false)
-    
-    // Nếu có token nhưng không hợp lệ hoặc không có user, xóa dữ liệu cũ
-    if (token && (!isTokenValid(token) || !user)) {
-      console.log('restoreAuthState: Xóa dữ liệu authentication cũ')
+    if (!token || !user) {
       clearAuthData();
+      return false;
     }
     
-    return null;
+    if (!isTokenValid(token)) {
+      clearAuthData();
+      return false;
+    }
+    
+    return true;
   } catch (error) {
-    console.error('Error restoring auth state:', error);
-    // Xóa dữ liệu hỏng khi có lỗi
     clearAuthData();
-    return null;
+    return false;
   }
 };
 
-// Lắng nghe thay đổi localStorage giữa các tab
+export const restoreAuthState = () => {
+  try {
+    if (typeof window === 'undefined') {
+      return { token: null, user: null };
+    }
+    
+    const { token, user } = getAuthData();
+    
+    if (token && user && isTokenValid(token)) {
+      return { token, user };
+    } else {
+      clearAuthData();
+      return { token: null, user: null };
+    }
+  } catch (error) {
+    clearAuthData();
+    return { token: null, user: null };
+  }
+};
+
 export const setupAuthListener = (callback) => {
+  if (typeof window === 'undefined') {
+    return () => {};
+  }
+
   const handleStorageChange = (e) => {
     if (e.key === TOKEN_KEY || e.key === USER_KEY) {
       callback();

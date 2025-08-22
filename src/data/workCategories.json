@@ -1,0 +1,186 @@
+{
+  "workCategories": [
+    {
+      "id": "qc_001",
+      "name": "Thi công"
+    },
+    {
+      "id": "qc_002",
+      "name": "Lắp đặt"
+    },
+    {
+      "id": "qc_003",
+      "name": "Sửa chữa"
+    },
+    {
+      "id": "qc_004",
+      "name": "Thay Thế"
+    },
+    {
+      "id": "qc_005",
+      "name": "Sơn"
+    },
+    {
+      "id": "qc_006",
+      "name": "Tháo"
+    },
+    {
+      "id": "qc_007",
+      "name": "Tháo lắp"
+    },
+    {
+      "id": "qc_008",
+      "name": "Vệ sinh"
+    },
+    {
+      "id": "qc_009",
+      "name": "Thông nghẹt"
+    },
+    {
+      "id": "qc_010",
+      "name": "Vận chuyển"
+    },
+    {
+      "id": "qc_011",
+      "name": "Chống thấm"
+    },
+    {
+      "id": "qc_012",
+      "name": "Xây"
+    },
+    {
+      "id": "qc_013",
+      "name": "Chống hôi"
+    },
+    {
+      "id": "qc_014",
+      "name": "Lát"
+    },
+    {
+      "id": "qc_015",
+      "name": "Chống dột"
+    },
+    {
+      "id": "qc_016",
+      "name": "Bảo trì"
+    },
+    {
+      "id": "qc_017",
+      "name": "Hàn"
+    }
+  ],
+  "specificServices": [
+    {
+      "id": "ss_001",
+      "name": "Bảo Trì Toà Nhà"
+    },
+    {
+      "id": "ss_002",
+      "name": "Van - Lupe"
+    },
+    {
+      "id": "ss_003",
+      "name": "Mb Công Nghiệp"
+    },
+    {
+      "id": "ss_004",
+      "name": "Sơn nước"
+    },
+    {
+      "id": "ss_005",
+      "name": "Thi công nội thất"
+    },
+    {
+      "id": "ss_006",
+      "name": "Sửa nhà"
+    },
+    {
+      "id": "ss_007",
+      "name": "Sửa chung cư"
+    },
+    {
+      "id": "ss_008",
+      "name": "Sửa quán ăn"
+    },
+    {
+      "id": "ss_009",
+      "name": "Sửa shop"
+    },
+    {
+      "id": "ss_010",
+      "name": "Thay mái tôn"
+    },
+    {
+      "id": "ss_011",
+      "name": "Thạch cao"
+    },
+    {
+      "id": "ss_012",
+      "name": "Tháo dỡ nhà"
+    },
+    {
+      "id": "ss_013",
+      "name": "Vận chuyển"
+    },
+    {
+      "id": "ss_014",
+      "name": "Quả cầu gió"
+    },
+    {
+      "id": "ss_015",
+      "name": "Giếng trời"
+    },
+    {
+      "id": "ss_016",
+      "name": "Mái hiên"
+    },
+    {
+      "id": "ss_017",
+      "name": "Nhôm kính"
+    },
+    {
+      "id": "ss_018",
+      "name": "Cầu thang sắt"
+    },
+    {
+      "id": "ss_019",
+      "name": "Cửa sắt"
+    },
+    {
+      "id": "ss_020",
+      "name": "Lan can sắt"
+    },
+    {
+      "id": "ss_021",
+      "name": "Máng xối"
+    },
+    {
+      "id": "ss_022",
+      "name": "Tháo lắp nội thất"
+    },
+    {
+      "id": "ss_023",
+      "name": "Thi Công Vách Ngăn Tổ Ong"
+    },
+    {
+      "id": "ss_024",
+      "name": "Panel"
+    },
+    {
+      "id": "ss_025",
+      "name": "Chống nóng"
+    },
+    {
+      "id": "ss_026",
+      "name": "Thi Công nhà tiền chế"
+    },
+    {
+      "id": "ss_027",
+      "name": "Sửa nhà xưởng"
+    },
+    {
+      "id": "ss_028",
+      "name": "Cửa cuốn"
+    }
+  ]
+}

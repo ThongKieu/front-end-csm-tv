@@ -1,0 +1,60 @@
+{
+  "material_services": [
+    {
+      "id": 11,
+      "name": "trần"
+    },
+    {
+      "id": 12,
+      "name": "vách"
+    },
+    {
+      "id": 13,
+      "name": "cửa"
+    },
+    {
+      "id": 14,
+      "name": "tủ"
+    },
+    {
+      "id": 15,
+      "name": "kệ"
+    },
+    {
+      "id": 16,
+      "name": "bàn"
+    },
+    {
+      "id": 17,
+      "name": "ghế"
+    },
+    {
+      "id": 18,
+      "name": "giường"
+    },
+    {
+      "id": 19,
+      "name": "bếp"
+    },
+    {
+      "id": 20,
+      "name": "cầu thang"
+    },
+    {
+      "id": 21,
+      "name": "cùi chỏ hơi"
+    },
+    {
+      "id": 22,
+      "name": "sàn"
+    },
+    {
+      "id": 23,
+      "name": "cổng"
+    },
+    {
+      "id": 24,
+      "name": "hàng rào"
+    }
+  ]
+}

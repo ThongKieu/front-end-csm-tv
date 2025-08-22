@@ -120,8 +120,6 @@ export default function RegisterPage() {
         role: form.role,
       };
 
-  
-
       const res = await fetch('/api/user/create', {
         method: 'POST',
         headers: { 
@@ -159,13 +157,13 @@ export default function RegisterPage() {
         <h2 className="mb-2 text-2xl font-bold text-center">Tạo tài khoản mới</h2>
         
         <div className="p-3 bg-blue-50 rounded-lg">
-          <p className="text-sm text-blue-700 text-center">
+          <p className="text-sm text-center text-blue-700">
             Kết nối đến: <strong>{getBackendUrl()}</strong>
           </p>
         </div>
         
         {error && <div className="p-2 text-sm text-red-700 bg-red-100 rounded">{error}</div>}
-        {success && <div className="p-2 text-sm text-brand-green bg-brand-green/10 rounded">{success}</div>}
+        {success && <div className="p-2 text-sm rounded text-brand-green bg-brand-green/10">{success}</div>}
         
         <div>
           <label className="block mb-1 text-sm font-medium">Tên đăng nhập *</label>

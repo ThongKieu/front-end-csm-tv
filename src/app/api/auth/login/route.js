@@ -35,11 +35,8 @@ export async function POST(request) {
   try {
     const { email, password } = await request.json()
     
-    console.log('Login API called with:', { email, password })
-
     // Validate input
     if (!email || !password) {
-      console.log('Missing email or password')
       return NextResponse.json(
         { message: 'Email và mật khẩu không được để trống' },
         { status: 400 }
@@ -49,10 +46,8 @@ export async function POST(request) {
     // Find user
     const user = users.find(u => u.email === email && u.password === password)
     
-    console.log('User found:', user ? 'Yes' : 'No')
 
     if (!user) {
-      console.log('Invalid credentials')
       return NextResponse.json(
         { message: 'Email hoặc mật khẩu không đúng' },
         { status: 401 }
@@ -70,9 +65,6 @@ export async function POST(request) {
       .setExpirationTime('7d')
       .sign(secret)
 
-    console.log('Token created successfully')
-
-    // Return user data and token
     const response = {
       user: {
         id: user.id,
@@ -84,7 +76,6 @@ export async function POST(request) {
       token
     }
     
-    console.log('Returning response:', response)
     return NextResponse.json(response)
   } catch (error) {
     console.error('Login error:', error)

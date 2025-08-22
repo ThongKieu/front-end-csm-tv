@@ -4,10 +4,6 @@ import { API_URLS } from '@/config/constants';
 export async function POST(request) {
   try {
     const body = await request.json();
-    
-      // Log password change request
-  console.log('Password change request:', { user_name: body.user_name });
-    
     const response = await fetch(API_URLS.USER_CHANGE_PASSWORD, {
       method: 'POST',
       headers: {

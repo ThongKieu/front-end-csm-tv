@@ -4,10 +4,6 @@ import { API_URLS } from '@/config/constants';
 export async function POST(request) {
   try {
     const body = await request.json();
-    
-      // Log user update request
-  console.log('User update request:', { id: body.id, full_name: body.full_name });
-    
     const response = await fetch(API_URLS.USER_UPDATE, {
       method: 'POST',
       headers: {
@@ -57,11 +53,6 @@ export async function POST(request) {
 
     return NextResponse.json(data);
   } catch (error) {
-    console.error('=== UPDATE USER ERROR ===');
-    console.error('Error details:', error);
-    console.error('Error message:', error.message);
-    console.error('Error stack:', error.stack);
-    
     if (error.code === 'ECONNREFUSED') {
       return NextResponse.json(
         { message: 'Không thể kết nối đến server. Vui lòng kiểm tra kết nối mạng.' },

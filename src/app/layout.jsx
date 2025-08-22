@@ -4,7 +4,6 @@ import { Inter } from 'next/font/google'
 import './globals.css'
 import { Provider } from 'react-redux'
 import store from '@/store/store'
-import { SocketProvider } from '@/providers/SocketProvider'
 import { AuthProvider } from '@/providers/AuthProvider'
 import { ScheduleProvider } from '@/contexts/ScheduleContext'
 import CreateScheduleButton from '@/components/layout/CreateScheduleButton'
@@ -49,23 +48,16 @@ export default function RootLayout({ children }) {
       <body className={inter.className}>
         <Provider store={store}>
           <AuthProvider>
-            <SocketProvider>
-              <SettingsProvider>
-                <ToastProvider>
-                  <ScheduleProvider>
-                    <AppContent>{children}</AppContent>
-                  </ScheduleProvider>
-                </ToastProvider>
-              </SettingsProvider>
-            </SocketProvider>
+            <SettingsProvider>
+              <ToastProvider>
+                <ScheduleProvider>
+                  <AppContent>{children}</AppContent>
+                </ScheduleProvider>
+              </ToastProvider>
+            </SettingsProvider>
           </AuthProvider>
         </Provider>
       </body>
     </html>
   )
-}
-
-// export const metadata = {
-//   title: 'CSM TV',
-//   description: 'Customer Service Management System',
-// } 
+} 

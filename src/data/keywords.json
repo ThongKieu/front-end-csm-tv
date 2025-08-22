@@ -1,0 +1,72 @@
+{
+  "keywords": [
+    {
+      "id": 1,
+      "name": "Thi công"
+    },
+    {
+      "id": 2,
+      "name": "Lắp đặt"
+    },
+    {
+      "id": 3,
+      "name": "Sửa chữa"
+    },
+    {
+      "id": 4,
+      "name": "Thay Thế"
+    },
+    {
+      "id": 5,
+      "name": "Sơn"
+    },
+    {
+      "id": 6,
+      "name": "Tháo lắp"
+    },
+    {
+      "id": 7,
+      "name": "Vệ sinh"
+    },
+    {
+      "id": 8,
+      "name": "Thông nghẹt"
+    },
+    {
+      "id": 9,
+      "name": "Vận chuyển"
+    },
+    {
+      "id": 10,
+      "name": "Chống thấm"
+    },
+    {
+      "id": 11,
+      "name": "Xây"
+    },
+    {
+      "id": 12,
+      "name": "Chống hôi"
+    },
+    {
+      "id": 13,
+      "name": "Lát"
+    },
+    {
+      "id": 14,
+      "name": "Chống dột"
+    },
+    {
+      "id": 15,
+      "name": "Bảo trì"
+    },
+    {
+      "id": 16,
+      "name": "Hàn"
+    },
+    {
+      "id": 17,
+      "name": "Tháo dỡ"
+    }
+  ]
+}

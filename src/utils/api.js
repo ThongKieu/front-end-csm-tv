@@ -98,11 +98,67 @@ export class ApiManager {
 }
 
 // Tạo instance mặc định
-export const api = new ApiManager();
+const apiManager = new ApiManager();
 
-// Export các helper functions
-export const apiGet = (endpoint, params, environment) => api.get(endpoint, params, environment);
-export const apiPost = (endpoint, data, environment) => api.post(endpoint, data, environment);
-export const apiPut = (endpoint, data, environment) => api.put(endpoint, data, environment);
-export const apiDelete = (endpoint, environment) => api.delete(endpoint, environment);
-export const buildApiUrl = (endpoint, environment) => api.buildUrl(endpoint, environment);
+// API functions for workSlice
+export const fetchAssignedWorksAPI = async (date) => {
+  return apiManager.post(CONFIG.API.JOB.GET_ASSIGNED_WORKER_BY_DATE, { date });
+};
+
+export const fetchUnassignedWorksAPI = async (date) => {
+  return apiManager.post(CONFIG.API.JOB.GET_BY_DATE, { date });
+};
+
+export const fetchWorkersAPI = async () => {
+  return apiManager.get(CONFIG.API.WORKER.GET_ALL);
+};
+
+export const assignWorkerAPI = async (workData) => {
+  const { work, worker, extraWorker, dateCheck, authId } = workData;
+  
+  const data_hisWork = [
+    {
+      id_auth: authId,
+      id_worker: null,
+      action: "guitho",
+      time: new Date().toLocaleTimeString(),
+    },
+  ];
+
+  const data = {
+    id_work: work.id,
+    id_worker: worker,
+    id_phu: extraWorker,
+    work_note: work.work_note,
+    auth_id: authId,
+    his_work: JSON.stringify(data_hisWork),
+    dateCheck: dateCheck,
+  };
+
+  return apiManager.post(`${CONFIG.API.WORK_ASSIGNMENT.ASSIGN}?dateCheck=${dateCheck}`, data);
+};
+
+export const changeWorkerAPI = async (workData) => {
+  const { workAssignment, worker, extraWorker, authId } = workData;
+  
+  const data_hisWork = [
+    {
+      id_auth: authId,
+      id_worker: null,
+      action: "doitho",
+      time: new Date().toLocaleTimeString(),
+    },
+  ];
+
+  const data = {
+    id_work_ass: workAssignment.id,
+    id_worker: worker || "",
+    auth_id: authId,
+    id_phu: extraWorker || "",
+    his_work: JSON.stringify(data_hisWork),
+  };
+
+  return apiManager.post(CONFIG.API.WORK_ASSIGNMENT.CHANGE_WORKER, data);
+};
+
+export default apiManager;

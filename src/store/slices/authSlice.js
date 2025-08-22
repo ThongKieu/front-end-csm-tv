@@ -17,7 +17,23 @@ const authSlice = createSlice({
       console.log('authSlice login: Payload.token:', payload.token)
       console.log('authSlice login: Payload.user:', payload.user)
       
-      state.user = payload.user
+      // Cập nhật state với dữ liệu user mới
+      state.user = {
+        id: payload.user.id,
+        name: payload.user.full_name || payload.user.name,
+        user_name: payload.user.user_name,
+        email: payload.user.email || payload.user.user_name,
+        role: payload.user.role,
+        type: payload.user.type,
+        code: payload.user.code,
+        full_name: payload.user.full_name,
+        date_of_birth: payload.user.date_of_birth,
+        address: payload.user.address,
+        phone_business: payload.user.phone_business,
+        phone_personal: payload.user.phone_personal,
+        phone_family: payload.user.phone_family,
+        avatar: payload.user.avatar
+      }
       state.token = payload.token
       state.isAuthenticated = true
       state.isLoading = false
@@ -30,7 +46,7 @@ const authSlice = createSlice({
       })
       
       console.log('authSlice login: Lưu auth data...')
-      saveAuthData(payload.token, payload.user)
+      saveAuthData(payload.token, state.user)
       console.log('authSlice login: Đã lưu auth data')
     },
     logout: (state) => {

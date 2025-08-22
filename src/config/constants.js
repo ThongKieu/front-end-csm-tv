@@ -25,10 +25,18 @@ export const CONFIG = {
     },
     JOB: {
       GET_BY_DATE: '/api/web/job/get-by-date',
+      GET_ASSIGNED_WORKER_BY_DATE: '/api/web/job/get-assigned-worker-by-date',
       GET_ALL: '/api/web/job/get-all',
       CREATE: '/api/web/job/create',
       UPDATE: '/api/web/job/update',
       DELETE: '/api/web/job/delete',
+    },
+    WORKER: {
+      GET_ALL: '/api/user/get-workers',
+    },
+    WORK_ASSIGNMENT: {
+      ASSIGN: '/api/web/work-assignment',
+      CHANGE_WORKER: '/api/web/work-assignment/change-worker',
     },
     ADMIN: {
       STATS: '/api/admin/stats',
@@ -60,6 +68,16 @@ export const getBackendUrl = (environment = null) => {
 
 export const getApiUrl = (endpoint, environment = null) => {
   return `${getBackendUrl(environment)}${endpoint}`;
+};
+
+// Function để lấy URL cho API calls từ frontend (sử dụng rewrites)
+export const getClientApiUrl = (endpoint) => {
+  // Nếu endpoint bắt đầu với /api/web, sử dụng relative URL để tận dụng rewrites
+  if (endpoint.startsWith('/api/web')) {
+    return endpoint;
+  }
+  // Các API khác (internal Next.js routes) cũng sử dụng relative URL
+  return endpoint;
 };
 
 // Function để thay đổi tên miền động

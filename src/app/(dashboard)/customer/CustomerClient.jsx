@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import CustomerSearch from '@/components/customer/CustomerSearch'
 import { Plus, Users, Search, Filter, Download } from 'lucide-react'
 import axios from 'axios'
+import { getClientApiUrl, CONFIG } from '@/config/constants'
 
 const CustomerClient = () => {
   const [isSearchFocused, setIsSearchFocused] = useState(false)
@@ -18,7 +19,7 @@ const CustomerClient = () => {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const response = await axios.get("https://csm.thoviet.net/api/web/old-cus-search")
+        const response = await axios.get(getClientApiUrl("/api/web/old-cus-search"))
         const data = response.data.data || response.data
         
         setStats({

@@ -1,9 +1,6 @@
-import QuotesClient from "./QuotesClient";
+'use client'
 
-export const metadata = {
-  title: "Báo giá" + " - " + process.env.NEXT_PUBLIC_APP_NAME,
-  description: "Quản lý báo giá",
-}
+import QuotesClient from "./QuotesClient";
 
 export default function QuotesPage() {
   return <QuotesClient />;

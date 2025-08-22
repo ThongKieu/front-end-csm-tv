@@ -113,13 +113,8 @@ export function middleware(request) {
   
   const { pathname } = request.nextUrl
   const token = request.cookies.get('token')?.value
-
-  console.log('Middleware: Checking pathname:', pathname)
-  console.log('Middleware: Token exists:', !!token)
-
   // Cho phép truy cập các route công khai
   if (publicRoutes.includes(pathname)) {
-    console.log('Middleware: Public route, allowing access')
     return NextResponse.next()
   }
 

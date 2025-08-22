@@ -101,21 +101,6 @@ export default function WorkScheduleClient() {
   return (
     <div className="h-[calc(100vh-70px)] bg-gray-50">
       <div className="p-4 mx-auto max-w-7xl">
-        {/* Header */}
-        {/* <div className="flex flex-col gap-3 mb-4 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">Lịch làm việc</h1>
-            <p className="text-sm text-gray-600">Quản lý và theo dõi công việc theo ngày</p>
-          </div>
-          
-          <div className="flex gap-3 items-center">
-            <button className="flex gap-2 items-center px-3 py-2 text-sm text-white bg-blue-600 rounded-lg transition-colors hover:bg-blue-700">
-              <Plus className="w-4 h-4" />
-              Thêm
-            </button>
-          </div>
-        </div> */}
-
         {/* Main Layout - Sidebar + Content */}
         <div className="flex flex-col gap-4 lg:flex-row">
           {/* Left Sidebar */}
@@ -124,7 +109,7 @@ export default function WorkScheduleClient() {
             <div className="p-4 bg-gradient-to-br rounded-lg border shadow-sm from-brand-green/10 to-brand-yellow/10 border-brand-green/20">
               <h3 className="flex gap-2 items-center mb-3 text-sm font-semibold text-brand-green">
                 <CalendarIcon className="w-4 h-4" />
-                Chọn ngày
+                Chọn ngày 
               </h3>
               <div className="p-3 text-green-700 bg-white rounded-lg shadow-sm">
                 <DateNavigator

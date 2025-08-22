@@ -8,26 +8,12 @@ const JobsList = ({ jobs = [], workers = [], onAssign, onEdit, onCopy, copiedWor
   // Lọc jobs theo loại worker
   const filteredJobs = selectedWorkerType === "all" 
     ? jobs 
-    : jobs.filter(job => job.kind_work === parseInt(selectedWorkerType));
+    : jobs.filter(job => {
+        const jobType = job.kind_work || job.job_content;
+        return jobType === selectedWorkerType;
+      });
 
-  // Nhóm jobs theo loại công việc
-  const groupedJobs = filteredJobs.reduce((acc, job) => {
-    const kindWork = job.kind_work;
-    if (!acc[kindWork]) {
-      acc[kindWork] = {
-        kind_worker: {
-          id: kindWork,
-          numberOfWork: 0
-        },
-        data: []
-      };
-    }
-    acc[kindWork].data.push(job);
-    acc[kindWork].kind_worker.numberOfWork++;
-    return acc;
-  }, {});
-
-  const jobCategories = Object.values(groupedJobs);
+  // Không cần nhóm theo loại công việc nữa, chỉ hiển thị danh sách đơn giản
 
   const handleWorkerTypeChange = (type) => {
     setSelectedWorkerType(type);
@@ -47,56 +33,29 @@ const JobsList = ({ jobs = [], workers = [], onAssign, onEdit, onCopy, copiedWor
         >
           Tất cả
         </button>
-        {jobCategories.map((category) => (
-          <button
-            key={category.kind_worker?.id}
-            onClick={() => handleWorkerTypeChange(category.kind_worker?.id)}
-            className={`px-1.5 py-0.5 text-xs font-medium cursor-pointer rounded-full transition-all duration-200 ${
-              selectedWorkerType === category.kind_worker?.id
-                ? "ring-1 ring-brand-green shadow-sm"
-                : ""
-            } ${getWorkTypeColor(category.kind_worker?.id)}`}
-          >
-            {getWorkTypeName(category.kind_worker?.id)}
-            <span className="ml-0.5 text-xs opacity-75">
-              ({category.kind_worker?.numberOfWork || 0})
-            </span>
-          </button>
-        ))}
+        {/* Bỏ phần filter theo loại công việc */}
       </div>
 
       {/* Jobs list */}
       <div className="overflow-y-auto flex-1 space-y-1">
-        {jobCategories.length === 0 ? (
+        {filteredJobs.length === 0 ? (
           <div className="p-4 text-xs text-center text-gray-500">
             <p>Không có công việc nào</p>
           </div>
         ) : (
-          jobCategories.map((category) => (
-            <div key={category.kind_worker.id} className="space-y-0.5">
-              <h3 className="text-[10px] font-semibold text-gray-700 flex items-center space-x-1">
-                <span className={`px-1 py-0.5 text-[9px] font-medium rounded ${getWorkTypeColor(category.kind_worker.id)}`}>
-                  {getWorkTypeName(category.kind_worker.id)}
-                </span>
-                <span className="text-gray-500">
-                  ({category.kind_worker.numberOfWork} công việc)
-                </span>
-              </h3>
-              <div className="space-y-0.5">
-                {category.data.map((job, index) => (
-                  <JobCard
-                    key={job.id}
-                    job={job}
-                    index={index}
-                    onAssign={onAssign}
-                    onEdit={onEdit}
-                    onCopy={onCopy}
-                    copiedWorkId={copiedWorkId}
-                  />
-                ))}
-              </div>
-            </div>
-          ))
+          <div className="space-y-0.5">
+            {filteredJobs.map((job, index) => (
+              <JobCard
+                key={`${job.id || job.job_code}-${index}`}
+                job={job}
+                index={index}
+                onAssign={onAssign}
+                onEdit={onEdit}
+                onCopy={onCopy}
+                copiedWorkId={copiedWorkId}
+              />
+            ))}
+          </div>
         )}
       </div>
     </div>

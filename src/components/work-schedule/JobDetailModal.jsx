@@ -15,36 +15,52 @@ const JobDetailModal = ({ job, open, onClose }) => {
                         (job.street?.name || job.street?.street_name || '');
           const district = typeof job.district === 'string' ? job.district : 
                           (job.district?.name || job.district?.district_name || '');
-          const address = street || job.job_customer_address || '';
-          const fullAddress = district ? `${address}${address ? ', ' : ''}${district}` : address;
+          const address = job.job_customer_address || street || '';
 
-          // Tạo nội dung copy
+          // Tạo nội dung copy theo định dạng yêu cầu: mã | nội dung | tên khách | địa chỉ | quận | sđt
           const copyContent = [
-            `${job.work_content || ''}`,
-            `${job.name_cus || ''}`,
-            `${fullAddress || ''}`,
-            `${job.phone_number || ''}`,
-            `${job.work_note || ''}`
-          ].join('\n');
+            job.job_code || '',
+            job.job_content || job.work_content || '',
+            job.job_customer_name || job.name_cus || '',
+            address || '',
+            district || '',
+            job.job_customer_phone || job.phone_number || ''
+          ].join('\t'); // Sử dụng tab để tạo khoảng cách như định dạng yêu cầu
 
-          // Copy vào clipboard với fallback
-          if (navigator.clipboard && navigator.clipboard.writeText) {
-            await navigator.clipboard.writeText(copyContent);
-            console.log('Đã copy thông tin job:', copyContent);
-          } else {
-            // Fallback method cho các trình duyệt cũ
-            const textArea = document.createElement('textarea');
-            textArea.value = copyContent;
-            textArea.style.position = 'fixed';
-            textArea.style.left = '-999999px';
-            textArea.style.top = '-999999px';
-            document.body.appendChild(textArea);
-            textArea.focus();
-            textArea.select();
-            document.execCommand('copy');
-            document.body.removeChild(textArea);
-            console.log('Đã copy thông tin job (fallback):', copyContent);
-          }
+                     // Copy vào clipboard với fallback
+           try {
+             if (navigator.clipboard && window.isSecureContext) {
+               await navigator.clipboard.writeText(copyContent);
+               console.log('Đã copy thông tin job:', copyContent);
+             } else {
+               // Fallback method cho các trình duyệt cũ hoặc non-secure contexts
+               const textArea = document.createElement('textarea');
+               textArea.value = copyContent;
+               textArea.style.position = 'fixed';
+               textArea.style.left = '-999999px';
+               textArea.style.top = '-999999px';
+               document.body.appendChild(textArea);
+               textArea.focus();
+               textArea.select();
+               document.execCommand('copy');
+               document.body.removeChild(textArea);
+               console.log('Đã copy thông tin job (fallback):', copyContent);
+             }
+           } catch (error) {
+             console.error('Lỗi khi copy, sử dụng fallback:', error);
+             // Fallback method nếu cả hai cách đều thất bại
+             const textArea = document.createElement('textarea');
+             textArea.value = copyContent;
+             textArea.style.position = 'fixed';
+             textArea.style.left = '-999999px';
+             textArea.style.top = '-999999px';
+             document.body.appendChild(textArea);
+             textArea.focus();
+             textArea.select();
+             document.execCommand('copy');
+             document.body.removeChild(textArea);
+             console.log('Đã copy thông tin job (fallback cuối cùng):', copyContent);
+           }
         } catch (error) {
           console.error('Lỗi khi copy:', error);
         }
@@ -124,7 +140,7 @@ const JobDetailModal = ({ job, open, onClose }) => {
               Nội dung công việc
             </h3>
             <p className="text-base leading-relaxed text-gray-900">
-              {job.work_content || "Không có nội dung"}
+              {job.job_content || job.work_content || "Không có nội dung"}
             </p>
           </div>
 
@@ -139,14 +155,14 @@ const JobDetailModal = ({ job, open, onClose }) => {
                 <div className="flex items-center space-x-2">
                   <span className="text-sm text-gray-600">Tên:</span>
                   <span className="font-medium text-gray-900">
-                    {job.name_cus || "Chưa có thông tin"}
+                    {job.job_customer_name || job.name_cus || "Chưa có thông tin"}
                   </span>
                 </div>
                 <div className="flex items-center space-x-2">
                   <Phone className="w-4 h-4 text-gray-500" />
                   <span className="text-sm text-gray-600">SĐT:</span>
                   <span className="font-medium text-gray-900">
-                    {job.phone_number || "Chưa có thông tin"}
+                    {job.job_customer_phone || job.phone_number || "Chưa có thông tin"}
                   </span>
                 </div>
               </div>
@@ -159,7 +175,7 @@ const JobDetailModal = ({ job, open, onClose }) => {
                 Địa chỉ
               </h3>
               <p className="text-gray-900">
-                {(() => {
+                {job.job_customer_address || (() => {
                   console.log('Address debug:', { street: job.street, district: job.district });
                   
                   const street = typeof job.street === 'string' ? job.street : 
@@ -183,7 +199,7 @@ const JobDetailModal = ({ job, open, onClose }) => {
                 <Calendar className="mr-2 w-4 h-4" />
                 Ngày hẹn
               </h3>
-              <p className="font-medium text-gray-900">{job.date_book}</p>
+              <p className="font-medium text-gray-900">{job.date_book || new Date().toISOString().split('T')[0]}</p>
             </div>
             
             <div className="p-4 rounded-lg bg-brand-yellow/10">
@@ -191,25 +207,29 @@ const JobDetailModal = ({ job, open, onClose }) => {
                 <Clock className="mr-2 w-4 h-4" />
                 Giờ hẹn
               </h3>
-              <p className="font-medium text-gray-900">{job.time_book || "Chưa có"}</p>
+              <p className="font-medium text-gray-900">{job.job_appointment_time || job.time_book || "Chưa có"}</p>
             </div>
 
             <div className="p-4 rounded-lg bg-brand-green/10">
               <h3 className="mb-3 text-sm font-semibold text-brand-green">Trạng thái</h3>
-              <span className={`px-3 py-1 text-sm font-medium rounded-full ${getStatusColor(job.status_work)}`}>
-                {getStatusName(job.status_work)}
+              <span className={`px-3 py-1 text-sm font-medium rounded-full ${getStatusColor(job.priority === 'high' ? 4 : job.priority === 'normal' ? 9 : job.priority === 'cancelled' ? 3 : job.priority === 'no_answer' ? 2 : job.priority === 'worker_return' ? 1 : 0)}`}>
+                                 {job.priority === 'high' ? '🔥 Lịch gấp' : 
+                  job.priority === 'normal' ? '🏠 Thường' : 
+                  job.priority === 'cancelled' ? '❌ Đã hủy' :
+                  job.priority === 'no_answer' ? '📞 Không nghe' :
+                  job.priority === 'worker_return' ? '🔄 Thợ về' : '⏳ Chưa phân'}
               </span>
             </div>
           </div>
 
           {/* Ghi chú */}
-          {job.work_note && (
+          {(job.job_customer_note || job.work_note) && (
             <div className="p-4 rounded-lg bg-brand-yellow/10">
               <h3 className="flex items-center mb-3 text-sm font-semibold text-brand-yellow">
                 <FileText className="mr-2 w-4 h-4" />
                 Ghi chú
               </h3>
-              <p className="leading-relaxed text-gray-900">{job.work_note}</p>
+              <p className="leading-relaxed text-gray-900">{job.job_customer_note || job.work_note}</p>
             </div>
           )}
 
