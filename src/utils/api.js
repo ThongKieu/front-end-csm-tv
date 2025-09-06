@@ -1,12 +1,12 @@
-import { getApiUrl, CONFIG } from '@/config/constants';
+import { getApiUrl, CONFIG } from "@/config/constants";
 
 /**
- * Utility class để quản lý API calls
+ * Simple API utility để tránh lỗi "Failed to fetch"
  */
 export class ApiManager {
   constructor(baseUrl = null) {
     this.baseUrl = baseUrl || CONFIG.BACKEND.BASE_URL;
-    this.timeout = CONFIG.BACKEND.TIMEOUT;
+    this.timeout = 10000; // 10 seconds timeout
   }
 
   /**
@@ -17,30 +17,36 @@ export class ApiManager {
   }
 
   /**
-   * Thực hiện HTTP request
+   * Thực hiện HTTP request đơn giản
    */
   async request(endpoint, options = {}, environment = null) {
     const url = this.buildUrl(endpoint, environment);
-    
-    const defaultOptions = {
-      method: 'GET',
+
+    // Đơn giản hóa options để tránh lỗi
+    const requestOptions = {
+      method: "GET",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
-      timeout: this.timeout,
       ...options,
     };
 
     try {
-      const response = await fetch(url, defaultOptions);
-      
+      const response = await fetch(url, requestOptions);
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
-      
-      return await response.json();
+
+      const data = await response.json();
+      return data;
     } catch (error) {
-      console.error(`API request failed for ${url}:`, error);
+      // Xử lý lỗi đơn giản
+      if (error.message.includes("Failed to fetch")) {
+        throw new Error(
+          "Không thể kết nối đến server. Vui lòng kiểm tra kết nối mạng."
+        );
+      }
+
       throw error;
     }
   }
@@ -51,114 +57,167 @@ export class ApiManager {
   async get(endpoint, params = {}, environment = null) {
     const queryString = new URLSearchParams(params).toString();
     const url = queryString ? `${endpoint}?${queryString}` : endpoint;
-    
-    return this.request(url, { method: 'GET' }, environment);
+    return this.request(url, { method: "GET" }, environment);
   }
 
   /**
    * POST request
    */
   async post(endpoint, data = {}, environment = null) {
-    return this.request(endpoint, {
-      method: 'POST',
-      body: JSON.stringify(data),
-    }, environment);
+    return this.request(
+      endpoint,
+      {
+        method: "POST",
+        body: JSON.stringify(data),
+      },
+      environment
+    );
   }
 
   /**
    * PUT request
    */
   async put(endpoint, data = {}, environment = null) {
-    return this.request(endpoint, {
-      method: 'PUT',
-      body: JSON.stringify(data),
-    }, environment);
+    return this.request(
+      endpoint,
+      {
+        method: "PUT",
+        body: JSON.stringify(data),
+      },
+      environment
+    );
   }
 
   /**
    * DELETE request
    */
   async delete(endpoint, environment = null) {
-    return this.request(endpoint, { method: 'DELETE' }, environment);
-  }
-
-  /**
-   * Thay đổi base URL
-   */
-  setBaseUrl(newUrl) {
-    this.baseUrl = newUrl;
-  }
-
-  /**
-   * Lấy base URL hiện tại
-   */
-  getBaseUrl() {
-    return this.baseUrl;
+    return this.request(endpoint, { method: "DELETE" }, environment);
   }
 }
 
 // Tạo instance mặc định
 const apiManager = new ApiManager();
 
-// API functions for workSlice
-export const fetchAssignedWorksAPI = async (date) => {
-  return apiManager.post(CONFIG.API.JOB.GET_ASSIGNED_WORKER_BY_DATE, { date });
+// API functions đơn giản
+export const fetchAssignedWorksAPI = async (date, page = 1, limit = 50) => {
+  try {
+    return await apiManager.post(CONFIG.API.JOB.GET_ASSIGNED_WORKER_BY_DATE, {
+      date,
+      page,
+      limit
+    });
+  } catch (error) {
+    console.error("❌ Failed to fetch assigned works:", error);
+    throw error;
+  }
 };
 
-export const fetchUnassignedWorksAPI = async (date) => {
-  return apiManager.post(CONFIG.API.JOB.GET_BY_DATE, { date });
+export const fetchUnassignedWorksAPI = async (date, page = 1, limit = 50) => {
+  try {
+    return await apiManager.post(CONFIG.API.JOB.GET_BY_DATE, { 
+      date,
+      page,
+      limit
+    });
+  } catch (error) {
+    console.error("❌ Failed to fetch unassigned works:", error);
+    throw error;
+  }
 };
 
-export const fetchWorkersAPI = async () => {
-  return apiManager.get(CONFIG.API.WORKER.GET_ALL);
+export const fetchWorkersAPI = async (jobData = null) => {
+  try {
+    // Nếu có jobData, gọi API để lấy workers phù hợp
+    if (
+      jobData &&
+      (jobData.job_content ||
+        jobData.job_appointment_date ||
+        jobData.job_appointment_time)
+    ) {
+      const response = await fetch("/api/works/get-suitable-workers", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(jobData),
+      });
+
+      if (!response.ok) {
+        throw new Error("Lỗi lấy danh sách thợ phù hợp");
+      }
+
+      return await response.json();
+    }
+
+    return await apiManager.get('/api/user/get-workers');
+  } catch (error) {
+    console.error("❌ Failed to fetch workers:", error);
+    throw error;
+  }
 };
 
 export const assignWorkerAPI = async (workData) => {
-  const { work, worker, extraWorker, dateCheck, authId } = workData;
-  
-  const data_hisWork = [
-    {
-      id_auth: authId,
-      id_worker: null,
-      action: "guitho",
-      time: new Date().toLocaleTimeString(),
-    },
-  ];
+  try {
+    const { work, worker, extraWorker, authId } = workData;
 
-  const data = {
-    id_work: work.id,
-    id_worker: worker,
-    id_phu: extraWorker,
-    work_note: work.work_note,
-    auth_id: authId,
-    his_work: JSON.stringify(data_hisWork),
-    dateCheck: dateCheck,
-  };
+    // Xác định role dựa trên extraWorker
+    const role = extraWorker ? "assistant" : "main";
 
-  return apiManager.post(`${CONFIG.API.WORK_ASSIGNMENT.ASSIGN}?dateCheck=${dateCheck}`, data);
+    const response = await fetch("/api/works/assign-worker", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        work,
+        worker,
+        extraWorker,
+        authId,
+        role,
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error("Lỗi phân công thợ");
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("❌ Failed to assign worker:", error);
+    throw error;
+  }
 };
 
 export const changeWorkerAPI = async (workData) => {
-  const { workAssignment, worker, extraWorker, authId } = workData;
-  
-  const data_hisWork = [
-    {
-      id_auth: authId,
-      id_worker: null,
-      action: "doitho",
-      time: new Date().toLocaleTimeString(),
-    },
-  ];
+  try {
+    const { workAssignment, worker, extraWorker, authId } = workData;
 
-  const data = {
-    id_work_ass: workAssignment.id,
-    id_worker: worker || "",
-    auth_id: authId,
-    id_phu: extraWorker || "",
-    his_work: JSON.stringify(data_hisWork),
-  };
+    const data_hisWork = [
+      {
+        id_auth: authId,
+        id_worker: null,
+        action: "doitho",
+        time: new Date().toLocaleTimeString(),
+      },
+    ];
 
-  return apiManager.post(CONFIG.API.WORK_ASSIGNMENT.CHANGE_WORKER, data);
+    const data = {
+      id_work_ass: workAssignment.id,
+      id_worker: worker || "",
+      auth_id: authId,
+      id_phu: extraWorker || "",
+      his_work: JSON.stringify(data_hisWork),
+    };
+
+    return await apiManager.post(
+      CONFIG.API.WORK_ASSIGNMENT.CHANGE_WORKER,
+      data
+    );
+  } catch (error) {
+    console.error("❌ Failed to change worker:", error);
+    throw error;
+  }
 };
 
 export default apiManager;

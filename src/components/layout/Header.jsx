@@ -47,8 +47,6 @@ export default function Header() {
   }, []);
 
   const handleLogout = () => {
-    console.log('Header: Logout initiated');
-    
     // Dispatch logout action
     dispatch(logout());
     
@@ -62,9 +60,6 @@ export default function Header() {
     } catch (error) {
       console.error('Error clearing saved login info:', error);
     }
-    
-    // Force redirect to login page
-    console.log('Header: Redirecting to login page');
     
     // Sử dụng setTimeout để đảm bảo Redux state đã được cập nhật
     setTimeout(() => {

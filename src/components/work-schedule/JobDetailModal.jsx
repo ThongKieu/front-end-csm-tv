@@ -31,7 +31,6 @@ const JobDetailModal = ({ job, open, onClose }) => {
            try {
              if (navigator.clipboard && window.isSecureContext) {
                await navigator.clipboard.writeText(copyContent);
-               console.log('Đã copy thông tin job:', copyContent);
              } else {
                // Fallback method cho các trình duyệt cũ hoặc non-secure contexts
                const textArea = document.createElement('textarea');
@@ -44,7 +43,6 @@ const JobDetailModal = ({ job, open, onClose }) => {
                textArea.select();
                document.execCommand('copy');
                document.body.removeChild(textArea);
-               console.log('Đã copy thông tin job (fallback):', copyContent);
              }
            } catch (error) {
              console.error('Lỗi khi copy, sử dụng fallback:', error);
@@ -59,7 +57,6 @@ const JobDetailModal = ({ job, open, onClose }) => {
              textArea.select();
              document.execCommand('copy');
              document.body.removeChild(textArea);
-             console.log('Đã copy thông tin job (fallback cuối cùng):', copyContent);
            }
         } catch (error) {
           console.error('Lỗi khi copy:', error);
@@ -80,7 +77,6 @@ const JobDetailModal = ({ job, open, onClose }) => {
 
     const handleClickOutside = (e) => {
       if (modalRef.current && !modalRef.current.contains(e.target)) {
-        console.log('Click outside detected');
         onClose();
       }
     };
@@ -176,8 +172,6 @@ const JobDetailModal = ({ job, open, onClose }) => {
               </h3>
               <p className="text-gray-900">
                 {job.job_customer_address || (() => {
-                  console.log('Address debug:', { street: job.street, district: job.district });
-                  
                   const street = typeof job.street === 'string' ? job.street : 
                                 (job.street?.name || job.street?.street_name || '');
                   const district = typeof job.district === 'string' ? job.district : 

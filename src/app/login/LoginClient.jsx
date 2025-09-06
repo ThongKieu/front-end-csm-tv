@@ -103,6 +103,14 @@ export default function LoginClient() {
         };
         
         
+        // Lưu auth data vào storage trước khi dispatch
+        const { saveAuthData } = await import('@/utils/auth');
+        const saveSuccess = saveAuthData(fakeToken, userData);
+        
+        if (!saveSuccess) {
+          throw new Error('Không thể lưu thông tin đăng nhập');
+        }
+        
         // Dispatch login action với dữ liệu đã xử lý
         dispatch(login({
           token: fakeToken,
@@ -120,8 +128,6 @@ export default function LoginClient() {
           clearSavedLoginInfo();
         }
         
-        // Redirect đến dashboard sau khi đăng nhập thành công
-        console.log('LoginClient: Đăng nhập thành công, redirect đến dashboard');
         router.push('/dashboard');
       } else {
         throw new Error(data.message || "Đăng nhập thất bại");

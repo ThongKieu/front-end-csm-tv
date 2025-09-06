@@ -19,8 +19,8 @@ export default function ServiceClient() {
     const fetchData = async () => {
       try {
         const [categoriesRes, servicesRes] = await Promise.all([
-          fetch(getClientApiUrl('/api/web/hot-ser/cat')),
-          fetch(getClientApiUrl('/api/web/hot-ser'))
+          fetch(getClientApiUrl('https://csm.thoviet.net/api/web/hot-ser/cat')),
+          fetch(getClientApiUrl('https://csm.thoviet.net/api/web/hot-ser'))
         ]);
         
         const categoriesData = await categoriesRes.json();

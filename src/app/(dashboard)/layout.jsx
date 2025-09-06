@@ -13,24 +13,25 @@ export const dynamic = 'force-dynamic'
 
 export default function DashboardLayout({ children }) {
   const { isAuthenticated, user, isLoading } = useSelector((state) => state.auth)
+  const router = useRouter()
 
-  console.log('DashboardLayout: Render', { 
-    isLoading, 
-    isAuthenticated, 
-    user: user?.role,
-    userData: user 
-  })
+  useEffect(() => {
+    // Chỉ redirect khi đã hoàn tất loading và chắc chắn chưa đăng nhập
+    if (!isLoading && !isAuthenticated && !user) {
+      router.push('/login')
+    }
+  }, [isLoading, isAuthenticated, user, router])
 
   // Hiển thị loading khi đang khôi phục authentication
   if (isLoading) {
     return <AuthLoading />
   }
 
-  // Nếu chưa đăng nhập, redirect to login
+  // Nếu chưa đăng nhập, không hiển thị gì (sẽ redirect)
   if (!isAuthenticated || !user) {
-    return null // Sẽ được redirect bởi AuthGuard
+    return null
   }
-
+  
   // Nếu đã đăng nhập, hiển thị layout tương ứng với role
   if (user?.role === 'admin') {
     return <AdminLayout>{children}</AdminLayout>

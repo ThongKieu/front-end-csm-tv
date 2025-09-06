@@ -5,9 +5,6 @@ export async function POST(request) {
   try {
     const body = await request.json();
     
-    // Log request for debugging
-    console.log('User create request:', { user_name: body.user_name, type: body.type, role: body.role });
-    
     const response = await fetch(API_URLS.USER_CREATE, {
       method: 'POST',
       headers: {

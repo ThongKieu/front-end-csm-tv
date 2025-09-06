@@ -1,49 +1,59 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useRef, useCallback } from 'react'
 import { useDispatch } from 'react-redux'
 import { restoreAuth, setLoading, clearAuth } from '@/store/slices/authSlice'
-import { restoreAuthState, setupAuthListener } from '@/utils/auth'
+import { setupAuthListener } from '@/utils/auth'
 
 export function AuthProvider({ children }) {
   const dispatch = useDispatch()
+  const hasInitialized = useRef(false)
+  const dispatchRef = useRef(dispatch)
+
+  // Cập nhật dispatch ref khi dispatch thay đổi
+  useEffect(() => {
+    dispatchRef.current = dispatch
+  }, [dispatch])
+
+  // Khôi phục trạng thái authentication CHỈ 1 LẦN khi mount
+  const handleRestoreAuth = useCallback(() => {
+    try {
+      // Lấy token và user từ storage
+      const token = localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token')
+      const userStr = localStorage.getItem('auth_user') || sessionStorage.getItem('auth_user')
+      
+      if (token && userStr) {
+        const user = JSON.parse(userStr)
+        // Dispatch restoreAuth action
+        dispatchRef.current(restoreAuth({ token, user }))
+        dispatchRef.current(setLoading(false))
+      } else {
+        dispatchRef.current(setLoading(false))
+      }
+    } catch (error) {
+      dispatchRef.current(setLoading(false))
+    }
+  }, []) // Bỏ dispatch dependency để tránh re-create function
 
   useEffect(() => {
-    console.log('AuthProvider: Bắt đầu khôi phục trạng thái authentication...')
+    // Chỉ chạy 1 lần khi mount
+    if (hasInitialized.current) {
+      return
+    }
     
-    // Sử dụng setTimeout để đảm bảo localStorage đã sẵn sàng
-    const timer = setTimeout(() => {
-      // Khôi phục trạng thái authentication khi component mount
-      const authState = restoreAuthState()
-      console.log('AuthProvider: authState từ localStorage:', authState)
-      
-      if (authState) {
-        console.log('AuthProvider: Khôi phục authentication thành công')
-        dispatch(restoreAuth(authState))
-      } else {
-        console.log('AuthProvider: Không có auth state, set loading = false')
-        // Nếu không có auth state, vẫn set loading = false để cho phép truy cập trang login
-        dispatch(setLoading(false))
-      }
-    }, 200) // Delay 200ms để đảm bảo localStorage đã sẵn sàng
+    hasInitialized.current = true
+    
+    // Restore auth state CHỈ 1 LẦN
+    handleRestoreAuth()
 
-    // Lắng nghe thay đổi localStorage giữa các tab
+    // Lắng nghe thay đổi localStorage giữa các tab (không gọi restoreAuth)
     const cleanup = setupAuthListener(() => {
-      console.log('AuthProvider: localStorage thay đổi, kiểm tra lại auth state')
-      const newAuthState = restoreAuthState()
-      if (newAuthState) {
-        dispatch(restoreAuth(newAuthState))
-      } else {
-        dispatch(clearAuth())
-      }
+      // KHÔNG gọi restoreAuth() ở đây để tránh vòng lặp
     })
 
     // Cleanup khi component unmount
-    return () => {
-      clearTimeout(timer)
-      cleanup()
-    }
-  }, [dispatch])
+    return cleanup
+  }, []) // Bỏ tất cả dependencies để chỉ chạy 1 lần
 
   return children
 } 

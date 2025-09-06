@@ -21,16 +21,47 @@ const nextConfig = {
             key: 'Access-Control-Allow-Headers',
             value: 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version',
           },
+          // Thêm headers để tối ưu hóa performance
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=300, s-maxage=300, stale-while-revalidate=60',
+          },
+        ],
+      },
+      // Tối ưu hóa cho API routes
+      {
+        source: '/api/:path*',
+        headers: [
+          {
+            key: 'Access-Control-Allow-Origin',
+            value: '*',
+          },
+          {
+            key: 'Access-Control-Allow-Methods',
+            value: 'GET,POST,PUT,DELETE,OPTIONS',
+          },
+          {
+            key: 'Access-Control-Allow-Headers',
+            value: 'Content-Type, Accept, Authorization',
+          },
+          // Cache API responses
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=60, s-maxage=60',
+          },
         ],
       },
     ]
   },
-  // Tắt caching cho các route động
+  // Tối ưu hóa experimental features
   experimental: {
     serverActions: {
       allowedOrigins: ['*']
     },
+    // Tối ưu hóa bundle
+    optimizePackageImports: ['lucide-react'],
   },
+  // Tối ưu hóa rewrites để giảm latency
   async rewrites() {
     return [
       {
@@ -39,6 +70,28 @@ const nextConfig = {
       },
     ]
   },
+  // Tối ưu hóa webpack
+  webpack: (config, { dev, isServer }) => {
+    // Tối ưu hóa cho production
+    if (!dev && !isServer) {
+      config.optimization.splitChunks = {
+        chunks: 'all',
+        cacheGroups: {
+          vendor: {
+            test: /[\\/]node_modules[\\/]/,
+            name: 'vendors',
+            chunks: 'all',
+          },
+        },
+      };
+    }
+    
+    return config;
+  },
+  // Tối ưu hóa performance
+  compress: true,
+  poweredByHeader: false,
+  generateEtags: false,
 };
 
 export default nextConfig;

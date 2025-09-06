@@ -36,7 +36,7 @@ import EditAssignedWorkModal from "./EditAssignedWorkModal";
 import EditWorkModal from "./EditWorkModal";
 import JobDetailModal from "./JobDetailModal";
 import { selectAssignedWorks, selectUnassignedWorks, selectSelectedDate } from "@/store/slices/workSlice";
-import { fetchAssignedWorks, fetchUnassignedWorks } from "@/store/slices/workSlice";
+import { fetchAssignedWorks, fetchUnassignedWorks, clearCacheForDate } from "@/store/slices/workSlice";
 import axios from "axios";
 import { getClientApiUrl, CONFIG } from "@/config/constants";
 
@@ -245,11 +245,14 @@ const WorkTable = ({ works = [], workers = [] }) => {
       }
 
       setIsRefreshing(true);
-      // Refresh cả hai bảng để cập nhật dữ liệu
-      await Promise.all([
-        dispatch(fetchAssignedWorks(selectedDate)),
-        dispatch(fetchUnassignedWorks(selectedDate))
-      ]);
+      
+      // Chỉ gọi 1 API duy nhất - fetchAssignedWorks vì đây là assignment
+      // Không cần gọi fetchUnassignedWorks vì work đã được assign
+      await dispatch(fetchAssignedWorks(selectedDate));
+      
+      // Clear cache cho unassigned works để đảm bảo dữ liệu mới
+      dispatch(clearCacheForDate(selectedDate));
+      
     } catch (error) {
       console.error('Error refreshing data after assignment:', error);
     } finally {
@@ -281,6 +284,25 @@ const WorkTable = ({ works = [], workers = [] }) => {
   const handleCloseEditModal = () => {
     setIsEditModalOpen(false);
     setSelectedWork(null);
+  };
+
+  // Function to refresh data after edit success
+  const handleEditSuccess = async () => {
+    try {
+      setIsRefreshing(true);
+      // Refresh both assigned and unassigned works
+      await Promise.all([
+        dispatch(fetchAssignedWorks(selectedDate)),
+        dispatch(fetchUnassignedWorks(selectedDate))
+      ]);
+      
+      // Clear cache để đảm bảo dữ liệu mới
+      dispatch(clearCacheForDate(selectedDate));
+    } catch (error) {
+      console.error('Error refreshing data after edit:', error);
+    } finally {
+      setIsRefreshing(false);
+    }
   };
 
   const handleCopy = async (work) => {
@@ -329,10 +351,15 @@ Ghi chú: ${work.work_note || work.job_customer_note || 'Không có'}`;
       await axios.post(getClientApiUrl("/api/web/update/work"), data);
       
       // Refresh data after successful edit
-      await Promise.all([
-        dispatch(fetchAssignedWorks(selectedDate)),
-        dispatch(fetchUnassignedWorks(selectedDate))
-      ]);
+      // Chỉ gọi 1 API duy nhất dựa vào loại work
+      if (editValue.is_assigned) {
+        await dispatch(fetchAssignedWorks(selectedDate));
+      } else {
+        await dispatch(fetchUnassignedWorks(selectedDate));
+      }
+      
+      // Clear cache để đảm bảo dữ liệu mới
+      dispatch(clearCacheForDate(selectedDate));
 
       handleCloseEditModal();
     } catch (error) {
@@ -696,7 +723,7 @@ Ghi chú: ${work.work_note || work.job_customer_note || 'Không có'}`;
       <div className="flex gap-1 justify-end items-center mb-2">
         {/* Loading indicator when refreshing */}
         {isRefreshing && (
-          <div className="flex items-center space-x-2 text-xs text-brand-green mr-2">
+          <div className="flex items-center mr-2 space-x-2 text-xs text-brand-green">
             <div className="w-3 h-3 rounded-full border-2 animate-spin border-brand-green border-t-transparent"></div>
             <span>Đang cập nhật...</span>
           </div>
@@ -769,7 +796,7 @@ Ghi chú: ${work.work_note || work.job_customer_note || 'Không có'}`;
         <EditWorkModal
           work={selectedWork}
           onClose={handleCloseEditModal}
-          onSave={handleEdit}
+          onSave={handleEditSuccess}
         />
       )}
 

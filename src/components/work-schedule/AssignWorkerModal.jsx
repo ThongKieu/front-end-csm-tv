@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { X, User, UserPlus, Search, CheckCircle } from 'lucide-react';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
+import { fetchWorkers } from '@/store/slices/workSlice';
 
 const AssignWorkerModal = ({ work, workers = [], onClose, onAssign, isChanging = false }) => {
   const [selectedMainWorker, setSelectedMainWorker] = useState(null);
@@ -9,6 +10,7 @@ const AssignWorkerModal = ({ work, workers = [], onClose, onAssign, isChanging =
   const [isSubmitting, setIsSubmitting] = useState(false);
   
   const { user } = useSelector((state) => state.auth);
+  const dispatch = useDispatch();
 
   const filteredWorkers = useMemo(() => {
     if (!searchTerm.trim()) return workers;
@@ -16,7 +18,7 @@ const AssignWorkerModal = ({ work, workers = [], onClose, onAssign, isChanging =
     return workers.filter(worker => 
       worker.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       worker.type_code?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      worker.id?.toString().includes(searchTerm)
+      worker.phone?.includes(searchTerm)
     );
   }, [workers, searchTerm]);
   
@@ -27,6 +29,49 @@ const AssignWorkerModal = ({ work, workers = [], onClose, onAssign, isChanging =
     }
   }, [work, workers]);
 
+  // Chỉ fetch workers khi thực sự cần thiết
+  useEffect(() => {
+    // Chỉ fetch nếu không có workers hoặc workers rỗng
+    if (!workers || workers.length === 0) {
+      // Chuẩn bị job data để gửi nếu có work
+      const jobData = work ? {
+        job_content: work.job_content || work.work_content,
+        job_appointment_date: work.job_appointment_date || work.appointment_date,
+        job_appointment_time: work.job_appointment_time || work.appointment_time,
+      } : null;
+      
+      // Chỉ fetch nếu có đủ thông tin hoặc không có job data
+      if (jobData && (jobData.job_content || jobData.job_appointment_date)) {
+        dispatch(fetchWorkers(jobData));
+      } else {
+        dispatch(fetchWorkers());
+      }
+    } 
+  }, [work, workers, dispatch]);
+
+  // Hàm gọi API phân công thợ
+  const assignWorkerAPI = async (assignData) => {
+    try {
+      const response = await fetch('/api/web/job/assign-worker', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(assignData),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const result = await response.json();
+      return result;
+    } catch (error) {
+      console.error('❌ API error:', error);
+      throw error;
+    }
+  };
+
   const handleSubmit = async () => {
     if (!selectedMainWorker || !user?.id) {
       alert('Vui lòng chọn thợ chính và đảm bảo đã đăng nhập');
@@ -35,21 +80,36 @@ const AssignWorkerModal = ({ work, workers = [], onClose, onAssign, isChanging =
 
     setIsSubmitting(true);
     try {
-      const jobId = work.job_id || work.id;
-      const today = new Date().toISOString().split('T')[0];
-      
-      // Chuẩn bị dữ liệu để gửi
-      const workData = {
-        work: work,
-        worker: selectedMainWorker.id,
-        extraWorker: selectedExtraWorker?.id || null,
-        dateCheck: today,
-        authId: user.id,
-        // Priority sẽ được truyền từ NewJobsList thông qua onAssign
+      // Phân công thợ chính
+      const mainWorkerData = {
+        job_id: work.id || work.job_id,
+        worker_id: selectedMainWorker.id,
+        role: 'main',
+        user_id: user.id,
       };
-
-      // Gọi callback để parent component xử lý
-      await onAssign(workData);
+      // Gọi API phân công thợ chính
+      await assignWorkerAPI(mainWorkerData);
+      
+      // Nếu có thợ phụ, phân công thợ phụ
+      if (selectedExtraWorker) {
+        const extraWorkerData = {
+          job_id: work.id || work.job_id,
+          worker_id: selectedExtraWorker.id,
+          role: 'assistant',
+          user_id: user.id,
+        };
+        // Gọi API phân công thợ phụ
+        await assignWorkerAPI(extraWorkerData);
+      }
+      
+      // Gọi callback để parent component cập nhật UI
+      if (onAssign) {
+        await onAssign({
+          work: work,
+          mainWorker: selectedMainWorker,
+          extraWorker: selectedExtraWorker,
+        });
+      }
       
       // Đóng modal
       onClose();
@@ -85,55 +145,52 @@ const AssignWorkerModal = ({ work, workers = [], onClose, onAssign, isChanging =
 
   return (
     <div className="fixed inset-0 z-[9999] flex justify-center items-center backdrop-blur-sm bg-black/25" onClick={onClose}>
-      <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+      <div className="bg-white rounded-lg shadow-2xl max-w-xl w-full mx-4 max-h-[85vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
         {/* Header */}
-        <div className="sticky top-0 px-6 py-4 bg-gradient-to-r rounded-t-xl border-b border-gray-200 from-brand-green/10 to-brand-yellow/10">
+        <div className="sticky top-0 px-4 py-3 bg-gradient-to-r rounded-t-lg border-b border-gray-200 from-brand-green/10 to-brand-yellow/10">
           <div className="flex justify-between items-center">
-            <div className="flex items-center space-x-3">
-              <div className="p-2 rounded-lg bg-brand-green/20">
-                <UserPlus className="w-5 h-5 text-brand-green" />
-              </div>
+            <div className="flex items-center space-x-2">
+              <UserPlus className="w-4 h-4 text-brand-green" />
               <div>
-                <h2 className="text-lg font-bold text-gray-900">
+                <h2 className="text-base font-bold text-gray-900">
                   {isChanging ? 'Đổi thợ' : 'Phân công thợ'}
                 </h2>
-                <p className="text-sm text-gray-600">
-                  Mã: {work.job_code || 'N/A'} - {work.job_content || 'Không có nội dung'}
+                <p className="text-xs text-gray-600 truncate max-w-64">
+                  {work.job_code || 'N/A'} - {work.job_content || 'Không có nội dung'}
                 </p>
               </div>
             </div>
             <button
               onClick={onClose}
-              className="p-2 text-gray-400 rounded-full transition-all duration-200 hover:text-brand-yellow hover:bg-brand-yellow/10"
+              className="p-1.5 text-gray-400 rounded-full transition-all duration-200 hover:text-brand-yellow hover:bg-brand-yellow/10"
               aria-label="Đóng"
             >
-              <X className="w-5 h-5" />
+              <X className="w-4 h-4" />
             </button>
           </div>
         </div>
 
         {/* Content */}
-        <div className="p-6 space-y-6">
+        <div className="p-4 space-y-4">
           {/* Thợ chính */}
-          <div className="space-y-3">
+          <div className="space-y-2">
             <h3 className="flex items-center text-sm font-semibold text-gray-900">
-              <User className="mr-2 w-4 h-4 text-brand-green" />
+              <User className="mr-1.5 w-3.5 h-3.5 text-brand-green" />
               Thợ chính <span className="text-red-500">*</span>
             </h3>
             
             {selectedMainWorker ? (
-              <div className="p-3 rounded-lg border bg-brand-green/10 border-brand-green/20">
+              <div className="p-2.5 rounded-lg border bg-brand-green/10 border-brand-green/20">
                 <div className="flex justify-between items-center">
-                  <div className="flex items-center space-x-3">
-                    <div className="flex justify-center items-center w-10 h-10 rounded-full bg-brand-green">
-                      <span className="text-sm font-bold text-white">
+                  <div className="flex items-center space-x-2.5">
+                    <div className="flex justify-center items-center w-8 h-8 rounded-full bg-brand-green">
+                      <span className="text-xs font-bold text-white">
                         {selectedMainWorker.full_name?.charAt(0)?.toUpperCase()}
                       </span>
                     </div>
                     <div>
-                      <p className="font-medium text-gray-900">{selectedMainWorker.full_name}</p>
-                      <p className="text-sm text-gray-600">Mã: {selectedMainWorker.type_code}</p>
-                      <p className="text-sm text-gray-600">ID: {selectedMainWorker.id}</p>
+                      <p className="text-sm font-medium text-gray-900">{selectedMainWorker.full_name}</p>
+                      <p className="text-xs text-gray-600">Mã: {selectedMainWorker.type_code}</p>
                     </div>
                   </div>
                   <button
@@ -141,38 +198,37 @@ const AssignWorkerModal = ({ work, workers = [], onClose, onAssign, isChanging =
                     className="p-1 text-red-500 rounded transition-colors hover:text-red-700 hover:bg-red-50"
                     title="Bỏ chọn"
                   >
-                    <X className="w-4 h-4" />
+                    <X className="w-3.5 h-3.5" />
                   </button>
                 </div>
               </div>
             ) : (
-              <div className="p-4 text-center rounded-lg border-2 border-gray-300 border-dashed">
-                <User className="mx-auto mb-2 w-8 h-8 text-gray-400" />
-                <p className="text-gray-500">Chưa chọn thợ chính</p>
+              <div className="p-3 text-center rounded-lg border-2 border-gray-300 border-dashed">
+                <User className="mx-auto mb-1.5 w-6 h-6 text-gray-400" />
+                <p className="text-sm text-gray-500">Chưa chọn thợ chính</p>
               </div>
             )}
           </div>
 
           {/* Thợ phụ */}
-          <div className="space-y-3">
+          <div className="space-y-2">
             <h3 className="flex items-center text-sm font-semibold text-gray-900">
-              <UserPlus className="mr-2 w-4 h-4 text-brand-yellow" />
+              <UserPlus className="mr-1.5 w-3.5 h-3.5 text-brand-yellow" />
               Thợ phụ <span className="text-gray-500">(Tùy chọn)</span>
             </h3>
             
             {selectedExtraWorker ? (
-              <div className="p-3 rounded-lg border bg-brand-yellow/10 border-brand-yellow/20">
+              <div className="p-2.5 rounded-lg border bg-brand-yellow/10 border-brand-yellow/20">
                 <div className="flex justify-between items-center">
-                  <div className="flex items-center space-x-3">
-                    <div className="flex justify-center items-center w-10 h-10 rounded-full bg-brand-yellow">
-                      <span className="text-sm font-bold text-white">
+                  <div className="flex items-center space-x-2.5">
+                    <div className="flex justify-center items-center w-8 h-8 rounded-full bg-brand-yellow">
+                      <span className="text-xs font-bold text-white">
                         {selectedExtraWorker.full_name?.charAt(0)?.toUpperCase()}
                       </span>
                     </div>
                     <div>
-                      <p className="font-medium text-gray-900">{selectedExtraWorker.full_name}</p>
-                      <p className="text-sm text-gray-600">Mã: {selectedExtraWorker.type_code}</p>
-                      <p className="text-sm text-gray-600">ID: {selectedExtraWorker.id}</p>
+                      <p className="text-sm font-medium text-gray-900">{selectedExtraWorker.full_name}</p>
+                      <p className="text-xs text-gray-600">Mã: {selectedExtraWorker.type_code}</p>
                     </div>
                   </div>
                   <button
@@ -180,38 +236,38 @@ const AssignWorkerModal = ({ work, workers = [], onClose, onAssign, isChanging =
                     className="p-1 text-red-500 rounded transition-colors hover:text-red-700 hover:bg-red-50"
                     title="Bỏ chọn"
                   >
-                    <X className="w-4 h-4" />
+                    <X className="w-3.5 h-3.5" />
                   </button>
                 </div>
               </div>
             ) : (
-              <div className="p-4 text-center rounded-lg border-2 border-gray-300 border-dashed">
-                <UserPlus className="mx-auto mb-2 w-8 h-8 text-gray-400" />
-                <p className="text-gray-500">Chưa chọn thợ phụ</p>
+              <div className="p-3 text-center rounded-lg border-2 border-gray-300 border-dashed">
+                <UserPlus className="mx-auto mb-1.5 w-6 h-6 text-gray-400" />
+                <p className="text-sm text-gray-500">Chưa chọn thợ phụ</p>
               </div>
             )}
           </div>
 
           {/* Danh sách thợ */}
-          <div className="space-y-3">
+          <div className="space-y-2">
             <h3 className="text-sm font-semibold text-gray-900">Danh sách thợ</h3>
             
             {/* Search */}
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 w-4 h-4 text-gray-400 transform -translate-y-1/2" />
+              <Search className="absolute left-2.5 top-1/2 w-3.5 h-3.5 text-gray-400 transform -translate-y-1/2" />
               <input
                 type="text"
-                placeholder="Tìm kiếm thợ theo tên, mã hoặc ID..."
+                placeholder="Tìm kiếm thợ theo tên, mã..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="py-2 pr-4 pl-10 w-full rounded-lg border border-gray-300 focus:ring-2 focus:ring-brand-green focus:border-transparent"
+                className="py-1.5 pr-3 pl-8 w-full text-sm rounded-lg border border-gray-300 focus:ring-2 focus:ring-brand-green focus:border-transparent"
               />
             </div>
 
             {/* Workers list */}
-            <div className="overflow-y-auto space-y-2 max-h-60">
+            <div className="overflow-y-auto space-y-1.5 max-h-48">
               {filteredWorkers.length === 0 ? (
-                <div className="py-4 text-center text-gray-500">
+                <div className="py-3 text-sm text-center text-gray-500">
                   {searchTerm ? 'Không tìm thấy thợ nào' : 'Không có thợ nào'}
                 </div>
               ) : (
@@ -223,7 +279,7 @@ const AssignWorkerModal = ({ work, workers = [], onClose, onAssign, isChanging =
                   return (
                     <div
                       key={worker.id}
-                      className={`p-3 rounded-lg border transition-all cursor-pointer ${
+                      className={`p-2.5 rounded-lg border transition-all cursor-pointer ${
                         isSelected
                           ? isMainWorker
                             ? 'bg-brand-green/10 border-brand-green/30'
@@ -243,38 +299,37 @@ const AssignWorkerModal = ({ work, workers = [], onClose, onAssign, isChanging =
                       }}
                     >
                       <div className="flex justify-between items-center">
-                        <div className="flex items-center space-x-3">
-                          <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                        <div className="flex items-center space-x-2.5">
+                          <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
                             isMainWorker ? 'bg-brand-green' : isExtraWorker ? 'bg-brand-yellow' : 'bg-gray-300'
                           }`}>
-                            <span className="text-sm font-bold text-white">
+                            <span className="text-xs font-bold text-white">
                               {worker.full_name?.charAt(0)?.toUpperCase()}
                             </span>
                           </div>
                           <div className="flex-1">
-                            <div className="flex items-center space-x-2">
-                              <p className="font-medium text-gray-900">{worker.full_name}</p>
+                            <div className="flex items-center space-x-1.5">
+                              <p className="text-sm font-medium text-gray-900">{worker.full_name}</p>
                               {isMainWorker && (
-                                <span className="px-2 py-1 text-xs text-white rounded-full bg-brand-green">
+                                <span className="px-1.5 py-0.5 text-xs text-white rounded-full bg-brand-green">
                                   Chính
                                 </span>
                               )}
                               {isExtraWorker && (
-                                <span className="px-2 py-1 text-xs text-white rounded-full bg-brand-yellow">
+                                <span className="px-1.5 py-0.5 text-xs text-white rounded-full bg-brand-yellow">
                                   Phụ
                                 </span>
                               )}
                             </div>
-                            <p className="text-sm text-gray-600">Mã: {worker.type_code}</p>
-                            <p className="text-sm text-gray-600">ID: {worker.id}</p>
+                            <p className="text-xs text-gray-600">Mã: {worker.type_code}</p>
                           </div>
                         </div>
                         
                         <div className="flex items-center space-x-2">
                           {isSelected ? (
-                            <CheckCircle className="w-5 h-5 text-brand-green" />
+                            <CheckCircle className="w-4 h-4 text-brand-green" />
                           ) : (
-                            <div className="w-5 h-5 rounded-full border-2 border-gray-300" />
+                            <div className="w-4 h-4 rounded-full border-2 border-gray-300" />
                           )}
                         </div>
                       </div>
@@ -286,9 +341,9 @@ const AssignWorkerModal = ({ work, workers = [], onClose, onAssign, isChanging =
           </div>
 
           {/* Thông tin công việc */}
-          <div className="p-4 bg-gray-50 rounded-lg">
-            <h3 className="mb-2 text-sm font-semibold text-gray-900">Thông tin công việc</h3>
-            <div className="space-y-1 text-sm text-gray-600">
+          <div className="p-3 bg-gray-50 rounded-lg">
+            <h3 className="mb-1.5 text-sm font-semibold text-gray-900">Thông tin công việc</h3>
+            <div className="space-y-1 text-xs text-gray-600">
               <p><span className="font-medium">Mã:</span> {work.job_code || 'N/A'}</p>
               <p><span className="font-medium">Nội dung:</span> {work.job_content || work.work_content || 'Không có nội dung'}</p>
               <p><span className="font-medium">Khách hàng:</span> {work.job_customer_name || work.name_cus || 'N/A'}</p>
@@ -298,26 +353,26 @@ const AssignWorkerModal = ({ work, workers = [], onClose, onAssign, isChanging =
         </div>
 
         {/* Footer */}
-        <div className="sticky bottom-0 px-6 py-4 bg-gray-50 rounded-b-xl border-t border-gray-200">
-          <div className="flex justify-end space-x-3">
+        <div className="sticky bottom-0 px-4 py-3 bg-gray-50 rounded-b-lg border-t border-gray-200">
+          <div className="flex justify-end space-x-2">
             <button
               onClick={onClose}
-              className="px-4 py-2 text-gray-600 bg-white rounded-lg border border-gray-300 transition-colors duration-200 hover:bg-gray-50"
+              className="px-3 py-1.5 text-sm text-gray-600 bg-white rounded-lg border border-gray-300 transition-colors duration-200 hover:bg-gray-50"
             >
               Hủy
             </button>
             <button
               onClick={handleSubmit}
               disabled={!selectedMainWorker || isSubmitting}
-              className={`px-6 py-2 text-white rounded-lg transition-colors duration-200 ${
+              className={`px-4 py-1.5 text-sm text-white rounded-lg transition-colors duration-200 ${
                 !selectedMainWorker || isSubmitting
                   ? 'bg-gray-400 cursor-not-allowed'
                   : 'bg-brand-green hover:bg-green-700'
               }`}
             >
               {isSubmitting ? (
-                <div className="flex items-center space-x-2">
-                  <div className="w-4 h-4 rounded-full border-2 border-white animate-spin border-t-transparent" />
+                <div className="flex items-center space-x-1.5">
+                  <div className="w-3 h-3 rounded-full border-2 border-white animate-spin border-t-transparent" />
                   <span>Đang xử lý...</span>
                 </div>
               ) : (

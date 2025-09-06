@@ -15,7 +15,7 @@ export default function CreateScheduleButton() {
   return (
     <motion.button
       onClick={() => setIsCreateScheduleModalOpen(true)}
-      className="fixed bottom-4 left-1/2 z-10 -translate-x-1/2 group"
+      className="fixed top-20 right-4 z-10 group"
       whileHover={{ scale: 1.05 }}
       whileTap={{ scale: 0.95 }}
     >

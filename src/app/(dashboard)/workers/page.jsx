@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { 
   Users, 
   Search, 
@@ -25,11 +26,12 @@ import {
   RefreshCw,
   X
 } from "lucide-react";
-import { useSchedule } from "@/contexts/ScheduleContext";
+import { fetchWorkers, selectWorkers, selectLoading } from "@/store/slices/workSlice";
 
 export default function WorkersPage() {
-  const { workers } = useSchedule();
-  const loading = false; // Không cần loading state nữa vì đã có trong ScheduleContext
+  const dispatch = useDispatch();
+  const workers = useSelector(selectWorkers);
+  const loading = useSelector(selectLoading);
   
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedFilter, setSelectedFilter] = useState("all");
@@ -38,10 +40,21 @@ export default function WorkersPage() {
   const [sortBy, setSortBy] = useState("name"); // name, performance, status
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
 
-  // Không cần useEffect nữa vì workers đã được fetch trong ScheduleContext
+  // Đảm bảo workers được load từ Redux
+  useEffect(() => {
+    // Chỉ load nếu workers chưa có hoặc rỗng
+    if (!workers || workers.length === 0) {
+  
+      dispatch(fetchWorkers());
+    }
+  }, [dispatch, workers]);
+
+  // Kiểm tra an toàn trước khi sử dụng workers
+  const safeWorkers = Array.isArray(workers) ? workers : [];
+  const workersCount = safeWorkers.length;
 
   // Filter and sort workers
-  const filteredWorkers = workers
+  const filteredWorkers = safeWorkers
     .filter(worker => {
       const matchesSearch = 
         worker.worker_full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -56,7 +69,7 @@ export default function WorkersPage() {
     .sort((a, b) => {
       switch (sortBy) {
         case "name":
-          return a.worker_full_name.localeCompare(b.worker_full_name);
+          return (a.worker_full_name || '').localeCompare(b.worker_full_name || '');
         case "performance":
           return (b.worker_daily_sales || 0) - (a.worker_daily_sales || 0);
         case "status":
@@ -65,11 +78,10 @@ export default function WorkersPage() {
           return 0;
       }
     });
-
   const stats = [
     {
       title: "Tổng nhân viên",
-      value: workers.length,
+      value: workersCount,
       change: "+2",
       changeType: "positive",
       icon: Users,
@@ -77,7 +89,7 @@ export default function WorkersPage() {
     },
     {
       title: "Đang hoạt động",
-      value: workers.filter(w => w.worker_status === 1).length,
+      value: safeWorkers.filter(w => w.worker_status === 1).length,
       change: "+1",
       changeType: "positive",
       icon: UserCheck,
@@ -85,7 +97,7 @@ export default function WorkersPage() {
     },
     {
       title: "Tạm nghỉ",
-      value: workers.filter(w => w.worker_status === 0).length,
+      value: safeWorkers.filter(w => w.worker_status === 0).length,
       change: "0",
       changeType: "neutral",
       icon: UserX,
@@ -93,7 +105,9 @@ export default function WorkersPage() {
     },
     {
       title: "Hiệu suất TB",
-      value: `${Math.round(workers.reduce((acc, w) => acc + (w.worker_daily_sales || 0), 0) / workers.length).toLocaleString()} VNĐ`,
+      value: workersCount > 0 
+        ? `${Math.round(safeWorkers.reduce((acc, w) => acc + (w.worker_daily_sales || 0), 0) / workersCount).toLocaleString()} VNĐ`
+        : "0 VNĐ",
       change: "+5.2%",
       changeType: "positive",
       icon: TrendingUp,
@@ -212,9 +226,9 @@ export default function WorkersPage() {
               <h3 className="mb-2 text-xs font-medium text-gray-600">Trạng thái</h3>
               <div className="space-y-1">
                 {[
-                  { id: "all", label: "Tất cả", count: workers.length },
-                  { id: "active", label: "Đang hoạt động", count: workers.filter(w => w.worker_status === 1).length },
-                  { id: "inactive", label: "Tạm nghỉ", count: workers.filter(w => w.worker_status === 0).length }
+                  { id: "all", label: "Tất cả", count: workersCount },
+                  { id: "active", label: "Đang hoạt động", count: safeWorkers.filter(w => w.worker_status === 1).length },
+                  { id: "inactive", label: "Tạm nghỉ", count: safeWorkers.filter(w => w.worker_status === 0).length }
                 ].map((filter) => (
                   <button
                     key={filter.id}
@@ -256,15 +270,15 @@ export default function WorkersPage() {
               <div className="space-y-2 text-xs">
                 <div className="flex justify-between">
                   <span className="text-gray-500">Tổng nhân viên:</span>
-                  <span className="font-medium">{workers.length}</span>
+                  <span className="font-medium">{workersCount}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-500">Đang hoạt động:</span>
-                  <span className="font-medium text-green-600">{workers.filter(w => w.worker_status === 1).length}</span>
+                  <span className="font-medium text-green-600">{safeWorkers.filter(w => w.worker_status === 1).length}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-500">Tạm nghỉ:</span>
-                  <span className="font-medium text-orange-600">{workers.filter(w => w.worker_status === 0).length}</span>
+                  <span className="font-medium text-orange-600">{safeWorkers.filter(w => w.worker_status === 0).length}</span>
                 </div>
               </div>
             </div>
@@ -383,7 +397,7 @@ export default function WorkersPage() {
                       <tr key={worker.id} className="hover:bg-gray-50">
                         <td className="px-3 py-3">
                           <div className="flex gap-2 items-center">
-                            <div className="flex justify-center items-center w-8 h-8 bg-gradient-to-br from-brand-green to-brand-yellow rounded-full">
+                            <div className="flex justify-center items-center w-8 h-8 bg-gradient-to-br rounded-full from-brand-green to-brand-yellow">
                               <Users className="w-4 h-4 text-white" />
                             </div>
                             <span className="text-sm font-medium text-gray-900">{worker.worker_full_name}</span>

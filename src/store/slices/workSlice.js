@@ -1,28 +1,128 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { fetchAssignedWorksAPI, fetchUnassignedWorksAPI, fetchWorkersAPI, assignWorkerAPI, changeWorkerAPI } from '../../utils/api';
 
-// Async thunks
+// Helper function để kiểm tra cache
+const isCacheValid = (cacheData, expiryTime) => {
+  if (!cacheData || !cacheData.timestamp) return false;
+  const age = Date.now() - cacheData.timestamp;
+  const isValid = age < expiryTime;
+  return isValid;
+};
+
+// Helper function để kiểm tra cache
+
+// Async thunks với Redux Toolkit's built-in deduplication
 export const fetchAssignedWorks = createAsyncThunk(
   'work/fetchAssignedWorks',
-  async (date) => {
+  async (date, { getState, signal }) => {
+    const state = getState();
+    const cacheData = state.work.cache.assignedWorks[date];
+    const expiryTime = state.work.cache.cacheExpiry;
+    
+    // Kiểm tra cache trước khi gọi API
+    if (isCacheValid(cacheData, expiryTime)) {
+      return cacheData.data;
+    }
+
     const response = await fetchAssignedWorksAPI(date);
     return response.data;
+  },
+  {
+    // Redux Toolkit's built-in deduplication
+    condition: (date, { getState }) => {
+      const state = getState();
+      const cacheData = state.work.cache.assignedWorks[date];
+      const expiryTime = state.work.cache.cacheExpiry;
+      const currentSelectedDate = state.work.selectedDate;
+      // Nếu ngày hiện tại khác với ngày được yêu cầu, luôn fetch
+      if (date !== currentSelectedDate) {
+        return true;
+      }
+      
+      // Chỉ check cache nếu ngày trùng khớp
+      if (isCacheValid(cacheData, expiryTime)) {
+        return false;
+      }
+      return true;
+    }
   }
 );
 
 export const fetchUnassignedWorks = createAsyncThunk(
   'work/fetchUnassignedWorks',
-  async (date) => {
+  async (date, { getState, signal }) => {
+    const state = getState();
+    const cacheData = state.work.cache.unassignedWorks[date];
+    const expiryTime = state.work.cache.cacheExpiry;
+    
+    // Kiểm tra cache trước khi gọi API
+    if (isCacheValid(cacheData, expiryTime)) {
+      return cacheData.data;
+    }
     const response = await fetchUnassignedWorksAPI(date);
     return response.data;
+  },
+  {
+    // Redux Toolkit's built-in deduplication
+    condition: (date, { getState }) => {
+      const state = getState();
+      const cacheData = state.work.cache.unassignedWorks[date];
+      const expiryTime = state.work.cache.cacheExpiry;
+      const currentSelectedDate = state.work.selectedDate;
+      
+      // Nếu ngày hiện tại khác với ngày được yêu cầu, luôn fetch
+      if (date !== currentSelectedDate) {
+        return true;
+      }
+      
+      // Chỉ check cache nếu ngày trùng khớp
+      if (isCacheValid(cacheData, expiryTime)) {
+        return false;
+      }
+      return true;
+    }
   }
 );
 
 export const fetchWorkers = createAsyncThunk(
   'work/fetchWorkers',
-  async () => {
-    const response = await fetchWorkersAPI();
-    return response.data;
+  async (jobData = null, { getState, signal }) => {
+    const state = getState();
+    const cacheKey = jobData ? JSON.stringify(jobData) : 'all';
+    const cacheData = state.work.cache.workers[cacheKey];
+    const expiryTime = state.work.cache.cacheExpiry;
+    
+    // Kiểm tra cache trước khi gọi API
+    if (isCacheValid(cacheData, expiryTime)) {
+      return cacheData.data;
+    }
+    const response = await fetchWorkersAPI(jobData);
+    
+    // Với API response mới, response trực tiếp là array
+    if (Array.isArray(response)) {
+      return response;
+    }
+    
+    // Fallback: nếu response có data field (cũ)
+    if (response && response.data && Array.isArray(response.data)) {
+      return response.data;
+    }    
+    return [];
+  },
+  {
+    // Redux Toolkit's built-in deduplication
+    condition: (jobData, { getState }) => {
+      const state = getState();
+      const cacheKey = jobData ? JSON.stringify(jobData) : 'all';
+      const cacheData = state.work.cache.workers[cacheKey];
+      const expiryTime = state.work.cache.cacheExpiry;
+      
+      // Chỉ check cache, không check loading chung
+      if (isCacheValid(cacheData, expiryTime)) {
+        return false;
+      }
+      return true;
+    }
   }
 );
 
@@ -52,6 +152,13 @@ const initialState = {
   selectedDate: today,
   loading: false,
   error: null,
+  // Cache system để tránh gọi API trùng lặp
+  cache: {
+    assignedWorks: {}, // { date: { data: [...], timestamp: number } }
+    unassignedWorks: {}, // { date: { data: [...], timestamp: number } }
+    workers: {}, // { jobDataKey: { data: [...], timestamp: number } }
+    cacheExpiry: 1 * 60 * 1000, // Giảm xuống 1 phút để cập nhật thường xuyên hơn
+  },
 };
 
 // Slice
@@ -60,7 +167,16 @@ const workSlice = createSlice({
   initialState,
   reducers: {
     setSelectedDate: (state, action) => {
-      state.selectedDate = action.payload;
+      const newDate = action.payload;
+      const oldDate = state.selectedDate;
+      
+      // Nếu ngày thay đổi, clear cache cho ngày cũ
+      if (oldDate && oldDate !== newDate) {
+        delete state.cache.assignedWorks[oldDate];
+        delete state.cache.unassignedWorks[oldDate];
+      }
+      
+      state.selectedDate = newDate;
     },
     clearError: (state) => {
       state.error = null;
@@ -72,6 +188,25 @@ const workSlice = createSlice({
       state.selectedDate = today;
       state.loading = false;
       state.error = null;
+    },
+    // Clear cache cho một ngày cụ thể
+    clearCacheForDate: (state, action) => {
+      const date = action.payload;
+      const hadAssigned = !!state.cache.assignedWorks[date];
+      const hadUnassigned = !!state.cache.unassignedWorks[date];
+      
+      delete state.cache.assignedWorks[date];
+      delete state.cache.unassignedWorks[date];
+    },
+    // Clear toàn bộ cache
+    clearAllCache: (state) => {
+      state.cache.assignedWorks = {};
+      state.cache.unassignedWorks = {};
+      state.cache.workers = {};
+    },
+    // Clear workers cache
+    clearWorkersCache: (state) => {
+      state.cache.workers = {};
     },
   },
   extraReducers: (builder) => {
@@ -85,7 +220,13 @@ const workSlice = createSlice({
         state.loading = false;
         // API response có cấu trúc: { success: true, message: "...", data: {...} }
         // Chỉ lấy phần data
-        state.unassignedWorks = action.payload?.data || action.payload;
+        const data = action.payload?.data || action.payload;
+        state.unassignedWorks = data;
+        // Lưu vào cache với selectedDate
+        state.cache.unassignedWorks[state.selectedDate] = {
+          data: data,
+          timestamp: Date.now()
+        };
         state.error = null;
       })
       .addCase(fetchUnassignedWorks.rejected, (state, action) => {
@@ -103,7 +244,13 @@ const workSlice = createSlice({
         state.loading = false;
         // API response có cấu trúc: { success: true, message: "...", data: {...} }
         // Chỉ lấy phần data
-        state.assignedWorks = action.payload?.data || action.payload;
+        const data = action.payload?.data || action.payload;
+        state.assignedWorks = data;
+        // Lưu vào cache với selectedDate
+        state.cache.assignedWorks[state.selectedDate] = {
+          data: data,
+          timestamp: Date.now()
+        };
         state.error = null;
       })
       .addCase(fetchAssignedWorks.rejected, (state, action) => {
@@ -119,7 +266,17 @@ const workSlice = createSlice({
       })
       .addCase(fetchWorkers.fulfilled, (state, action) => {
         state.loading = false;
-        state.workers = action.payload;
+        // Đảm bảo workers luôn là array
+        const workersData = Array.isArray(action.payload) ? action.payload : [];
+        state.workers = workersData;
+        
+        // Lưu vào cache
+        const cacheKey = action.meta.arg ? JSON.stringify(action.meta.arg) : 'all';
+        state.cache.workers[cacheKey] = {
+          data: workersData,
+          timestamp: Date.now()
+        };
+        
         state.error = null;
       })
       .addCase(fetchWorkers.rejected, (state, action) => {
@@ -135,6 +292,9 @@ const workSlice = createSlice({
       })
       .addCase(assignWorker.fulfilled, (state, action) => {
         state.loading = false;
+        // Clear cache sau khi assign worker để refresh data
+        state.cache.assignedWorks = {};
+        state.cache.unassignedWorks = {};
         state.error = null;
       })
       .addCase(assignWorker.rejected, (state, action) => {
@@ -150,6 +310,9 @@ const workSlice = createSlice({
       })
       .addCase(changeWorker.fulfilled, (state, action) => {
         state.loading = false;
+        // Clear cache sau khi change worker để refresh data
+        state.cache.assignedWorks = {};
+        state.cache.unassignedWorks = {};
         state.error = null;
       })
       .addCase(changeWorker.rejected, (state, action) => {
@@ -159,7 +322,14 @@ const workSlice = createSlice({
   },
 });
 
-export const { setSelectedDate, clearError, resetWorkState } = workSlice.actions;
+export const { 
+  setSelectedDate, 
+  clearError, 
+  resetWorkState, 
+  clearCacheForDate, 
+  clearAllCache,
+  clearWorkersCache
+} = workSlice.actions;
 
 // Selectors
 export const selectAssignedWorks = (state) => state.work.assignedWorks;

@@ -1,14 +1,14 @@
 import DashboardClient from "./DashboardClient";
-import AuthGuard from "@/components/AuthGuard";
-
+export const metadata = {
+  title: "Trang Chủ" + " - " + process.env.NEXT_PUBLIC_APP_NAME,
+  description: "Trang Chủ",
+};
 export default function DashboardPage() {
   return (
-    <AuthGuard>
-      <div className="flex flex-col h-[calc(100vh-64px)] bg-gradient-to-br from-blue-50 to-indigo-50">
-        <div className="overflow-hidden flex-1">
-          <DashboardClient />
-        </div>
+    <div className="flex flex-col h-[calc(100vh-64px)] bg-gradient-to-br from-blue-50 to-indigo-50">
+      <div className="overflow-hidden flex-1">
+        <DashboardClient />
       </div>
-    </AuthGuard>
+    </div>
   );
 }

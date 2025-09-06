@@ -9,13 +9,12 @@ import {
   Briefcase,
   CheckCircle2,
   Clipboard,
-  MapPin,
 } from "lucide-react";
-import wardsData from "../../data/tphcm-wards-complete.json";
 import keywordsData from "../../data/keywords.json";
 import actionsData from "../../data/actions.json";
 import materialServicesData from "../../data/material_services.json";
 import { API_URLS } from "../../config/constants";
+import AddressAutocomplete from "../ui/AddressAutocomplete";
 
 // CSS để buộc hiển thị format 24h cho input time
 const timeInputStyles = `
@@ -66,8 +65,6 @@ export default function CreateScheduleModal({
     job_customer_address: "", job_customer_phone: "", job_customer_name: "", job_customer_note: "",
     job_type_id: "", job_source: "call_center", job_priority: "", user_id: "1", job_images: [],
     has_appointment_time: false, // Thêm field để kiểm soát việc có hẹn giờ hay không
-    job_customer_ward: "", // Thêm field cho phường/xã
-    job_customer_district: "", // Thêm field cho quận
     // Thêm các field mới cho 3 dropdown
     selected_keyword: "",
     selected_action: "",
@@ -81,10 +78,6 @@ export default function CreateScheduleModal({
   const [imageViewerOpen, setImageViewerOpen] = useState(false);
   const [phoneError, setPhoneError] = useState(false);
   const [currentTime, setCurrentTime] = useState(getCurrentTime());
-  const [wardSearchTerm, setWardSearchTerm] = useState("");
-  const [showWardDropdown, setShowWardDropdown] = useState(false);
-  const [districtSearchTerm, setDistrictSearchTerm] = useState("");
-  const [showDistrictDropdown, setShowDistrictDropdown] = useState(false);
 
   // Load saved data when modal opens
   useEffect(() => {
@@ -118,8 +111,6 @@ export default function CreateScheduleModal({
             job_content_aircon: undefined
           });
           
-          setWardSearchTerm(parsedData.job_customer_ward || "");
-          setDistrictSearchTerm(parsedData.job_customer_district || "");
         } catch (error) {
           console.error("Error parsing saved form data:", error);
           resetForm();
@@ -194,87 +185,12 @@ export default function CreateScheduleModal({
     };
   }, [isOpen]);
 
+
   const clearSavedData = () => localStorage.removeItem("createScheduleFormData");
   const resetForm = () => {
     setScheduleData(getDefaultFormData(currentTime));
-    setWardSearchTerm("");
-    setDistrictSearchTerm("");
-    setShowWardDropdown(false);
-    setShowDistrictDropdown(false);
   };
 
-  // Trích xuất và xử lý dữ liệu quận/phường
-  const allOldDistricts = Array.from(new Set(
-    wardsData.wards.flatMap(ward => 
-      ward.formed_from.match(/Quận\s*\d+/g) || []
-    )
-  )).sort((a, b) => parseInt(a.match(/\d+/)[0]) - parseInt(b.match(/\d+/)[0]));
-
-  const filteredWards = wardsData.wards
-    .filter(ward => {
-      const nameMatch = ward.name.toLowerCase().includes(wardSearchTerm.toLowerCase());
-      const districtMatch = !districtSearchTerm || ward.formed_from.includes(districtSearchTerm);
-      return nameMatch && districtMatch;
-    })
-    .slice(0, 10);
-
-  const filteredDistricts = allOldDistricts.filter(district =>
-    district.toLowerCase().includes(districtSearchTerm.toLowerCase())
-  );
-
-  const getOldDistrictsFromWard = (wardName) => {
-    const ward = wardsData.wards.find(w => w.name === wardName);
-    if (!ward) return [];
-    
-    const matches = ward.formed_from.match(/Quận\s*\d+/g);
-    return matches || [];
-  };
-
-  const handleWardSelect = (ward) => {
-    const oldDistricts = getOldDistrictsFromWard(ward.name);
-    setScheduleData({
-      ...scheduleData,
-      job_customer_ward: ward.name,
-      job_customer_district: oldDistricts.join(", "),
-    });
-    setWardSearchTerm(ward.name);
-    setDistrictSearchTerm(oldDistricts.join(", "));
-    setShowWardDropdown(false);
-  };
-
-  const handleWardInputChange = (e) => {
-    const value = e.target.value;
-    setWardSearchTerm(value);
-    setScheduleData({ ...scheduleData, job_customer_ward: value });
-    setShowWardDropdown(value.length > 0);
-    
-    if (value === "") {
-      setDistrictSearchTerm("");
-      setScheduleData(prev => ({ ...prev, job_customer_district: "" }));
-    }
-  };
-
-  const handleDistrictSelect = (district) => {
-    setScheduleData({ ...scheduleData, job_customer_district: district });
-    setDistrictSearchTerm(district);
-    setShowDistrictDropdown(false);
-    
-    // Reset phường/xã khi chọn quận
-    setWardSearchTerm("");
-    setScheduleData(prev => ({ ...prev, job_customer_ward: "" }));
-  };
-
-  const handleDistrictInputChange = (e) => {
-    const value = e.target.value;
-    setDistrictSearchTerm(value);
-    setScheduleData({ ...scheduleData, job_customer_district: value });
-    setShowDistrictDropdown(value.length > 0);
-    
-    if (value === "") {
-      setWardSearchTerm("");
-      setScheduleData(prev => ({ ...prev, job_customer_ward: "" }));
-    }
-  };
 
     // Phone number handlers
   const handlePhoneChange = (e) => {
@@ -379,9 +295,7 @@ export default function CreateScheduleModal({
     // Generate unique request ID to prevent duplicates
     const requestId = `job_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     requestIdRef.current = requestId;
-    
     submissionRef.current = true; // Set submission state to true
-
     try {
       // Check if this request is still valid (not superseded by another)
       if (requestIdRef.current !== requestId) {
@@ -403,8 +317,6 @@ export default function CreateScheduleModal({
         job_customer_name:
           scheduleData.job_customer_name.trim() || "Khách hàng",
         job_customer_note: scheduleData.job_customer_note.trim() || "",
-        job_customer_ward: scheduleData.job_customer_ward.trim() || "",
-        job_customer_district: scheduleData.job_customer_district.trim() || "",
         job_type_id: parseInt(scheduleData.job_type_id), // Đảm bảo là số
         job_source: scheduleData.job_source,
         job_priority: scheduleData.job_priority.trim(), // Đảm bảo priority được gửi đúng
@@ -665,141 +577,25 @@ export default function CreateScheduleModal({
                   />
                 </div>
 
-                {/* Địa chỉ và vị trí */}
-                <div className="space-y-3">
-                  {/* Quận và Phường/Xã */}
-                  <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-                    {/* Phường/Xã */}
-                    <div>
-                      <label className="block mb-2 text-xs font-medium text-gray-700">
-                        Phường/Xã
-                      </label>
-                      <div className="relative">
-                        <div className="flex items-center space-x-2">
-                          <MapPin className="w-4 h-4 text-gray-400" />
-                          <input
-                            type="text"
-                            value={wardSearchTerm}
-                            onChange={handleWardInputChange}
-                            onFocus={() => setShowWardDropdown(wardSearchTerm.length > 0)}
-                            onBlur={() => setTimeout(() => setShowWardDropdown(false), 200)}
-                            className="flex-1 rounded-lg border-gray-200 shadow-sm focus:border-brand-green focus:ring-brand-green bg-white text-sm px-3 py-2.5 transition-colors"
-                            placeholder="Tìm kiếm phường/xã..."
-                          />
-                          {wardSearchTerm && (
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setWardSearchTerm("");
-                                setDistrictSearchTerm("");
-                                setScheduleData(prev => ({
-                                  ...prev,
-                                  job_customer_ward: "",
-                                  job_customer_district: "",
-                                }));
-                              }}
-                              className="p-1 text-gray-400 transition-colors hover:text-gray-600"
-                              title="Xóa"
-                            >
-                              ×
-                            </button>
-                          )}
-                        </div>
-                        
-                        {showWardDropdown && filteredWards.length > 0 && (
-                          <div className="overflow-y-auto absolute z-10 mt-1 w-full max-h-60 bg-white rounded-lg border border-gray-200 shadow-lg">
-                            {filteredWards.map((ward) => (
-                              <button
-                                key={ward.code}
-                                type="button"
-                                onClick={() => handleWardSelect(ward)}
-                                className="px-3 py-2 w-full text-sm text-left border-b border-gray-100 transition-colors hover:bg-gray-50 last:border-b-0"
-                              >
-                                <div className="font-medium text-gray-900">{ward.name}</div>
-                                <div className="text-xs text-gray-500">{ward.formed_from}</div>
-                              </button>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Quận cũ (trước sáp nhập) */}
-                    <div>
-                      <label className="block mb-2 text-xs font-medium text-gray-700">
-                        Quận cũ <span className="text-gray-500">(trước sáp nhập)</span>
-                      </label>
-                      <div className="relative">
-                        <div className="flex items-center space-x-2">
-                          <MapPin className="w-4 h-4 text-gray-400" />
-                          <input
-                            type="text"
-                            value={districtSearchTerm}
-                            onChange={handleDistrictInputChange}
-                            onFocus={() => setShowDistrictDropdown(districtSearchTerm.length > 0)}
-                            onBlur={() => setTimeout(() => setShowDistrictDropdown(false), 200)}
-                            className="flex-1 rounded-lg border-gray-200 shadow-sm focus:border-brand-green focus:ring-brand-green bg-white text-sm px-3 py-2.5 transition-colors"
-                            placeholder="Tự động điền khi chọn phường/xã..."
-                            readOnly
-                          />
-                          {districtSearchTerm && (
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setDistrictSearchTerm("");
-                                setWardSearchTerm("");
-                                setScheduleData(prev => ({
-                                  ...prev,
-                                  job_customer_district: "",
-                                  job_customer_ward: "",
-                                }));
-                              }}
-                              className="p-1 text-gray-400 transition-colors hover:text-gray-600"
-                              title="Xóa"
-                            >
-                              ×
-                            </button>
-                          )}
-                        </div>
-                        
-                        {showDistrictDropdown && filteredDistricts.length > 0 && (
-                          <div className="overflow-y-auto absolute z-10 mt-1 w-full max-h-60 bg-white rounded-lg border border-gray-200 shadow-lg">
-                            {filteredDistricts.map((district) => (
-                              <button
-                                key={district}
-                                type="button"
-                                onClick={() => handleDistrictSelect(district)}
-                                className="px-3 py-2 w-full text-sm text-left border-b border-gray-100 transition-colors hover:bg-gray-50 last:border-b-0"
-                              >
-                                <div className="font-medium text-gray-900">{district}</div>
-                              </button>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Địa chỉ chi tiết */}
-                  <div>
-                    <label className="block mb-2 text-xs font-medium text-gray-700">
-                      Địa chỉ chi tiết <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      value={scheduleData.job_customer_address}
-                      onChange={(e) =>
-                        setScheduleData({
-                          ...scheduleData,
-                          job_customer_address: e.target.value,
-                        })
-                      }
-                      className="w-full rounded-lg border-gray-200 shadow-sm focus:border-brand-green focus:ring-brand-green bg-white text-sm px-3 py-2.5 transition-colors"
-                      placeholder="Nhập địa chỉ chi tiết (số nhà, đường, phường/xã)"
-                      required
-                    />
-                  </div>
-                </div>
+                {/* Địa chỉ với autocomplete */}
+                <AddressAutocomplete
+                  value={scheduleData.job_customer_address}
+                  onChange={(value) => {
+                    setScheduleData({
+                      ...scheduleData,
+                      job_customer_address: value,
+                    });
+                  }}
+                  onSelect={(address) => {
+                    setScheduleData({
+                      ...scheduleData,
+                      job_customer_address: address.description,
+                    });
+                  }}
+                  placeholder="Nhập địa chỉ để tìm kiếm tự động..."
+                  required={true}
+                  label="Địa chỉ"
+                />
               </div>
 
               {/* Thông tin công việc */}
@@ -1278,8 +1074,8 @@ export default function CreateScheduleModal({
                 </div>
               </div>
 
-              {/* Nút điều khiển */}
-              <div className="flex-shrink-0 px-6 pt-4 bg-white border-t border-gray-100">
+              {/* Nút điều khiển - Di chuyển lên trên */}
+              <div className="px-6 py-4 bg-gray-50 border-t border-gray-200">
                 <div className="flex gap-3">
                   <button
                     type="button"
