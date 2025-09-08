@@ -23,7 +23,6 @@ const JobCard = ({
   const [isChangingWorker, setIsChangingWorker] = useState(false);
   const [tooltipPosition, setTooltipPosition] = useState('bottom');
   const cardRef = useRef(null);
-
   // Kiểm tra vị trí của card để quyết định hiển thị tooltip lên trên hay xuống dưới
   useEffect(() => {
     const checkTooltipPosition = () => {
@@ -49,32 +48,32 @@ const JobCard = ({
   return (
     <div
       ref={cardRef}
-      className="flex relative items-center px-2 py-0.5 text-xs bg-white rounded-lg border border-gray-200 transition-all duration-200 hover:border-brand-green/300 hover:shadow-md"
+      className="flex relative items-center text-xs bg-white rounded-lg border border-gray-200 transition-all duration-200 hover:border-brand-green/300 hover:shadow-md"
       onMouseEnter={() => setShowTooltip(true)}
       onMouseLeave={() => setShowTooltip(false)}
     >
-      {/* Phần nội dung chính - có thể click để mở modal chi tiết */}
+      {/* Phần bên trái - Chứa tất cả nội dung với background */}
       <div 
-        className="flex flex-row items-center rounded transition-colors cursor-pointer hover:bg-gray-100/50"
+        className="flex-1 flex items-center gap-3 px-3 py-1.5 rounded-l-lg cursor-pointer hover:bg-blue-50/30 transition-colors min-w-0"
         onClick={() => setShowModal(true)}
       >
         {/* Mã công việc - Fixed width */}
-        <div className="flex-shrink-0 px-2 w-16">
-          <div className="px-1 py-0.5 text-xs font-bold rounded bg-brand-green/10 text-brand-green text-center">
+        <div className="flex-shrink-0 mr-3 w-16">
+          <div className="px-1.5 py-0.5 text-xs font-bold text-center rounded bg-brand-green/10 text-brand-green">
             {job.job_code || "N/A"}
           </div>
         </div>
         
         {/* Nội dung công việc + Thông tin khách hàng - Flexible */}
-        <div className="flex-1 px-2 min-w-0">
-          <div className="text-sm font-semibold text-gray-900 truncate">
+        <div className="flex-1 min-w-0">
+          <div className="mb-1 text-sm font-semibold text-gray-900 truncate">
             {job.job_content || "Không có nội dung"}
           </div>
-          {/* Thông tin khách hàng gọn gàng - 1 dòng compact */}
-          <div className="flex items-center space-x-2 mt-0.5 text-xs text-gray-600">
+          {/* Thông tin khách hàng - 1 dòng gọn */}
+          <div className="flex items-center space-x-4 text-xs text-gray-600">
             <div className="flex items-center space-x-1 min-w-0">
               <span className="text-brand-green">👤</span>
-              <span className="font-medium truncate max-w-16">
+              <span className="font-medium truncate max-w-20">
                 {job.job_customer_name || "N/A"}
               </span>
             </div>
@@ -86,85 +85,92 @@ const JobCard = ({
             </div>
             <div className="flex items-center space-x-1 min-w-0">
               <MapPin className="flex-shrink-0 w-3 h-3 text-brand-green" />
-              <span className="text-gray-700 truncate max-w-28">
+              <span className="text-gray-700 truncate max-w-32">
                 {job.job_customer_address || "N/A"}
               </span>
             </div>
           </div>
         </div>
         
-        {/* Trạng thái + Thời gian + Hình ảnh - Fixed width */}
-        <div className="flex-shrink-0 px-2 w-24">
-          <div className="flex flex-col space-y-0.5">
-            {/* Trạng thái */}
-            <span
-              className={`px-1 py-0.5 text-xs font-medium rounded-full text-center ${getStatusColor(
-                job.priority === "high"
-                  ? 4
-                  : job.priority === "normal"
-                  ? 9
-                  : job.priority === "cancelled"
-                  ? 3
-                  : job.priority === "no_answer"
-                  ? 2
-                  : job.priority === "worker_return"
-                  ? 1
-                  : 0
-              )}`}
-              title={getStatusName(
-                job.priority === "high"
-                  ? 4
-                  : job.priority === "normal"
-                  ? 9
-                  : job.priority === "cancelled"
-                  ? 3
-                  : job.priority === "no_answer"
-                  ? 2
-                  : job.priority === "worker_return"
-                  ? 1
-                  : 0
-              ).replace(/[^\w\s]/g, "")}
-            >
-              {job.priority === "high"
-                ? "🔥 Gấp"
-                : job.priority === "normal"
-                ? "🏠 Thường"
-                : job.priority === "cancelled"
-                ? "❌ Hủy"
-                : job.priority === "no_answer"
-                ? "📞 Không nghe"
-                : job.priority === "worker_return"
-                ? "🔄 Thợ về"
-                : "⏳ Chưa phân"}
-            </span>
-            {/* Thời gian và hình ảnh */}
-            <div className="flex items-center space-x-1">
-              <div className="px-1 py-0.5 text-xs font-medium rounded bg-brand-yellow/10 text-brand-yellow">
-                {job.job_appointment_time || "N/A"}
-              </div>
-              {job.images_count > 0 && (
-                <div className="px-1 py-0.5 text-xs font-medium rounded bg-brand-green/20 text-brand-green">
-                  📷{job.images_count}
-                </div>
-              )}
+        {/* Trạng thái - Fixed width */}
+        <div className="flex-shrink-0 w-20">
+          <span
+            className={`px-1.5 py-0.5 text-xs font-medium rounded-full text-center block ${getStatusColor(
+              (job.job_priority || job.priority) === "high"
+                ? 4
+                : (job.job_priority || job.priority) === "normal"
+                ? 9
+                : (job.job_priority || job.priority) === "cancelled"
+                ? 3
+                : (job.job_priority || job.priority) === "no_answer"
+                ? 2
+                : (job.job_priority || job.priority) === "worker_return"
+                ? 1
+                : 0
+            )}`}
+            title={getStatusName(
+              (job.job_priority || job.priority) === "high"
+                ? 4
+                : (job.job_priority || job.priority) === "normal"
+                ? 9
+                : (job.job_priority || job.priority) === "cancelled"
+                ? 3
+                : (job.job_priority || job.priority) === "no_answer"
+                ? 2
+                : (job.job_priority || job.priority) === "worker_return"
+                ? 1
+                : 0
+            ).replace(/[^\w\s]/g, "")}
+          >
+            {(job.job_priority || job.priority) === "high"
+              ? "🔥 Gấp"
+              : (job.job_priority || job.priority) === "normal"
+              ? "🏠 Thường"
+              : (job.job_priority || job.priority) === "cancelled"
+              ? "❌ Hủy"
+              : (job.job_priority || job.priority) === "no_answer"
+              ? "📞 Không nghe"
+              : (job.job_priority || job.priority) === "worker_return"
+              ? "🔄 Thợ về"
+              : "⏳ Chưa phân"}
+          </span>
+        </div>
+        
+        {/* Thời gian + Hình ảnh - Fixed width */}
+        <div className="flex-shrink-0 w-24">
+          <div className="flex items-center space-x-1">
+            <div className="px-1.5 py-0.5 text-xs font-medium text-center rounded bg-brand-yellow/10 text-brand-yellow">
+              {job.job_appointment_time || ""}
             </div>
+            {job.images_count > 0 && (
+              <div className="px-1.5 py-0.5 text-xs font-medium text-center rounded bg-brand-green/20 text-brand-green">
+                📷{job.images_count}
+              </div>
+            )}
           </div>
         </div>
         
         {/* Thợ đã phân công - Fixed width */}
-        <div className="flex-shrink-0 px-2 w-20">
-          {job.id_worker && (
-            <div className="px-1 py-0.5 text-xs font-medium text-center rounded bg-brand-green/10 text-brand-green">
+        <div className="flex-shrink-0 w-24">
+          {job.id_worker ? (
+            <div className="px-1.5 py-0.5 text-xs font-medium text-center rounded bg-brand-green/10 text-brand-green">
               <div className="truncate">
                 {job.worker_full_name || job.worker_code || "N/A"}
+              </div>
+            </div>
+          ) : (
+            <div className="px-1.5 py-0.5 text-xs font-medium text-center rounded bg-gray-100 text-gray-500">
+              <div className="truncate">
+                Chưa phân công
               </div>
             </div>
           )}
         </div>
       </div>
-      {/* Các nút hành động - Hoàn toàn tách biệt, không ảnh hưởng đến modal chi tiết */}
+      
+      {/* Phần bên phải - Chứa các nút hành động - Cố định vị trí */}
       <div
-        className="flex flex-shrink-0 items-center ml-2 space-x-1"
+        className="flex flex-shrink-0 items-center px-3 py-1.5 space-x-1 bg-gray-100/50 rounded-r-lg border-l border-gray-200 w-auto"
         onClick={(e) => e.stopPropagation()}
       >
         <button

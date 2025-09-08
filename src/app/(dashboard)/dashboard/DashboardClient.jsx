@@ -7,14 +7,15 @@ import WorkTable from "@/components/work-schedule/WorkTable";
 import NewJobsList from "@/components/work-schedule/NewJobsList";
 import WorkHistory from "@/components/dashboard/WorkHistory";
 import DateNavigator from "@/components/ui/DateNavigator";
+import { useSchedule } from '@/contexts/ScheduleContext';
 import dynamic from 'next/dynamic';
 
 const MapView = dynamic(() => import("@/components/dashboard/MapView"), {
   ssr: false,
   loading: () => (
-    <div className="flex items-center justify-center h-full bg-gray-50 rounded-lg">
+    <div className="flex justify-center items-center h-full bg-gray-50 rounded-lg">
       <div className="text-center">
-        <div className="w-8 h-8 rounded-full border-b-2 animate-spin border-brand-green mx-auto mb-2"></div>
+        <div className="mx-auto mb-2 w-8 h-8 rounded-full border-b-2 animate-spin border-brand-green"></div>
         <p className="text-sm text-gray-600">Đang tải bản đồ...</p>
       </div>
     </div>
@@ -54,7 +55,39 @@ export default function DashboardClient() {
   const [error, setError] = useState(null);
   const [viewMode, setViewMode] = useState("list");
   const [dateRange, setDateRange] = useState({ start: "", end: "" });
+  
+  // Sử dụng ScheduleContext để nhận thông báo khi có job mới được tạo
+  const { setJobCreatedCallback } = useSchedule();
   const [isInitialized, setIsInitialized] = useState(false);
+  
+  // Đăng ký callback khi có job mới được tạo
+  useEffect(() => {
+    const handleJobCreated = async () => {
+      // Đợi một chút để API hoàn tất
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      // Load data từ server để lấy job mới từ API
+      if (fetchDataRef.current) {
+        try {
+          await fetchDataRef.current(selectedDate, false);
+          
+          // Force re-render sau khi load data từ server
+          setRefreshTrigger(prev => {
+            return prev + 1;
+          });
+        } catch (error) {
+          console.error('❌ DashboardClient: Server refresh failed:', error);
+          // Không throw error để tránh crash app
+        }
+      }
+    };
+    
+    setJobCreatedCallback(handleJobCreated);
+    
+    return () => {
+      setJobCreatedCallback(null);
+    };
+  }, [setJobCreatedCallback, selectedDate]);
   const [copiedWorkId, setCopiedWorkId] = useState(null);
   const [isAssignModalOpen, setIsAssignModalOpen] = useState(false);
   const [selectedWork, setSelectedWork] = useState(null);
@@ -63,6 +96,8 @@ export default function DashboardClient() {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isEditAssignedModalOpen, setIsEditAssignedModalOpen] = useState(false);
   const [selectedWorkForEdit, setSelectedWorkForEdit] = useState(null);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
+  const [forceUpdate, setForceUpdate] = useState(0);
 
   // Sử dụng ref để tránh re-create function
   const fetchDataRef = useRef();
@@ -75,20 +110,32 @@ export default function DashboardClient() {
     }
   }, []); // Chỉ chạy một lần khi component mount
 
-  // Tạo fetchData function một lần và lưu vào ref
+  // Tạo fetchData function một lần và lưu vào ref - LUÔN LOAD TỪ API
   useEffect(() => {
-    fetchDataRef.current = async (date) => {
+    fetchDataRef.current = async (date, showError = true) => {
       try {
+        console.log('🔄 fetchDataRef: Starting API data fetch for date:', date);
         setIsRefreshing(true);
-        setError(null);
+        if (showError) {
+          setError(null);
+        }
 
-        await Promise.all([
-          dispatch(fetchAssignedWorks(date)),
-          dispatch(fetchUnassignedWorks(date)),
-        ]);
+        // Luôn load data từ server API để đảm bảo có data mới nhất
+        console.log('🔄 fetchDataRef: Loading assigned works...');
+        await dispatch(fetchAssignedWorks(date));
+        console.log('✅ fetchDataRef: Assigned works loaded');
+        
+        console.log('🔄 fetchDataRef: Loading unassigned works...');
+        await dispatch(fetchUnassignedWorks(date));
+        console.log('✅ fetchDataRef: Unassigned works loaded');
+
+        console.log('✅ fetchDataRef: All API data fetch completed successfully');
       } catch (err) {
-        console.error("❌ Error fetching data:", err);
-        setError("Không thể tải dữ liệu. Vui lòng thử lại sau.");
+        console.error("❌ fetchDataRef: Error fetching API data:", err);
+        if (showError) {
+          setError("Không thể tải dữ liệu từ API. Vui lòng thử lại sau.");
+        }
+        // Không throw error để tránh crash app
       } finally {
         setIsRefreshing(false);
       }
@@ -105,24 +152,42 @@ export default function DashboardClient() {
   const handleAssignSubmit = useCallback(
     async (updatedWork) => {
       try {
-        // Gọi API để phân công thợ
-        const { assignWorker } = await import("@/store/slices/workSlice");
-        await dispatch(assignWorker(updatedWork));
+        console.log('🔄 handleAssignSubmit: Starting worker assignment');
+        console.log('🔄 handleAssignSubmit: Updated work data:', updatedWork);
+        
+        // Đợi một chút để API hoàn tất
+        console.log('🔄 handleAssignSubmit: Waiting for API to complete...');
+        await new Promise(resolve => setTimeout(resolve, 500));
 
-        // Refresh cả hai bảng để cập nhật dữ liệu
+        // Luôn load data từ server API để đảm bảo có data mới nhất
         if (fetchDataRef.current) {
-          await fetchDataRef.current(selectedDate);
+          console.log('🔄 handleAssignSubmit: Loading fresh data from server API');
+          try {
+            await fetchDataRef.current(selectedDate, false);
+            console.log('✅ handleAssignSubmit: Server API data loaded successfully');
+            
+            // Force re-render sau khi load data từ API
+            setRefreshTrigger(prev => {
+              console.log('🔄 handleAssignSubmit: Refresh trigger after API load:', prev + 1);
+              return prev + 1;
+            });
+          } catch (error) {
+            console.error('❌ handleAssignSubmit: Error loading server API data:', error);
+            // Không throw error để tránh crash modal
+          }
         }
+        
       } catch (error) {
+        console.error('❌ handleAssignSubmit: Worker assignment failed:', error);
         alert(`Lỗi phân công thợ: ${error.message}`);
       } finally {
-        // Luôn đóng modal
-        setIsAssignModalOpen(false);
+        // Reset state (modal đã được đóng trong AssignWorkerModal)
+        console.log('🔄 handleAssignSubmit: Resetting state');
         setSelectedWork(null);
         setIsChangingWorker(false);
       }
     },
-    [dispatch, selectedDate]
+    [selectedDate]
   );
 
   const handleCloseAssignModal = useCallback(() => {
@@ -150,10 +215,29 @@ export default function DashboardClient() {
     setSelectedWorkForEdit(null);
   }, []);
 
-  // Function to refresh data after edit success
-  const handleEditSuccess = useCallback(async () => {
-    if (fetchDataRef.current) {
-      await fetchDataRef.current(selectedDate);
+  // Function to refresh data after edit success - ALWAYS LOAD FROM SERVER API
+  const handleEditSuccess = useCallback(async (forceServerRefresh = false) => {
+    try {
+      // Force re-render component để trigger UI update
+      setRefreshTrigger(prev => prev + 1);
+      
+      // Luôn load từ server API để đảm bảo có data mới nhất
+      if (fetchDataRef.current) {
+        try {
+          await fetchDataRef.current(selectedDate, false);
+          // Force re-render lần nữa sau khi load data từ API
+          setRefreshTrigger(prev => {
+            return prev + 1;
+          });
+        } catch (error) {
+          console.error('❌ Error loading data from server API:', error);
+          // Không throw error để tránh crash modal
+        }
+      }
+      
+    } catch (error) {
+      console.error('❌ Error in handleEditSuccess:', error);
+      // Không throw error để tránh crash modal
     }
   }, [selectedDate]);
 
@@ -218,7 +302,7 @@ export default function DashboardClient() {
         const result = await response.json();
         // Refresh data after successful edit
         if (fetchDataRef.current) {
-          await fetchDataRef.current(selectedDate);
+          await fetchDataRef.current(selectedDate, false);
         }
 
         handleCloseEditModal();
@@ -246,13 +330,24 @@ export default function DashboardClient() {
         }
 
         const result = await response.json();
-        // Refresh data after successful edit
+        // Luôn load data từ server API để đảm bảo có data mới nhất
         if (fetchDataRef.current) {
-          await fetchDataRef.current(selectedDate);
+          try {
+            await fetchDataRef.current(selectedDate, false);
+            
+            // Force re-render sau khi load data từ API
+            setRefreshTrigger(prev => {
+              return prev + 1;
+            });
+          } catch (error) {
+            console.error('❌ handleEditAssignedSubmit: Error loading server API data:', error);
+            // Không throw error để tránh crash modal
+          }
         }
 
         handleCloseEditAssignedModal();
       } catch (error) {
+        console.error('❌ handleEditAssignedSubmit: Assigned work update failed:', error);
         alert(`Lỗi lưu chỉnh sửa: ${error.message}`);
       }
     },
@@ -324,7 +419,7 @@ export default function DashboardClient() {
     (mode) => {
       setViewMode(mode);
       if (mode === "today" && isInitialized && fetchDataRef.current) {
-        fetchDataRef.current(selectedDate);
+        fetchDataRef.current(selectedDate, false);
       }
     },
     [selectedDate, isInitialized]
@@ -391,7 +486,43 @@ export default function DashboardClient() {
       unassignedCount,
       assignedCount,
     };
-  }, [unassignedWorks, assignedWorks]);
+  }, [unassignedWorks, assignedWorks, refreshTrigger, forceUpdate]);
+
+  // Debug effect để theo dõi thay đổi dữ liệu
+  useEffect(() => {
+    console.log('🔄 DashboardClient: Data changed - unassignedWorks:', unassignedWorks?.length, 'assignedWorks:', assignedWorks?.length, 'refreshTrigger:', refreshTrigger);
+  }, [unassignedWorks, assignedWorks, refreshTrigger, forceUpdate]);
+
+  // Effect để load dữ liệu khi modal đóng
+  useEffect(() => {
+    if (!isAssignModalOpen && !isEditModalOpen && !isEditAssignedModalOpen) {
+      console.log('🔄 DashboardClient: All modals closed, checking if data needs refresh');
+      // Có thể thêm logic refresh data ở đây nếu cần
+    }
+  }, [isAssignModalOpen, isEditModalOpen, isEditAssignedModalOpen]);
+
+  // Effect để load dữ liệu khi assign modal đóng
+  useEffect(() => {
+    if (!isAssignModalOpen && selectedWork === null) {
+      console.log('🔄 DashboardClient: Assign modal closed, refreshing data');
+      // Load data từ server khi assign modal đóng
+      if (fetchDataRef.current) {
+        fetchDataRef.current(selectedDate, false).then(() => {
+          setRefreshTrigger(prev => prev + 1);
+        }).catch(error => {
+          console.error('❌ Error refreshing data after assign modal close:', error);
+        });
+      }
+    }
+  }, [isAssignModalOpen, selectedWork, selectedDate]);
+
+  // Effect để đảm bảo modal đóng khi cần thiết
+  useEffect(() => {
+    if (isAssignModalOpen && !selectedWork) {
+      console.log('🔄 DashboardClient: No selected work, closing assign modal');
+      setIsAssignModalOpen(false);
+    }
+  }, [isAssignModalOpen, selectedWork]);
 
   // Memoize date range change handler
   const handleDateRangeChange = useCallback((newRange) => {
@@ -666,9 +797,9 @@ export default function DashboardClient() {
           </div>
         </div>
       ) : viewMode === "map" ? (
-        <div className="flex-1 min-h-0 mt-2">
+        <div className="flex-1 mt-2 min-h-0">
           <div className="h-full bg-white rounded-lg border shadow-sm border-brand-green/20">
-            <div className="p-2 bg-gradient-to-r from-brand-green/10 to-brand-yellow/10 border-b border-brand-green/20">
+            <div className="p-2 bg-gradient-to-r border-b from-brand-green/10 to-brand-yellow/10 border-brand-green/20">
               <h2 className="text-xs font-semibold text-brand-green">
                 📍 Bản đồ công việc
               </h2>

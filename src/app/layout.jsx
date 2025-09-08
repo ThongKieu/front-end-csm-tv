@@ -19,8 +19,17 @@ import AuthLoading from '@/components/AuthLoading'
 const inter = Inter({ subsets: ['latin'] })
 
 function AppContent({ children }) {
-  const { isCreateScheduleModalOpen, setIsCreateScheduleModalOpen, workers, refreshData } = useSchedule()
+  const { 
+    isCreateScheduleModalOpen, 
+    setIsCreateScheduleModalOpen, 
+    workers, 
+    refreshData,
+    notifyJobCreated 
+  } = useSchedule()
   const isLoading = useSelector(selectAuthLoading)
+  
+  // Lấy selectedDate từ Redux store nếu có
+  const selectedDate = useSelector(state => state.work?.selectedDate)
 
   // Hiển thị loading khi đang kiểm tra authentication
   if (isLoading) {
@@ -36,6 +45,8 @@ function AppContent({ children }) {
         onClose={() => setIsCreateScheduleModalOpen(false)}
         workers={workers}
         onSuccess={refreshData}
+        selectedDate={selectedDate}
+        onJobCreated={notifyJobCreated}
       />
       <ToastContainer />
     </>

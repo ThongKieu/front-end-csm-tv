@@ -5,8 +5,7 @@ const USER_KEY = 'auth_user';
 
 export const saveAuthData = (token, user) => {
   try {
-    console.log('saveAuthData: Lưu auth data:', { token: token.substring(0, 20) + '...', user: user.name })
-    
+
     // Lưu vào localStorage (persistent)
     localStorage.setItem(TOKEN_KEY, token);
     localStorage.setItem(USER_KEY, JSON.stringify(user));
@@ -97,8 +96,6 @@ export const getAuthData = () => {
 
 export const clearAuthData = () => {
   try {
-    console.log('clearAuthData: Xóa tất cả auth data')
-    
     // Xóa khỏi tất cả storage
     localStorage.removeItem(TOKEN_KEY);
     localStorage.removeItem(USER_KEY);
@@ -198,7 +195,6 @@ export const setupAuthListener = (callback) => {
     if (e.key === TOKEN_KEY || e.key === USER_KEY) {
       // Chỉ gọi callback nếu thay đổi từ tab khác
       if (e.newValue !== e.oldValue) {
-        console.log('setupAuthListener: Storage thay đổi từ tab khác:', e.key)
         callback();
       }
     }

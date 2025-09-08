@@ -107,8 +107,10 @@ const EditAssignedWorkModal = ({ work, onClose, onSave }) => {
         ...changedFields
       };
 
-      // Save work details
+      // Save work details và load API
+      console.log('🔄 EditAssignedWorkModal: Calling onSave with data:', updateData);
       await onSave(updateData);
+      console.log('✅ EditAssignedWorkModal: onSave completed successfully');
       onClose();
     } catch (err) {
       setError(err.message || 'Có lỗi xảy ra khi cập nhật công việc');
@@ -138,8 +140,8 @@ const EditAssignedWorkModal = ({ work, onClose, onSave }) => {
   ];
 
   return (
-    <div className="flex fixed inset-0 z-50 justify-center items-center bg-black/25">
-      <div className="bg-white rounded-lg p-4 w-full max-w-2xl max-h-[85vh] overflow-y-auto">
+    <div className="flex fixed inset-0 z-50 justify-center items-start pt-16 bg-black/25">
+      <div className="bg-white rounded-lg p-4 w-full max-w-2xl max-h-[80vh] overflow-y-auto shadow-2xl">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-lg font-semibold text-gray-900">
             Chỉnh sửa lịch đã phân công

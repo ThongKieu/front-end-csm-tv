@@ -15,6 +15,7 @@ import actionsData from "../../data/actions.json";
 import materialServicesData from "../../data/material_services.json";
 import { API_URLS } from "../../config/constants";
 import AddressAutocomplete from "../ui/AddressAutocomplete";
+// Không cần import addNewWork nữa vì chỉ dựa vào API
 
 // CSS để buộc hiển thị format 24h cho input time
 const timeInputStyles = `
@@ -48,8 +49,11 @@ export default function CreateScheduleModal({
   onClose,
   workers,
   onSuccess,
+  selectedDate = null, // Thêm prop để nhận ngày hiện tại được chọn
+  onJobCreated = null, // Callback khi tạo job thành công để cập nhật UI
 }) {
 
+  // Không cần dispatch nữa vì chỉ dựa vào API
   const fileInputRef = useRef(null);
   const submissionRef = useRef(false); // Track submission state
   const requestIdRef = useRef(null); // Track unique request ID
@@ -63,7 +67,8 @@ export default function CreateScheduleModal({
   const getDefaultFormData = (time = getCurrentTime()) => ({
     job_content: "", job_appointment_date: getTodayDate(), job_appointment_time: time,
     job_customer_address: "", job_customer_phone: "", job_customer_name: "", job_customer_note: "",
-    job_type_id: "", job_source: "call_center", job_priority: "", user_id: "1", job_images: [],
+    job_type_id: "1", // Mặc định chọn "Điện Nước" (value = "1")
+    job_source: "call_center", job_priority: "", user_id: "1", job_images: [],
     has_appointment_time: false, // Thêm field để kiểm soát việc có hẹn giờ hay không
     // Thêm các field mới cho 3 dropdown
     selected_keyword: "",
@@ -205,7 +210,7 @@ export default function CreateScheduleModal({
 
   // Data options
   const jobPriorities = [
-    { value: "", label: "Không chọn", color: "text-gray-500" },
+    { value: "", label: "Bình Thường", color: "text-gray-500" },
     { value: "medium", label: "Khách quen", color: "text-brand-green" },
     { value: "high", label: "Lịch ưu tiên", color: "text-brand-yellow" },
   ];
@@ -387,10 +392,22 @@ export default function CreateScheduleModal({
         }
 
         clearSavedData();
+        if (onJobCreated && typeof onJobCreated === "function") {
+          onJobCreated();
+        }
 
-        // Gọi callback để refresh data
+        // Đợi một chút để API hoàn tất
+        await new Promise(resolve => setTimeout(resolve, 100));
+
+        // Gọi callback để refresh data từ server (giống như phần edit)
         if (onSuccess && typeof onSuccess === "function") {
-          onSuccess();
+          const targetDate = selectedDate || scheduleData.job_appointment_date;
+          try {
+            await onSuccess(targetDate);
+          } catch (error) {
+            console.error('❌ CreateScheduleModal: Server refresh failed:', error);
+            // Không throw error vì job đã được tạo thành công
+          }
         }
 
         onClose();
@@ -852,7 +869,7 @@ export default function CreateScheduleModal({
                             className="w-3 h-3 border-gray-300 text-brand-green focus:ring-brand-green"
                           />
                           <span className={scheduleData.job_priority === priority.value ? "text-white" : priority.color}>
-                            {priority.value === "" ? "Không chọn" : 
+                            {priority.value === "" ? "Bình Thường" : 
                              priority.value === "medium" ? "Khách quen" : 
                              priority.value === "high" ? "Lịch ưu tiên" : priority.label}
                           </span>

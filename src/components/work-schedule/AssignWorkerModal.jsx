@@ -24,8 +24,11 @@ const AssignWorkerModal = ({ work, workers = [], onClose, onAssign, isChanging =
   
   useEffect(() => {
     if (work && workers.length > 0) {
+      console.log('🔄 AssignWorkerModal: Setting selected workers for work:', work);
       setSelectedMainWorker(work.id_worker ? workers.find(w => w.id === work.id_worker) : null);
       setSelectedExtraWorker(work.id_phu ? workers.find(w => w.id === work.id_phu) : null);
+      console.log('🔄 AssignWorkerModal: Selected main worker:', work.id_worker ? workers.find(w => w.id === work.id_worker) : null);
+      console.log('🔄 AssignWorkerModal: Selected extra worker:', work.id_phu ? workers.find(w => w.id === work.id_phu) : null);
     }
   }, [work, workers]);
 
@@ -52,22 +55,34 @@ const AssignWorkerModal = ({ work, workers = [], onClose, onAssign, isChanging =
   // Hàm gọi API phân công thợ
   const assignWorkerAPI = async (assignData) => {
     try {
-      const response = await fetch('/api/web/job/assign-worker', {
+      console.log('🔄 AssignWorkerModal: Calling assign worker API with data:', assignData);
+      
+      const response = await fetch('/api/works/assign-worker', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(assignData),
+        body: JSON.stringify({
+          work: {
+            id: assignData.job_id
+          },
+          worker: assignData.worker_id,
+          role: assignData.role,
+          authId: assignData.user_id,
+        }),
       });
 
       if (!response.ok) {
+        const errorText = await response.text();
+        console.error('❌ API error response:', errorText);
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
       const result = await response.json();
+      console.log('✅ AssignWorkerModal: API response:', result);
       return result;
     } catch (error) {
-      console.error('❌ API error:', error);
+      console.error('❌ AssignWorkerModal: API error:', error);
       throw error;
     }
   };
@@ -80,6 +95,8 @@ const AssignWorkerModal = ({ work, workers = [], onClose, onAssign, isChanging =
 
     setIsSubmitting(true);
     try {
+      console.log('🔄 AssignWorkerModal: Starting worker assignment process');
+      
       // Phân công thợ chính
       const mainWorkerData = {
         job_id: work.id || work.job_id,
@@ -87,8 +104,8 @@ const AssignWorkerModal = ({ work, workers = [], onClose, onAssign, isChanging =
         role: 'main',
         user_id: user.id,
       };
-      // Gọi API phân công thợ chính
       await assignWorkerAPI(mainWorkerData);
+      console.log('✅ AssignWorkerModal: Main worker assigned successfully');
       
       // Nếu có thợ phụ, phân công thợ phụ
       if (selectedExtraWorker) {
@@ -98,23 +115,29 @@ const AssignWorkerModal = ({ work, workers = [], onClose, onAssign, isChanging =
           role: 'assistant',
           user_id: user.id,
         };
-        // Gọi API phân công thợ phụ
         await assignWorkerAPI(extraWorkerData);
+        console.log('✅ AssignWorkerModal: Extra worker assigned successfully');
       }
       
-      // Gọi callback để parent component cập nhật UI
+      console.log('✅ AssignWorkerModal: All workers assigned successfully');
+      
+      // Đóng modal trước
+      console.log('🔄 AssignWorkerModal: Closing modal');
+      onClose();
+      
+      // Gọi callback để parent component load data từ server
       if (onAssign) {
+        console.log('🔄 AssignWorkerModal: Calling onAssign callback');
         await onAssign({
           work: work,
           mainWorker: selectedMainWorker,
           extraWorker: selectedExtraWorker,
         });
+        console.log('✅ AssignWorkerModal: onAssign callback completed');
       }
       
-      // Đóng modal
-      onClose();
     } catch (error) {
-      console.error('Error assigning worker:', error);
+      console.error('❌ AssignWorkerModal: Error assigning worker:', error);
       alert('Có lỗi xảy ra khi phân công thợ. Vui lòng thử lại.');
     } finally {
       setIsSubmitting(false);
@@ -127,6 +150,15 @@ const AssignWorkerModal = ({ work, workers = [], onClose, onAssign, isChanging =
     } else if (role === 'extra') {
       setSelectedExtraWorker(worker);
     }
+  };
+
+  // Reset form khi modal đóng
+  const handleClose = () => {
+    setSelectedMainWorker(null);
+    setSelectedExtraWorker(null);
+    setSearchTerm('');
+    setIsSubmitting(false);
+    onClose();
   };
 
   const handleRemoveWorker = (role) => {
@@ -144,8 +176,8 @@ const AssignWorkerModal = ({ work, workers = [], onClose, onAssign, isChanging =
   if (!work) return null;
 
   return (
-    <div className="fixed inset-0 z-[9999] flex justify-center items-center backdrop-blur-sm bg-black/25" onClick={onClose}>
-      <div className="bg-white rounded-lg shadow-2xl max-w-xl w-full mx-4 max-h-[85vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+    <div className="fixed inset-0 z-[9999] flex justify-center items-start pt-16 backdrop-blur-sm bg-black/25" onClick={handleClose}>
+      <div className="bg-white rounded-lg shadow-2xl max-w-xl w-full mx-4 max-h-[80vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
         {/* Header */}
         <div className="sticky top-0 px-4 py-3 bg-gradient-to-r rounded-t-lg border-b border-gray-200 from-brand-green/10 to-brand-yellow/10">
           <div className="flex justify-between items-center">
@@ -161,7 +193,7 @@ const AssignWorkerModal = ({ work, workers = [], onClose, onAssign, isChanging =
               </div>
             </div>
             <button
-              onClick={onClose}
+              onClick={handleClose}
               className="p-1.5 text-gray-400 rounded-full transition-all duration-200 hover:text-brand-yellow hover:bg-brand-yellow/10"
               aria-label="Đóng"
             >
@@ -356,7 +388,7 @@ const AssignWorkerModal = ({ work, workers = [], onClose, onAssign, isChanging =
         <div className="sticky bottom-0 px-4 py-3 bg-gray-50 rounded-b-lg border-t border-gray-200">
           <div className="flex justify-end space-x-2">
             <button
-              onClick={onClose}
+              onClick={handleClose}
               className="px-3 py-1.5 text-sm text-gray-600 bg-white rounded-lg border border-gray-300 transition-colors duration-200 hover:bg-gray-50"
             >
               Hủy
