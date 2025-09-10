@@ -53,63 +53,63 @@ export default function Sidebar() {
       label: 'Trang chủ',
       icon: 'Home',
       route: '/dashboard',
-      roles: ['admin', 'manager', 'accountant', 'user']
+      roles: ['admin', 'manager', 'office', 'accountant', 'user']
     },
     {
       id: 1,
       label: 'Dashboard Admin',
       icon: 'LayoutDashboard',
       route: '/admin/dashboard',
-      roles: ['admin', 'manager']
+      roles: ['admin', 'manager', 'office']
     },
     {
       id: 2,
       label: 'Quản lý người dùng',
       icon: 'Users',
       route: '/admin/users',
-      roles: ['admin']
+      roles: ['admin', 'office']
     },
     {
       id: 3,
       label: 'Quản lý thợ',
       icon: 'Users',
       route: '/admin/workers',
-      roles: ['admin', 'manager']
+      roles: ['admin', 'manager', 'office']
     },
     {
       id: 4,
       label: 'Lịch làm việc',
       icon: 'Calendar',
       route: ROUTES.WORKS,
-      roles: ['admin', 'manager', 'user']
+      roles: ['admin', 'manager', 'office', 'user']
     },
     {
       id: 5,
       label: 'Báo giá',
       icon: 'DollarSign',
       route: ROUTES.QUOTES,
-      roles: ['admin', 'manager', 'accountant', 'user']
+      roles: ['admin', 'manager', 'office', 'accountant', 'user']
     },
     {
       id: 6,
       label: 'Khách hàng',
       icon: 'Building2',
       route: '/customer',
-      roles: ['admin', 'manager', 'accountant', 'user']
+      roles: ['admin', 'manager', 'office', 'accountant', 'user']
     },
     {
       id: 7,
       label: 'Phường/Xã',
       icon: 'MapPin',
       route: ROUTES.WARDS,
-      roles: ['admin', 'manager', 'accountant', 'user']
+      roles: ['admin', 'manager', 'office', 'accountant', 'user']
     },
     {
       id: 8,
       label: 'Gửi ZNS',
       icon: 'MessageSquare',
       route: '/admin/zns',
-      roles: ['admin']
+      roles: ['admin', 'office']
     },
     {
       id: 9,
@@ -123,7 +123,7 @@ export default function Sidebar() {
       label: 'Cài đặt',
       icon: 'Settings',
       route: '/profile',
-      roles: ['admin', 'manager', 'accountant', 'user']
+      roles: ['admin', 'manager', 'office', 'accountant', 'user']
     }
   ]
 

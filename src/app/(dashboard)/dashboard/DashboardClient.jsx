@@ -495,9 +495,6 @@ export default function DashboardClient() {
                     ✅ Đã phân công ({assignedWorks?.length || 0})
                   </h2>
                 </div>
-                <p className="mt-0.5 text-xs text-brand-green">
-                  Công việc đã được giao cho thợ thực hiện
-                </p>
               </div>
               <div className="overflow-hidden flex-1 p-1">
                 {assignedWorks ? (
@@ -525,7 +522,6 @@ export default function DashboardClient() {
             </div>
           </div>
         </div>
-      )
       {isAssignModalOpen && selectedWork ? (
         <MemoizedAssignWorkerModal
           work={selectedWork}

@@ -11,8 +11,8 @@ export default function AdminLayout({ children }) {
   const router = useRouter()
 
   useEffect(() => {
-    // Nếu đã hoàn tất loading và chưa đăng nhập hoặc không phải admin, redirect
-    if (!isLoading && (!isAuthenticated || !user || user.role !== 'admin')) {
+    // Nếu đã hoàn tất loading và chưa đăng nhập hoặc không có quyền admin, redirect
+    if (!isLoading && (!isAuthenticated || !user || !['admin', 'manager', 'office'].includes(user.role))) {
       router.push('/login')
     }
   }, [isLoading, isAuthenticated, user, router])
@@ -22,8 +22,8 @@ export default function AdminLayout({ children }) {
     return <AuthLoading />
   }
 
-  // Nếu chưa đăng nhập hoặc không phải admin, không hiển thị gì
-  if (!isAuthenticated || !user || user.role !== 'admin') {
+  // Nếu chưa đăng nhập hoặc không có quyền admin, không hiển thị gì
+  if (!isAuthenticated || !user || !['admin', 'manager', 'office'].includes(user.role)) {
     return null
   }
 

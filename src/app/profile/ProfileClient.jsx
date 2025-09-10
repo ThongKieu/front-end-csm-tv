@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useSelector } from 'react-redux'
 import { User, Mail, Phone, Building, Calendar, MapPin, Hash, Briefcase, Users, CheckCircle, AlertCircle } from 'lucide-react'
 import Header from '@/components/layout/Header'
+import AddressAutocomplete from '@/components/ui/AddressAutocomplete'
 
 export default function ProfileClient() {
   const { user } = useSelector((state) => state.auth)
@@ -25,37 +26,61 @@ export default function ProfileClient() {
     role: '',
   })
 
-  // Helper function để format ngày tháng từ backend (YYYY-MM-DD) sang hiển thị (DD/MM/YYYY)
+  // Helper function để format ngày tháng từ backend sang hiển thị (DD/MM/YYYY)
   const formatDateForDisplay = (dateString) => {
-    if (!dateString) return ''
+    console.log('formatDateForDisplay input:', dateString, 'type:', typeof dateString)
     
-    // Nếu đã đúng format YYYY-MM-DD
-    if (/^\d{4}-\d{2}-\d{2}$/.test(dateString)) {
-      const parts = dateString.split('-')
-      const year = parts[0]
-      const month = parts[1]
-      const day = parts[2]
-      return `${day}/${month}/${year}`
+    if (!dateString) {
+      console.log('formatDateForDisplay: empty string')
+      return ''
     }
     
     // Nếu đã là format DD/MM/YYYY thì giữ nguyên
     if (/^\d{2}\/\d{2}\/\d{4}$/.test(dateString)) {
+      console.log('formatDateForDisplay: already DD/MM/YYYY format')
       return dateString
     }
     
-    // Nếu là Date object hoặc timestamp
+    // Xử lý các format khác nhau từ backend
     try {
-      const date = new Date(dateString)
+      let date
+      
+      // Nếu là format YYYY-MM-DD (chỉ có ngày)
+      if (/^\d{4}-\d{2}-\d{2}$/.test(dateString)) {
+        const parts = dateString.split('-')
+        const year = parts[0]
+        const month = parts[1]
+        const day = parts[2]
+        const result = `${day}/${month}/${year}`
+        console.log('formatDateForDisplay: YYYY-MM-DD format ->', result)
+        return result
+      }
+      
+      // Nếu là format ISO 8601 (YYYY-MM-DDTHH:mm:ss.sssZ)
+      if (dateString.includes('T') || dateString.includes('Z')) {
+        console.log('formatDateForDisplay: ISO 8601 format detected')
+        date = new Date(dateString)
+      } else {
+        // Thử parse như Date object thông thường
+        console.log('formatDateForDisplay: trying to parse as Date object')
+        date = new Date(dateString)
+      }
+      
       if (!isNaN(date.getTime())) {
         const day = String(date.getDate()).padStart(2, '0')
         const month = String(date.getMonth() + 1).padStart(2, '0')
         const year = date.getFullYear()
-        return `${day}/${month}/${year}`
+        const result = `${day}/${month}/${year}`
+        console.log('formatDateForDisplay: parsed successfully ->', result)
+        return result
+      } else {
+        console.log('formatDateForDisplay: invalid date')
       }
     } catch (error) {
       console.warn('Cannot parse date for display:', dateString, error)
     }
     
+    console.log('formatDateForDisplay: no match, returning empty')
     return ''
   }
 
@@ -92,6 +117,17 @@ export default function ProfileClient() {
 
   useEffect(() => {
     if (user) {
+      console.log('Loading user data - user object:', user)
+      console.log('Original date_of_birth:', user.date_of_birth || user.birth_date)
+      console.log('All date fields:', {
+        date_of_birth: user.date_of_birth,
+        birth_date: user.birth_date,
+        dateOfBirth: user.dateOfBirth,
+        birthDate: user.birthDate,
+        dob: user.dob,
+        DOB: user.DOB
+      })
+      
       // Điền thông tin user hiện tại vào form
       const userData = {
         id: user.id || user.user_id || '',
@@ -105,6 +141,9 @@ export default function ProfileClient() {
         phone_family: user.phone_family || user.family_phone || '',
         role: user.role || user.user_role || '',
       }
+      
+      console.log('Formatted userData:', userData)
+      console.log('Formatted date_of_birth:', userData.date_of_birth)
       setFormData(userData)
     }
   }, [user])
@@ -479,7 +518,7 @@ export default function ProfileClient() {
                       data-lpignore="true"
                     />
                   </div>
-                  
+                 
                 </div>
 
                 {/* Role */}
@@ -512,21 +551,13 @@ export default function ProfileClient() {
 
                 {/* Address */}
                 <div className="md:col-span-2">
-                  <label className="block mb-2 text-sm font-semibold text-gray-700">
-                    Địa chỉ
-                  </label>
-                  <div className="relative">
-                    <div className="flex absolute inset-y-0 left-0 items-center pl-3 pointer-events-none">
-                      <MapPin className="w-5 h-5 text-gray-400" />
-                    </div>
-                    <input
-                      type="text"
-                      value={formData.address}
-                      onChange={(e) => handleInputChange('address', e.target.value)}
-                      disabled={!isEditing}
-                      className={inputClassName(!isEditing)}
-                    />
-                  </div>
+                  <AddressAutocomplete
+                    value={formData.address}
+                    onChange={(value) => handleInputChange('address', value)}
+                    disabled={!isEditing}
+                    placeholder="Nhập địa chỉ..."
+                    className={inputClassName(!isEditing)}
+                  />
                 </div>
 
                 {/* Phone Business */}

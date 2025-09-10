@@ -49,13 +49,19 @@ const JobCard = ({ job, index, onAssign, onEdit, workers = [] }) => {
 
         {/* Nội dung công việc + Thông tin khách hàng - Flexible */}
         <div className="flex flex-col flex-1 min-w-0 space-y-0.5">
-          {/* 1. Dòng 1: Mã + Nội dung công việc, Tên, SĐT, Thời gian hẹn */}
-          <div className="flex items-center space-x-2 text-xs text-gray-600">
-            {/* Mã công việc + Nội dung công việc */}
-            <div className="flex items-center space-x-1 min-w-0">
-              <span className="font-bold text-brand-green">
-                {job.job_code || ""}
+          {/* 1. Dòng 1: Mã code lịch */}
+          {job.job_code && (
+            <div className="flex items-center space-x-1">
+              <span className="text-xs font-bold text-[#125d0d]">
+                #{job.job_code}
               </span>
+            </div>
+          )}
+          
+          {/* 2. Dòng 2: Nội dung công việc, Tên, SĐT, Thời gian hẹn */}
+          <div className="flex items-center space-x-2 text-xs text-gray-600">
+            {/* Nội dung công việc */}
+            <div className="flex items-center space-x-1 min-w-0">
               <span className="font-semibold text-gray-900 truncate">
                 {job.job_content || "Không có nội dung"}
               </span>
@@ -88,7 +94,7 @@ const JobCard = ({ job, index, onAssign, onEdit, workers = [] }) => {
             )}
           </div>
           
-          {/* 3. Dòng 2: Địa chỉ + Ghi chú + Hình ảnh + Thợ */}
+          {/* 3. Dòng 3: Địa chỉ + Ghi chú + Hình ảnh + Thợ */}
           <div className="flex items-center space-x-2 text-xs text-gray-600">
             {/* Địa chỉ */}
             <div className="flex flex-1 items-center space-x-1 min-w-0">

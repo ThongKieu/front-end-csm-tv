@@ -38,6 +38,8 @@ export const getRoleBasedRoute = (role) => {
       return ROUTES.ADMIN.DASHBOARD;
     case 'manager':
       return ROUTES.DASHBOARD; // Manager đi đến dashboard thường
+    case 'office':
+      return ROUTES.ADMIN.DASHBOARD; // Office đi đến admin dashboard
     case 'accountant':
       return ROUTES.ACCOUNTANT.TRANSACTIONS;
     case 'worker':

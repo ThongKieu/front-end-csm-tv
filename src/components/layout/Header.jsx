@@ -135,7 +135,7 @@ export default function Header() {
       route: ROUTES.REPORTS,
       icon: <BarChart className="w-4 h-4" />,
     },
-    ...(user?.role === 'admin' ? [{
+    ...(['admin', 'office'].includes(user?.role) ? [{
       id: "admin",
       label: "Admin",
       route: ROUTES.ADMIN.DASHBOARD,
@@ -254,7 +254,7 @@ export default function Header() {
                       <Lock className="mr-2 w-4 h-4" />
                       Đổi mật khẩu
                     </Link>
-                    {(user?.role === 'admin' || user?.role === 'manager') && (
+                    {(['admin', 'manager', 'office'].includes(user?.role)) && (
                       <Link
                         href="/admin"
                         className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
@@ -367,7 +367,7 @@ export default function Header() {
                     <Lock className="mr-2 w-4 h-4" />
                     Đổi mật khẩu
                   </Link>
-                  {(user?.role === 'admin' || user?.role === 'manager') && (
+                  {(['admin', 'manager', 'office'].includes(user?.role)) && (
                     <Link
                       href="/admin"
                       className="flex items-center px-3 py-2 text-base font-medium text-gray-600 rounded-md hover:bg-gray-50 hover:text-gray-900"

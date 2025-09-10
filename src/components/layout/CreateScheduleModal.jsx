@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback, memo, useMemo, useTransition } from "react";
 import axios from "axios";
 import {
   X,
@@ -10,9 +10,7 @@ import {
   CheckCircle2,
   Clipboard,
 } from "lucide-react";
-import keywordsData from "../../data/keywords.json";
-import actionsData from "../../data/actions.json";
-import materialServicesData from "../../data/material_services.json";
+// Không cần import data cũ nữa vì sẽ dùng API
 import { API_URLS } from "../../config/constants";
 import AddressAutocomplete from "../ui/AddressAutocomplete";
 // Không cần import addNewWork nữa vì chỉ dựa vào API
@@ -78,10 +76,6 @@ export default function CreateScheduleModal({
     user_id: "1",
     job_images: [],
     has_appointment_time: false, // Thêm field để kiểm soát việc có hẹn giờ hay không
-    // Thêm các field mới cho 3 dropdown
-    selected_keyword: "",
-    selected_action: "",
-    selected_material_service: "",
   });
   const defaultFormData = getDefaultFormData();
 
@@ -92,6 +86,159 @@ export default function CreateScheduleModal({
   const [imageViewerOpen, setImageViewerOpen] = useState(false);
   const [phoneError, setPhoneError] = useState(false);
   const [currentTime, setCurrentTime] = useState(getCurrentTime());
+  
+  // States cho service search
+  const [services, setServices] = useState([]);
+  const [selectedServices, setSelectedServices] = useState([]);
+  const [serviceSearchTerm, setServiceSearchTerm] = useState("");
+  const [showServiceDropdown, setShowServiceDropdown] = useState(false);
+  const [loadingServices, setLoadingServices] = useState(false);
+  const [serviceError, setServiceError] = useState(false);
+  
+  // useTransition để làm cho UI mượt mà hơn
+  const [isPending, startTransition] = useTransition();
+
+  // Hàm loại bỏ dấu tiếng Việt
+  const removeVietnameseAccents = (str) => {
+    return str
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/đ/g, "d")
+      .replace(/Đ/g, "D");
+  };
+
+  // Filter services based on search term - sử dụng useMemo để tối ưu
+  const filteredServices = useMemo(() => {
+    if (serviceSearchTerm.trim() === "") {
+      return [];
+    }
+
+    const searchTerm = removeVietnameseAccents(serviceSearchTerm.toLowerCase());
+    return services.filter(service => {
+      const serviceName = removeVietnameseAccents(service.name.toLowerCase());
+      return serviceName.includes(searchTerm);
+    });
+  }, [serviceSearchTerm, services]);
+
+  // Update dropdown visibility based on filtered services
+  useEffect(() => {
+    setShowServiceDropdown(filteredServices.length > 0 && serviceSearchTerm.trim() !== "");
+  }, [filteredServices, serviceSearchTerm]);
+
+  // Service handlers - tối ưu để tránh giật
+  const handleServiceSelect = useCallback((service) => {
+    startTransition(() => {
+      setSelectedServices(prev => {
+        const isAlreadySelected = prev.some(s => s.id === service.id);
+        if (!isAlreadySelected) {
+          const newSelectedServices = [...prev, service];
+          const content = newSelectedServices.map(s => s.name).join(", ");
+          
+          // Batch state updates trong một callback
+          setScheduleData(prevSchedule => ({
+            ...prevSchedule,
+            job_content: content,
+          }));
+          setServiceError(false);
+          
+          console.log("Selected service:", service.name, "Total services:", newSelectedServices.length);
+          return newSelectedServices;
+        }
+        return prev;
+      });
+    });
+    
+    // Clear search và dropdown ngay lập tức (không cần transition)
+    setServiceSearchTerm("");
+    setShowServiceDropdown(false);
+  }, []); // Bỏ dependency để tránh re-create
+
+  const handleServiceRemove = useCallback((serviceId) => {
+    setSelectedServices(prev => {
+      const newSelectedServices = prev.filter(s => s.id !== serviceId);
+      const content = newSelectedServices.map(s => s.name).join(", ");
+      
+      // Batch state updates trong một callback
+      setScheduleData(prevSchedule => ({
+        ...prevSchedule,
+        job_content: content,
+      }));
+      
+      // Clear error if there are still services selected
+      if (newSelectedServices.length > 0) {
+        setServiceError(false);
+      }
+      
+      console.log("Removed service, new content:", content);
+      return newSelectedServices;
+    });
+  }, []); // Bỏ dependency để tránh re-create
+
+  // Debounced search handler
+  const handleServiceSearchChange = useCallback((e) => {
+    const value = e.target.value;
+    setServiceSearchTerm(value);
+  }, []);
+
+  // Debounced search effect
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      // This will trigger the useMemo for filteredServices
+    }, 150); // 150ms debounce
+
+    return () => clearTimeout(timer);
+  }, [serviceSearchTerm]);
+
+  // Memoized dropdown item component - tối ưu để tránh re-render
+  const ServiceDropdownItem = useMemo(() => {
+    return memo(({ service, isSelected, onSelect }) => (
+      <div
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          onSelect(service);
+        }}
+        className={`px-3 py-2 text-sm transition-colors cursor-pointer select-none ${
+          isSelected 
+            ? "font-medium bg-brand-green/10 text-brand-green" 
+            : "text-gray-700 hover:bg-gray-100"
+        }`}
+        onMouseDown={(e) => e.preventDefault()}
+      >
+        <div className="flex justify-between items-center">
+          <span>{service.name}</span>
+          {isSelected && (
+            <span className="text-xs">✓</span>
+          )}
+        </div>
+      </div>
+    ));
+  }, []);
+
+  // Load services from API
+  useEffect(() => {
+    const fetchServices = async () => {
+      if (services.length > 0) return; // Đã load rồi
+      
+      setLoadingServices(true);
+      try {
+        const response = await fetch('https://data.thoviet.com/api/get-service-all');
+        const data = await response.json();
+        
+        if (data.success && data.data) {
+          setServices(data.data);
+        }
+      } catch (error) {
+        console.error('Error fetching services:', error);
+      } finally {
+        setLoadingServices(false);
+      }
+    };
+
+    if (isOpen) {
+      fetchServices();
+    }
+  }, [isOpen, services.length]);
 
   // Load saved data when modal opens
   useEffect(() => {
@@ -121,11 +268,12 @@ export default function CreateScheduleModal({
             ...parsedData,
             has_appointment_time: hasAppointmentTime,
             job_appointment_time: appointmentTime,
-            // Bỏ các field không còn sử dụng
-            job_content_construction: undefined,
-            job_content_installation: undefined,
-            job_content_aircon: undefined,
           });
+
+          // Load selected services from saved data
+          if (parsedData.selectedServices) {
+            setSelectedServices(parsedData.selectedServices);
+          }
         } catch (error) {
           console.error("Error parsing saved form data:", error);
           resetForm();
@@ -143,10 +291,13 @@ export default function CreateScheduleModal({
     if (isOpen) {
       localStorage.setItem(
         "createScheduleFormData",
-        JSON.stringify(scheduleData)
+        JSON.stringify({
+          ...scheduleData,
+          selectedServices: selectedServices
+        })
       );
     }
-  }, [scheduleData, isOpen]);
+  }, [scheduleData, selectedServices, isOpen]);
 
   // Update current time every minute
   useEffect(() => {
@@ -203,6 +354,9 @@ export default function CreateScheduleModal({
     localStorage.removeItem("createScheduleFormData");
   const resetForm = () => {
     setScheduleData(getDefaultFormData(currentTime));
+    setSelectedServices([]);
+    setServiceSearchTerm("");
+    setServiceError(false);
   };
 
   // Phone number handlers
@@ -288,9 +442,16 @@ export default function CreateScheduleModal({
       // Bỏ validation bắt buộc cho priority - cho phép "không chọn"
     ];
 
-    // Validate nội dung công việc
-    if (!scheduleData.job_content || !scheduleData.job_content.trim()) {
+    // Validate nội dung công việc - kiểm tra cả job_content và selectedServices
+    const hasJobContent = scheduleData.job_content && scheduleData.job_content.trim();
+    const hasSelectedServices = selectedServices && selectedServices.length > 0;
+    
+    if (!hasJobContent && !hasSelectedServices) {
+      console.log("Validation failed: No job content or selected services");
+      setServiceError(true);
       return;
+    } else {
+      setServiceError(false);
     }
 
     // Priority không bắt buộc nữa - có thể để trống
@@ -340,8 +501,14 @@ export default function CreateScheduleModal({
       }
 
       // Chuẩn bị dữ liệu gửi đi với format chính xác
+      // Đảm bảo job_content được tạo từ selectedServices nếu chưa có
+      let finalJobContent = scheduleData.job_content.trim();
+      if (!finalJobContent && selectedServices.length > 0) {
+        finalJobContent = selectedServices.map(service => service.name).join(", ");
+      }
+      
       const requestData = {
-        job_content: scheduleData.job_content.trim(),
+        job_content: finalJobContent,
         job_appointment_date: scheduleData.job_appointment_date,
         // Chỉ gửi giờ hẹn khi có hẹn giờ cụ thể
         ...(scheduleData.has_appointment_time && {
@@ -506,20 +673,6 @@ export default function CreateScheduleModal({
 
   if (!isOpen) return null;
 
-  // Hàm tự động cập nhật job_content khi 3 dropdown thay đổi
-  const updateJobContent = (keyword, materialService, action) => {
-    const parts = [];
-    if (keyword) parts.push(keyword);
-    if (materialService) parts.push(materialService);
-    if (action) parts.push(action);
-
-    const combinedContent = parts.join(" ");
-    setScheduleData((prev) => ({
-      ...prev,
-      job_content: combinedContent,
-    }));
-  };
-
   return (
     <>
       <style dangerouslySetInnerHTML={{ __html: timeInputStyles }} />
@@ -656,144 +809,114 @@ export default function CreateScheduleModal({
                   </h3>
                 </div>
 
-                {/* Nội dung công việc - 3 dropdown */}
+                {/* Nội dung công việc - Service search */}
                 <div className="space-y-3">
-                  <label className="block mb-2 text-xs font-medium text-gray-700">
-                    Nội dung công việc <span className="text-red-500">*</span>
-                  </label>
+                  {/* Service search input */}
+                  <div className="relative">
+                    <input
+                      type="text"
+                      value={serviceSearchTerm}
+                      onChange={handleServiceSearchChange}
+                      onFocus={() => {
+                        if (serviceSearchTerm.trim() && filteredServices.length > 0) {
+                          setShowServiceDropdown(true);
+                        }
+                      }}
+                      className={`w-full rounded-lg border-gray-200 shadow-sm focus:border-brand-green focus:ring-brand-green bg-white text-sm px-3 py-2.5 transition-colors ${
+                        serviceError ? "border-red-500" : ""
+                      }`}
+                      placeholder="Tìm kiếm dịch vụ..."
+                    />
+                    
+                    {/* Loading indicator */}
+                    {loadingServices && (
+                      <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                        <div className="w-4 h-4 rounded-full border-b-2 animate-spin border-brand-green"></div>
+                      </div>
+                    )}
 
-                  {/* 3 dropdown để chọn nội dung */}
-                  <div className="grid grid-cols-1 gap-3 lg:grid-cols-3">
-                    {/* Keyword dropdown */}
-                    <div>
-                      <label className="block mb-1.5 text-xs font-medium text-gray-600">
-                        Hành động chính
-                      </label>
-                      <select
-                        value={scheduleData.selected_keyword}
-                        onChange={(e) => {
-                          const selectedKeyword = e.target.value;
-                          setScheduleData((prev) => ({
-                            ...prev,
-                            selected_keyword: selectedKeyword,
-                          }));
-                          updateJobContent(
-                            selectedKeyword,
-                            scheduleData.selected_material_service,
-                            scheduleData.selected_action
+                    {/* Service dropdown */}
+                    {showServiceDropdown && filteredServices.length > 0 && (
+                      <div className="overflow-y-auto absolute z-10 mt-1 w-full max-h-60 bg-white rounded-lg border border-gray-200 shadow-lg">
+                        {filteredServices.map((service) => {
+                          const isSelected = selectedServices.some(s => s.id === service.id);
+                          return (
+                            <ServiceDropdownItem
+                              key={service.id}
+                              service={service}
+                              isSelected={isSelected}
+                              onSelect={handleServiceSelect}
+                            />
                           );
-                        }}
-                        className="w-full rounded-lg border-gray-200 shadow-sm focus:border-brand-green focus:ring-brand-green bg-white text-sm px-3 py-2.5 transition-colors"
-                      >
-                        <option value="">Chọn hành động</option>
-                        {keywordsData.keywords.map((keyword) => (
-                          <option key={keyword.id} value={keyword.name}>
-                            {keyword.name}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-
-                    {/* Material/Service dropdown */}
-                    <div>
-                      <label className="block mb-1.5 text-xs font-medium text-gray-600">
-                        Vật liệu/Dịch vụ
-                      </label>
-                      <select
-                        value={scheduleData.selected_material_service}
-                        onChange={(e) => {
-                          const selectedMaterialService = e.target.value;
-                          setScheduleData((prev) => ({
-                            ...prev,
-                            selected_material_service: selectedMaterialService,
-                          }));
-                          updateJobContent(
-                            scheduleData.selected_keyword,
-                            selectedMaterialService,
-                            scheduleData.selected_action
-                          );
-                        }}
-                        className="w-full rounded-lg border-gray-200 shadow-sm focus:border-brand-green focus:ring-brand-green bg-white text-sm px-3 py-2.5 transition-colors"
-                      >
-                        <option value="">Chọn vật liệu</option>
-                        {materialServicesData.material_services.map(
-                          (material) => (
-                            <option key={material.id} value={material.name}>
-                              {material.name}
-                            </option>
-                          )
-                        )}
-                      </select>
-                    </div>
-
-                    {/* Action dropdown */}
-                    <div>
-                      <label className="block mb-1.5 text-xs font-medium text-gray-600">
-                        Đối tượng
-                      </label>
-                      <select
-                        value={scheduleData.selected_action}
-                        onChange={(e) => {
-                          const selectedAction = e.target.value;
-                          setScheduleData((prev) => ({
-                            ...prev,
-                            selected_action: selectedAction,
-                          }));
-                          updateJobContent(
-                            scheduleData.selected_keyword,
-                            scheduleData.selected_material_service,
-                            selectedAction
-                          );
-                        }}
-                        className="w-full rounded-lg border-gray-200 shadow-sm focus:border-brand-green focus:ring-brand-green bg-white text-sm px-3 py-2.5 transition-colors"
-                      >
-                        <option value="">Chọn đối tượng</option>
-                        {actionsData.actions.map((action) => (
-                          <option key={action.id} value={action.name}>
-                            {action.name}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
+                        })}
+                      </div>
+                    )}
                   </div>
 
-                  {/* Hiển thị nội dung đã ghép */}
-                  <div className="p-3 bg-gray-50 rounded-lg border border-gray-200">
-                    <div className="flex justify-between items-center">
-                      <label className="block text-xs font-medium text-gray-600">
-                        Nội dung đã ghép:
-                      </label>
-                      {scheduleData.job_content && (
+                  {/* Error message */}
+                  {serviceError && (
+                    <p className="mt-1 text-xs text-red-500">
+                      Vui lòng chọn ít nhất một dịch vụ
+                    </p>
+                  )}
+
+                  {/* Selected services tags */}
+                  {selectedServices.length > 0 && (
+                    <div className="space-y-2">
+                      <div className="flex justify-between items-center">
+                        <label className="text-xs font-medium text-gray-600">
+                          Dịch vụ đã chọn ({selectedServices.length}):
+                        </label>
                         <button
                           type="button"
                           onClick={() => {
+                            setSelectedServices([]);
                             setScheduleData((prev) => ({
                               ...prev,
-                              selected_keyword: "",
-                              selected_action: "",
-                              selected_material_service: "",
                               job_content: "",
                             }));
+                            setServiceError(false);
                           }}
                           className="text-xs text-red-500 transition-colors hover:text-red-600"
                           title="Xóa tất cả"
                         >
-                          × Xóa
+                          × Xóa tất cả
                         </button>
-                      )}
+                      </div>
+                      <div className="flex flex-wrap gap-1.5">
+                        {selectedServices.map((service) => (
+                          <div
+                            key={service.id}
+                            className="inline-flex items-center px-2 py-1 text-xs font-medium rounded-md border bg-brand-green/10 text-brand-green border-brand-green/20"
+                          >
+                            <span>{service.name}</span>
+                            <button
+                              type="button"
+                              onClick={() => handleServiceRemove(service.id)}
+                              className="ml-1.5 text-brand-green/60 hover:text-brand-green transition-colors"
+                              title="Xóa"
+                            >
+                              ×
+                            </button>
+                          </div>
+                        ))}
+                      </div>
                     </div>
-                    <div className="mt-1.5 p-2 bg-white rounded border border-gray-200 min-h-[2.5rem] flex items-center">
-                      {scheduleData.job_content ? (
+                  )}
+
+                  {/* Job content preview */}
+                  {scheduleData.job_content && (
+                    <div className="p-3 bg-gray-50 rounded-lg border border-gray-200">
+                      <label className="block text-xs font-medium text-gray-600 mb-1.5">
+                        Nội dung công việc:
+                      </label>
+                      <div className="p-2 bg-white rounded border border-gray-200">
                         <span className="text-sm font-medium text-gray-800">
                           {scheduleData.job_content}
                         </span>
-                      ) : (
-                        <span className="text-sm italic text-gray-400">
-                          Chọn từ 3 dropdown trên để tạo nội dung công việc
-                        </span>
-                      )}
+                      </div>
                     </div>
-                  </div>
+                  )}
                 </div>
 
                 <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">

@@ -12,7 +12,7 @@ export default function AdminLayout({ children }) {
 
   useEffect(() => {
     // Nếu đã hoàn tất loading và chưa đăng nhập hoặc không đủ quyền, redirect
-    if (!isLoading && (!isAuthenticated || !user || !['admin', 'manager'].includes(user.role))) {
+    if (!isLoading && (!isAuthenticated || !user || !['admin', 'manager', 'office'].includes(user.role))) {
       router.push('/login')
     }
   }, [isLoading, isAuthenticated, user, router])
@@ -23,7 +23,7 @@ export default function AdminLayout({ children }) {
   }
 
   // Nếu chưa đăng nhập hoặc không đủ quyền, không hiển thị gì
-  if (!isAuthenticated || !user || !['admin', 'manager'].includes(user.role)) {
+  if (!isAuthenticated || !user || !['admin', 'manager', 'office'].includes(user.role)) {
     return null
   }
 

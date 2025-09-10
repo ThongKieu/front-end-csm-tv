@@ -39,6 +39,27 @@ const roleRoutes = {
     '/quotes/create',
     '/workers'
   ],
+  office: [
+    ROUTES.HOME,
+    ROUTES.DASHBOARD,
+    ROUTES.ADMIN.DASHBOARD,
+    ROUTES.ADMIN.USERS,
+    ROUTES.ADMIN.SCHEDULE,
+    ROUTES.ADMIN.COMPANY,
+    ROUTES.ADMIN.REPORTS,
+    ROUTES.ADMIN.DOCUMENTS,
+    ROUTES.ADMIN.SETTINGS,
+    ROUTES.ADMIN.ZNS,
+    ROUTES.CUSTOMER,
+    ROUTES.SERVICES,
+    ROUTES.REPORTS,
+    ROUTES.SETTINGS,
+    ROUTES.PROFILE,
+    ROUTES.CHANGE_PASSWORD,
+    ROUTES.QUOTES,
+    '/quotes/create',
+    '/workers'
+  ],
   manager: [
     ROUTES.HOME,
     ROUTES.DASHBOARD,

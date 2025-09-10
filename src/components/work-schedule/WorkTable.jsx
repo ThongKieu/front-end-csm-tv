@@ -467,15 +467,19 @@ Ghi chú: ${work.work_note || work.job_customer_note || "Không có"}`;
                 onClick={() => handleViewDetail(work)}
               >
                 <div className="flex flex-col space-y-0.5 text-xs">
-                  {/* Dòng 1: Mã + Nội dung công việc + Tên KH + SĐT + Thời gian hẹn */}
+                  {/* Dòng 1: Mã code lịch */}
+                  {work.job_code && (
+                    <div className="flex items-center space-x-1">
+                      <span className="text-xs font-bold text-[#125d0d]">
+                        #{work.job_code}
+                      </span>
+                    </div>
+                  )}
+                  
+                  {/* Dòng 2: Nội dung công việc + Tên KH + SĐT + Thời gian hẹn */}
                   <div className="flex items-center space-x-2">
-                    {/* Mã công việc + Nội dung công việc */}
+                    {/* Nội dung công việc */}
                     <div className="flex items-center space-x-1 min-w-0">
-                      {work.job_code && (
-                        <span className="text-xs font-bold text-brand-green">
-                          {work.job_code}
-                        </span>
-                      )}
                       <span className="font-medium text-gray-900 truncate max-w-40">
                         {work.work_content || work.job_content || "Không có nội dung"}
                       </span>
@@ -505,7 +509,7 @@ Ghi chú: ${work.work_note || work.job_customer_note || "Không có"}`;
                     )}
                   </div>
 
-                  {/* Dòng 2: Địa chỉ + Ghi chú + Hình ảnh */}
+                  {/* Dòng 3: Địa chỉ + Ghi chú + Hình ảnh */}
                   <div className="flex items-center space-x-2">
                     {/* Địa chỉ */}
                     <div className="flex flex-1 items-center space-x-1 min-w-0">

@@ -24,7 +24,7 @@ export async function GET(request) {
     const isAdminRoute = pathname.startsWith('/admin')
     const isAccountantRoute = pathname.startsWith('/accountant')
 
-    if (isAdminRoute && payload.role !== 'admin') {
+    if (isAdminRoute && !['admin', 'manager', 'office'].includes(payload.role)) {
       return NextResponse.json(
         { message: 'Không có quyền truy cập' },
         { status: 403 }
