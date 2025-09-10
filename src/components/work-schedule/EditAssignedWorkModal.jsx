@@ -106,11 +106,7 @@ const EditAssignedWorkModal = ({ work, onClose, onSave }) => {
         job_id: formData.job_id,
         ...changedFields
       };
-
-      // Save work details và load API
-      console.log('🔄 EditAssignedWorkModal: Calling onSave with data:', updateData);
       await onSave(updateData);
-      console.log('✅ EditAssignedWorkModal: onSave completed successfully');
       onClose();
     } catch (err) {
       setError(err.message || 'Có lỗi xảy ra khi cập nhật công việc');

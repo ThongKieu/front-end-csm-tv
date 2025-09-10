@@ -8,7 +8,6 @@ import { logout } from "@/store/slices/authSlice";
 import { ROUTES } from "@/config/routes";
 import {
   LayoutDashboard,
-  Calendar,
   Users,
   Wrench,
   BarChart,
@@ -101,12 +100,6 @@ export default function Header() {
       icon: <LayoutDashboard className="w-4 h-4" />,
     },
     {
-      id: "works",
-      label: "Lịch làm việc",
-      route: ROUTES.WORK_SCHEDULE,
-      icon: <Calendar className="w-4 h-4" />,
-    },
-    {
       id: "quotes",
       label: "Báo giá",
       route: ROUTES.QUOTES,
@@ -161,7 +154,7 @@ export default function Header() {
       <div className="container px-4 mx-auto">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
-          <Link href="/" className="flex items-center space-x-2">
+          <Link href="/dashboard" className="flex items-center space-x-2">
             <img
               src="https://thoviet.com.vn/wp-content/uploads/2025/05/logo-thoviet.png"
               alt="CSM TV Logo"

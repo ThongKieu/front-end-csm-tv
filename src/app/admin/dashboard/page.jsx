@@ -65,7 +65,7 @@ const StatCard = ({ title, value, icon: Icon, trend, trendValue, trendType, desc
   <Card className="bg-white transition-all duration-200 hover:shadow-lg border-brand-green/20">
     <CardHeader className="flex flex-row justify-between items-center pb-2 space-y-0">
       <CardTitle className="text-sm font-medium text-gray-600">{title}</CardTitle>
-      <div className="p-2 bg-gradient-to-r from-brand-green/10 to-brand-yellow/10 rounded-lg">
+      <div className="p-2 bg-gradient-to-r rounded-lg from-brand-green/10 to-brand-yellow/10">
         <Icon className="w-4 h-4 text-brand-green" />
       </div>
     </CardHeader>
@@ -147,7 +147,7 @@ export default function AdminDashboard() {
           {/* Header */}
           <div className="flex justify-between items-center">
             <div>
-              <div className="flex items-center gap-2">
+              <div className="flex gap-2 items-center">
                 <Crown className="w-6 h-6 text-brand-green" />
                 <h1 className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-brand-green to-brand-yellow">
                   Admin Dashboard
@@ -157,7 +157,7 @@ export default function AdminDashboard() {
                 Tổng quan về hoạt động của hệ thống
               </p>
             </div>
-            <div className="px-4 py-2 text-sm text-brand-green bg-white rounded-lg border border-brand-green/20 shadow-sm">
+            <div className="px-4 py-2 text-sm bg-white rounded-lg border shadow-sm text-brand-green border-brand-green/20">
               Cập nhật lần cuối: {lastUpdated}
             </div>
           </div>
@@ -324,10 +324,10 @@ export default function AdminDashboard() {
                 {stats.recentActivity.map((activity, index) => (
                   <div
                     key={index}
-                    className="flex justify-between items-center p-4 bg-white rounded-lg border border-brand-green/10 transition-colors duration-200 hover:bg-brand-green/5"
+                    className="flex justify-between items-center p-4 bg-white rounded-lg border transition-colors duration-200 border-brand-green/10 hover:bg-brand-green/5"
                   >
                     <div className="flex items-center space-x-4">
-                      <div className="p-2 bg-gradient-to-r from-brand-green/10 to-brand-yellow/10 rounded-full">
+                      <div className="p-2 bg-gradient-to-r rounded-full from-brand-green/10 to-brand-yellow/10">
                         <ActivityIcon type={activity.type} />
                       </div>
                       <div>
@@ -335,7 +335,7 @@ export default function AdminDashboard() {
                         <p className="text-sm text-gray-600">{activity.description}</p>
                       </div>
                     </div>
-                    <div className="px-3 py-1 text-sm text-brand-green bg-brand-green/10 rounded-full">
+                    <div className="px-3 py-1 text-sm rounded-full text-brand-green bg-brand-green/10">
                       {formatDate(activity.timestamp)}
                     </div>
                   </div>

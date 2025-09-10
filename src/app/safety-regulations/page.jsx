@@ -29,9 +29,9 @@ export default function SafetyRegulationsPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
       {/* Header */}
-      <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b border-gray-200 shadow-sm">
-        <div className="container mx-auto px-4 py-3">
-          <div className="flex items-center justify-between">
+      <header className="sticky top-0 z-50 border-b border-gray-200 shadow-sm backdrop-blur-sm bg-white/95">
+        <div className="container px-4 py-3 mx-auto">
+          <div className="flex justify-between items-center">
             <div className="flex items-center space-x-3">
               <img 
                 src="https://thoviet.com.vn/wp-content/uploads/2023/03/cropped-Logo-Tho-Viet-bg-3.png"
@@ -46,7 +46,7 @@ export default function SafetyRegulationsPage() {
             
             {/* Mobile Menu Button */}
             <button 
-              className="lg:hidden p-2 rounded-lg bg-gray-100 hover:bg-gray-200 transition-colors"
+              className="p-2 bg-gray-100 rounded-lg transition-colors lg:hidden hover:bg-gray-200"
               onClick={() => setExpandedSections(prev => ({ ...prev, mobileMenu: !prev.mobileMenu }))}
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -66,7 +66,7 @@ export default function SafetyRegulationsPage() {
                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                 }`}
               >
-                <Shield className="inline w-4 h-4 mr-1" />
+                <Shield className="inline mr-1 w-4 h-4" />
                 Điều 1: Đào Tạo
               </button>
               <button
@@ -77,7 +77,7 @@ export default function SafetyRegulationsPage() {
                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                 }`}
               >
-                <Heart className="inline w-4 h-4 mr-1" />
+                <Heart className="inline mr-1 w-4 h-4" />
                 Điều 2: Sơ Cứu
               </button>
               <button
@@ -88,7 +88,7 @@ export default function SafetyRegulationsPage() {
                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                 }`}
               >
-                <AlertTriangle className="inline w-4 h-4 mr-1" />
+                <AlertTriangle className="inline mr-1 w-4 h-4" />
                 Tình Huống
               </button>
             </div>
@@ -97,10 +97,10 @@ export default function SafetyRegulationsPage() {
       </header>
 
       {/* Main Content */}
-      <main className="container mx-auto px-4 py-6">
+      <main className="container px-4 py-6 mx-auto">
         {/* Company Info */}
-        <div className="bg-white rounded-xl shadow-lg p-6 mb-8">
-          <div className="grid md:grid-cols-2 gap-6">
+        <div className="p-6 mb-8 bg-white rounded-xl shadow-lg">
+          <div className="grid gap-6 md:grid-cols-2">
             <div className="space-y-2">
               <h2 className="text-xl font-bold text-gray-800">Bên A: CÔNG TY TNHH DỊCH VỤ KỸ THUẬT THỢ VIỆT</h2>
               <div className="space-y-1 text-gray-600">
@@ -111,7 +111,7 @@ export default function SafetyRegulationsPage() {
               </div>
             </div>
             <div className="flex items-center">
-              <div className="bg-blue-100 p-4 rounded-lg">
+              <div className="p-4 bg-blue-100 rounded-lg">
                 <h3 className="text-lg font-bold text-blue-800">Bên B: Người lao động</h3>
               </div>
             </div>
@@ -120,14 +120,14 @@ export default function SafetyRegulationsPage() {
 
         {/* Section 1 */}
         <section id="dieu1" className="mb-8">
-          <div className="bg-white rounded-xl shadow-lg overflow-hidden">
+          <div className="overflow-hidden bg-white rounded-xl shadow-lg">
             <div 
-              className="bg-gradient-to-r from-blue-600 to-blue-700 p-6 cursor-pointer"
+              className="p-6 bg-gradient-to-r from-blue-600 to-blue-700 cursor-pointer"
               onClick={() => toggleSection('dieu1')}
             >
-              <div className="flex items-center justify-between">
-                <h2 className="text-2xl font-bold text-white flex items-center">
-                  <Shield className="w-6 h-6 mr-3" />
+              <div className="flex justify-between items-center">
+                <h2 className="flex items-center text-2xl font-bold text-white">
+                  <Shield className="mr-3 w-6 h-6" />
                   ĐIỀU 1: ĐÀO TẠO KIẾN THỨC AN TOÀN LAO ĐỘNG
                 </h2>
                 {expandedSections.dieu1 ? <ChevronUp className="w-6 h-6 text-white" /> : <ChevronDown className="w-6 h-6 text-white" />}
@@ -136,79 +136,79 @@ export default function SafetyRegulationsPage() {
             
             {expandedSections.dieu1 && (
               <div className="p-6 space-y-6">
-                <p className="text-gray-700 leading-relaxed">
+                <p className="leading-relaxed text-gray-700">
                   Bên B đã được Bên A đào tạo, huấn luyện các kiến thức an toàn lao động sau đây:
                 </p>
 
                 {/* Safety Categories */}
-                <div className="grid md:grid-cols-2 gap-6">
+                <div className="grid gap-6 md:grid-cols-2">
                   {/* Personal Protection */}
-                  <div className="bg-blue-50 rounded-lg p-4">
-                    <h3 className="text-lg font-bold text-blue-800 mb-3 flex items-center">
-                      <Shield className="w-5 h-5 mr-2" />
+                  <div className="p-4 bg-blue-50 rounded-lg">
+                    <h3 className="flex items-center mb-3 text-lg font-bold text-blue-800">
+                      <Shield className="mr-2 w-5 h-5" />
                       1. An Toàn Bảo Hộ Che Chắn, Bảo Hộ Cá Nhân
                     </h3>
                     <ul className="space-y-2 text-gray-700">
                       <li className="flex items-start">
-                        <span className="w-2 h-2 bg-blue-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                        <span className="flex-shrink-0 mt-2 mr-3 w-2 h-2 bg-blue-500 rounded-full"></span>
                         Trang bị đầy đủ đồ bảo hộ lao động: đeo kính, giầy, nón bảo hộ
                       </li>
                       <li className="flex items-start">
-                        <span className="w-2 h-2 bg-blue-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                        <span className="flex-shrink-0 mt-2 mr-3 w-2 h-2 bg-blue-500 rounded-full"></span>
                         Sử dụng máy cắt phải có nắp che chắn máy, kính bảo hộ
                       </li>
                     </ul>
                   </div>
 
                   {/* Electrical Safety */}
-                  <div className="bg-yellow-50 rounded-lg p-4">
-                    <h3 className="text-lg font-bold text-yellow-800 mb-3 flex items-center">
-                      <Zap className="w-5 h-5 mr-2" />
+                  <div className="p-4 bg-yellow-50 rounded-lg">
+                    <h3 className="flex items-center mb-3 text-lg font-bold text-yellow-800">
+                      <Zap className="mr-2 w-5 h-5" />
                       2. An Toàn Điện – Sử Dụng Thiết Bị Điện
                     </h3>
                     <ul className="space-y-2 text-gray-700">
                       <li className="flex items-start">
-                        <span className="w-2 h-2 bg-yellow-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                        <span className="flex-shrink-0 mt-2 mr-3 w-2 h-2 bg-yellow-500 rounded-full"></span>
                         Chỉ thi công điện khi có kiến thức về điện
                       </li>
                       <li className="flex items-start">
-                        <span className="w-2 h-2 bg-yellow-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                        <span className="flex-shrink-0 mt-2 mr-3 w-2 h-2 bg-yellow-500 rounded-full"></span>
                         Trang bị bút thử điện, CB chống dòng rò RCBO
                       </li>
                     </ul>
                   </div>
 
                   {/* Fire Safety */}
-                  <div className="bg-red-50 rounded-lg p-4">
-                    <h3 className="text-lg font-bold text-red-800 mb-3 flex items-center">
-                      <Flame className="w-5 h-5 mr-2" />
+                  <div className="p-4 bg-red-50 rounded-lg">
+                    <h3 className="flex items-center mb-3 text-lg font-bold text-red-800">
+                      <Flame className="mr-2 w-5 h-5" />
                       3. An Toàn Lửa – Hàn Cắt
                     </h3>
                     <ul className="space-y-2 text-gray-700">
                       <li className="flex items-start">
-                        <span className="w-2 h-2 bg-red-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                        <span className="flex-shrink-0 mt-2 mr-3 w-2 h-2 bg-red-500 rounded-full"></span>
                         Cấm hút thuốc, dùng lửa gần xăng, dầu, chất dễ cháy
                       </li>
                       <li className="flex items-start">
-                        <span className="w-2 h-2 bg-red-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                        <span className="flex-shrink-0 mt-2 mr-3 w-2 h-2 bg-red-500 rounded-full"></span>
                         Có biện pháp che chắn, trang bị bạt PCCC
                       </li>
                     </ul>
                   </div>
 
                   {/* Height Safety */}
-                  <div className="bg-purple-50 rounded-lg p-4">
-                    <h3 className="text-lg font-bold text-purple-800 mb-3 flex items-center">
-                      <ArrowUp className="w-5 h-5 mr-2" />
+                  <div className="p-4 bg-purple-50 rounded-lg">
+                    <h3 className="flex items-center mb-3 text-lg font-bold text-purple-800">
+                      <ArrowUp className="mr-2 w-5 h-5" />
                       4. An Toàn Leo Trèo, Làm Việc Trên Cao
                     </h3>
                     <ul className="space-y-2 text-gray-700">
                       <li className="flex items-start">
-                        <span className="w-2 h-2 bg-purple-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                        <span className="flex-shrink-0 mt-2 mr-3 w-2 h-2 bg-purple-500 rounded-full"></span>
                         Trang thiết bị đảm bảo an toàn: dây đeo bảo hộ toàn thân
                       </li>
                       <li className="flex items-start">
-                        <span className="w-2 h-2 bg-purple-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                        <span className="flex-shrink-0 mt-2 mr-3 w-2 h-2 bg-purple-500 rounded-full"></span>
                         Dựng giàn giáo cao trên 02 mét bắt buộc đội nón bảo hộ
                       </li>
                     </ul>
@@ -216,11 +216,11 @@ export default function SafetyRegulationsPage() {
                 </div>
 
                 {/* Warning Section */}
-                <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded-r-lg">
+                <div className="p-4 bg-red-50 rounded-r-lg border-l-4 border-red-500">
                   <div className="flex items-start">
-                    <AlertTriangle className="w-6 h-6 text-red-500 mr-3 mt-1 flex-shrink-0" />
+                    <AlertTriangle className="flex-shrink-0 mt-1 mr-3 w-6 h-6 text-red-500" />
                     <div>
-                      <h4 className="font-bold text-red-800 mb-2">Cảnh báo tình huống tai nạn:</h4>
+                      <h4 className="mb-2 font-bold text-red-800">Cảnh báo tình huống tai nạn:</h4>
                       <ul className="space-y-1 text-red-700">
                         <li>• Đã có trường hợp cắt gạch bị gạch bắn vào mắt gây chấn thương</li>
                         <li>• Máy cắt gỗ gây giật vào người gây thương tích</li>
@@ -237,14 +237,14 @@ export default function SafetyRegulationsPage() {
 
         {/* Section 2 */}
         <section id="dieu2" className="mb-8">
-          <div className="bg-white rounded-xl shadow-lg overflow-hidden">
+          <div className="overflow-hidden bg-white rounded-xl shadow-lg">
             <div 
-              className="bg-gradient-to-r from-green-600 to-green-700 p-6 cursor-pointer"
+              className="p-6 bg-gradient-to-r from-green-600 to-green-700 cursor-pointer"
               onClick={() => toggleSection('dieu2')}
             >
-              <div className="flex items-center justify-between">
-                <h2 className="text-2xl font-bold text-white flex items-center">
-                  <Heart className="w-6 h-6 mr-3" />
+              <div className="flex justify-between items-center">
+                <h2 className="flex items-center text-2xl font-bold text-white">
+                  <Heart className="mr-3 w-6 h-6" />
                   ĐIỀU 2: KIẾN THỨC SƠ CẤP CỨU TAI NẠN ĐIỆN
                 </h2>
                 {expandedSections.dieu2 ? <ChevronUp className="w-6 h-6 text-white" /> : <ChevronDown className="w-6 h-6 text-white" />}
@@ -253,39 +253,39 @@ export default function SafetyRegulationsPage() {
             
             {expandedSections.dieu2 && (
               <div className="p-6 space-y-6">
-                <p className="text-gray-700 leading-relaxed">
+                <p className="leading-relaxed text-gray-700">
                   Bên B đã được Bên A hướng dẫn các quy trình sơ cấp cứu tai nạn điện như sau:
                 </p>
 
                 {/* Emergency Steps */}
-                <div className="grid md:grid-cols-2 gap-6">
-                  <div className="bg-green-50 rounded-lg p-4">
-                    <h3 className="text-lg font-bold text-green-800 mb-3">1. Cần làm gì để cấp cứu người bị điện giật?</h3>
+                <div className="grid gap-6 md:grid-cols-2">
+                  <div className="p-4 bg-green-50 rounded-lg">
+                    <h3 className="mb-3 text-lg font-bold text-green-800">1. Cần làm gì để cấp cứu người bị điện giật?</h3>
                     <div className="space-y-3">
                       <div className="flex items-start">
-                        <span className="bg-green-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold mr-3 mt-1">1</span>
+                        <span className="flex justify-center items-center mt-1 mr-3 w-6 h-6 text-sm font-bold text-white bg-green-500 rounded-full">1</span>
                         <p className="text-gray-700">Ngắt cầu dao điện, rút chui điện</p>
                       </div>
                       <div className="flex items-start">
-                        <span className="bg-green-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold mr-3 mt-1">2</span>
+                        <span className="flex justify-center items-center mt-1 mr-3 w-6 h-6 text-sm font-bold text-white bg-green-500 rounded-full">2</span>
                         <p className="text-gray-700">Dùng vật cách điện như cây khô, nhựa mũ... tách dòng điện ra khỏi nạn nhân</p>
                       </div>
                     </div>
                   </div>
 
-                  <div className="bg-orange-50 rounded-lg p-4">
-                    <h3 className="text-lg font-bold text-orange-800 mb-3">2. Cấp cứu người bị điện giật</h3>
+                  <div className="p-4 bg-orange-50 rounded-lg">
+                    <h3 className="mb-3 text-lg font-bold text-orange-800">2. Cấp cứu người bị điện giật</h3>
                     <div className="space-y-3">
                       <div className="flex items-start">
-                        <span className="bg-orange-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold mr-3 mt-1">1</span>
+                        <span className="flex justify-center items-center mt-1 mr-3 w-6 h-6 text-sm font-bold text-white bg-orange-500 rounded-full">1</span>
                         <p className="text-gray-700">Đặt nạn nhân nằm ngửa, chỗ khô ráo thoáng khí</p>
                       </div>
                       <div className="flex items-start">
-                        <span className="bg-orange-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold mr-3 mt-1">2</span>
+                        <span className="flex justify-center items-center mt-1 mr-3 w-6 h-6 text-sm font-bold text-white bg-orange-500 rounded-full">2</span>
                         <p className="text-gray-700">Nới rộng quần áo, dây thắt lưng</p>
                       </div>
                       <div className="flex items-start">
-                        <span className="bg-orange-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold mr-3 mt-1">3</span>
+                        <span className="flex justify-center items-center mt-1 mr-3 w-6 h-6 text-sm font-bold text-white bg-orange-500 rounded-full">3</span>
                         <p className="text-gray-700">Tiến hành hồi sức tim phổi cho nạn nhân</p>
                       </div>
                     </div>
@@ -293,7 +293,7 @@ export default function SafetyRegulationsPage() {
                 </div>
 
                 {/* Safety Motto */}
-                <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-6 rounded-lg text-center">
+                <div className="p-6 text-center text-white bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg">
                   <div className="space-y-2">
                     <p className="text-xl font-bold">CÓ AN TOÀN – MỚI THI CÔNG</p>
                     <p className="text-lg">CÓ LAO ĐỘNG – NGHĨ TỚI BẢN THÂN, GIA ĐÌNH</p>
@@ -310,14 +310,14 @@ export default function SafetyRegulationsPage() {
 
         {/* Section 3 - Situations */}
         <section id="tinhHuong" className="mb-8">
-          <div className="bg-white rounded-xl shadow-lg overflow-hidden">
+          <div className="overflow-hidden bg-white rounded-xl shadow-lg">
             <div 
-              className="bg-gradient-to-r from-red-600 to-red-700 p-6 cursor-pointer"
+              className="p-6 bg-gradient-to-r from-red-600 to-red-700 cursor-pointer"
               onClick={() => toggleSection('tinhHuong')}
             >
-              <div className="flex items-center justify-between">
-                <h2 className="text-2xl font-bold text-white flex items-center">
-                  <AlertTriangle className="w-6 h-6 mr-3" />
+              <div className="flex justify-between items-center">
+                <h2 className="flex items-center text-2xl font-bold text-white">
+                  <AlertTriangle className="mr-3 w-6 h-6" />
                   MỘT SỐ HÌNH ẢNH, TÌNH HUỐNG KHÔNG AN TOÀN LAO ĐỘNG
                 </h2>
                 {expandedSections.tinhHuong ? <ChevronUp className="w-6 h-6 text-white" /> : <ChevronDown className="w-6 h-6 text-white" />}
@@ -327,14 +327,14 @@ export default function SafetyRegulationsPage() {
             {expandedSections.tinhHuong && (
               <div className="p-6 space-y-6">
                 {/* Situation Cards */}
-                <div className="grid md:grid-cols-2 gap-6">
-                  <div className="bg-red-50 rounded-lg p-4 border-l-4 border-red-500">
-                    <h3 className="text-lg font-bold text-red-800 mb-3">1. Tình huống: Lan can đặt dàn nóng máy lạnh</h3>
-                    <p className="text-gray-700 mb-3">
+                <div className="grid gap-6 md:grid-cols-2">
+                  <div className="p-4 bg-red-50 rounded-lg border-l-4 border-red-500">
+                    <h3 className="mb-3 text-lg font-bold text-red-800">1. Tình huống: Lan can đặt dàn nóng máy lạnh</h3>
+                    <p className="mb-3 text-gray-700">
                       Không có khung che chắn, đi ra ngoài lan can nhưng không đeo dây bảo hộ toàn thân, 
                       không có dây dù cứu sinh để vệ sinh máy lạnh sẽ rủi ro không an toàn, nguy hiểm.
                     </p>
-                    <div className="bg-white p-3 rounded-lg">
+                    <div className="p-3 bg-white rounded-lg">
                       <p className="text-sm font-semibold text-blue-800">Yêu cầu:</p>
                       <p className="text-sm text-gray-700">
                         Đeo dây bảo hộ toàn thân, dây dù cứu sinh, đội nón bảo hiểm mới ra ngoài vệ sinh, 
@@ -343,13 +343,13 @@ export default function SafetyRegulationsPage() {
                     </div>
                   </div>
 
-                  <div className="bg-orange-50 rounded-lg p-4 border-l-4 border-orange-500">
-                    <h3 className="text-lg font-bold text-orange-800 mb-3">2. Tình huống: Vệ sinh bể nước sinh hoạt</h3>
-                    <p className="text-gray-700 mb-3">
+                  <div className="p-4 bg-orange-50 rounded-lg border-l-4 border-orange-500">
+                    <h3 className="mb-3 text-lg font-bold text-orange-800">2. Tình huống: Vệ sinh bể nước sinh hoạt</h3>
+                    <p className="mb-3 text-gray-700">
                       Bể nước sinh hoạt nhưng ống nước thải chảy vô làm bể rất hôi, có khí độc, 
                       thợ xuống bể thấy nóng mặt, ngộp, phải chạy lên liền.
                     </p>
-                    <div className="bg-white p-3 rounded-lg">
+                    <div className="p-3 bg-white rounded-lg">
                       <p className="text-sm font-semibold text-blue-800">Yêu cầu:</p>
                       <p className="text-sm text-gray-700">
                         Dùng quạt hút khí độc ra ngoài, xịt nước sạch xung quanh bể, thổi khí tươi vào, 
@@ -360,13 +360,13 @@ export default function SafetyRegulationsPage() {
                 </div>
 
                 {/* Additional Situations */}
-                <div className="bg-yellow-50 rounded-lg p-4 border-l-4 border-yellow-500">
-                  <h3 className="text-lg font-bold text-yellow-800 mb-3">3. Tình huống: Sử dụng thang máy vận chuyển đồ</h3>
-                  <p className="text-gray-700 mb-3">
+                <div className="p-4 bg-yellow-50 rounded-lg border-l-4 border-yellow-500">
+                  <h3 className="mb-3 text-lg font-bold text-yellow-800">3. Tình huống: Sử dụng thang máy vận chuyển đồ</h3>
+                  <p className="mb-3 text-gray-700">
                     Khi sử dụng thang máy để vận chuyển đồ, đặc biệt là kính trong suốt, cần phải hết sức cẩn thận. 
                     Cảm biến cửa không thể nhận biết được vật cản, do đó cửa có thể tự động đóng lại và gây kẹt.
                   </p>
-                  <div className="bg-white p-3 rounded-lg">
+                  <div className="p-3 bg-white rounded-lg">
                     <p className="text-sm font-semibold text-blue-800">Lưu ý:</p>
                     <p className="text-sm text-gray-700">
                       Tránh sử dụng các đồ vật nhỏ để chặn cửa, vì nếu không có cảm biến ở dưới chân cửa, 
@@ -380,18 +380,18 @@ export default function SafetyRegulationsPage() {
         </section>
 
         {/* Footer */}
-        <footer className="bg-white rounded-xl shadow-lg p-6 text-center">
+        <footer className="p-6 text-center bg-white rounded-xl shadow-lg">
           <div className="space-y-4">
             <h3 className="text-lg font-bold text-gray-800">Thông Tin, Luật An Toàn, Vệ Sinh Lao Động</h3>
             <p className="text-gray-600">
               Bên B đã được Bên A đào tạo về luật an toàn vệ sinh lao động.
             </p>
-            <div className="flex flex-wrap justify-center gap-4">
+            <div className="flex flex-wrap gap-4 justify-center">
               <a 
                 href="https://www.facebook.com/antoanlaodongvn"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm"
+                className="px-4 py-2 text-sm text-white bg-blue-600 rounded-lg transition-colors hover:bg-blue-700"
               >
                 Facebook An Toàn Lao Động
               </a>
@@ -399,12 +399,12 @@ export default function SafetyRegulationsPage() {
                 href="https://thuvienphapluat.vn/van-ban/Lao-dong-Tien-luong/Luat-an-toan-ve-sinh-lao-dong-2015-281961.aspx"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm"
+                className="px-4 py-2 text-sm text-white bg-green-600 rounded-lg transition-colors hover:bg-green-700"
               >
                 Luật An Toàn Vệ Sinh Lao Động
               </a>
             </div>
-            <p className="text-sm text-red-600 font-semibold">
+            <p className="text-sm font-semibold text-red-600">
               Luật an toàn vệ sinh lao động số: 84/2015/QH13 ngày 25 tháng 06 năm 2015
             </p>
           </div>

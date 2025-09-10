@@ -11,7 +11,6 @@ import {
   Settings, 
   Crown,
   Building2,
-  Calendar,
   DollarSign,
   MapPin,
   Activity,
@@ -72,15 +71,6 @@ export default function AdminPage() {
       route: "/admin/zns",
       color: "from-purple-500 to-pink-600",
       bgColor: "bg-gradient-to-r from-purple-500/10 to-pink-600/10"
-    },
-    {
-      id: 6,
-      title: "Lịch làm việc",
-      description: "Quản lý lịch làm việc và phân công",
-      icon: Calendar,
-      route: "/work-schedule",
-      color: "from-indigo-500 to-blue-600",
-      bgColor: "bg-gradient-to-r from-indigo-500/10 to-blue-600/10"
     },
     {
       id: 7,

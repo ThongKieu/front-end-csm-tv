@@ -1,27 +1,16 @@
 import React, { useState, useRef, useEffect } from "react";
-import { Phone, Clock, MapPin, FileText, Image } from "lucide-react";
-import {
-  getStatusColor,
-  getStatusName,
-} from "./WorkTable";
+import { Phone, Clock, MapPin, Image } from "lucide-react";
+import { getStatusColor, getStatusName } from "./WorkTable";
 import JobDetailTooltip from "./JobDetailTooltip";
-import JobDetailModal from "./JobDetailModal";
+// import JobDetailModal from "./JobDetailModal";
 import AssignWorkerModal from "./AssignWorkerModal";
 
-const JobCard = ({
-  job,
-  index,
-  onAssign,
-  onEdit,
-  onCopy,
-  copiedWorkId,
-  workers = [],
-}) => {
+const JobCard = ({ job, index, onAssign, onEdit, workers = [] }) => {
   const [showTooltip, setShowTooltip] = useState(false);
-  const [showModal, setShowModal] = useState(false);
+  const [showModal, setShowModal] = useState(false); // kept for compatibility, but we will open Edit instead
   const [isAssignModalOpen, setIsAssignModalOpen] = useState(false);
   const [isChangingWorker, setIsChangingWorker] = useState(false);
-  const [tooltipPosition, setTooltipPosition] = useState('bottom');
+  const [tooltipPosition, setTooltipPosition] = useState("bottom");
   const cardRef = useRef(null);
   // Kiểm tra vị trí của card để quyết định hiển thị tooltip lên trên hay xuống dưới
   useEffect(() => {
@@ -30,12 +19,12 @@ const JobCard = ({
         const rect = cardRef.current.getBoundingClientRect();
         const viewportHeight = window.innerHeight;
         const tooltipHeight = 200; // Ước tính chiều cao của tooltip
-        
+
         // Nếu card ở gần cuối viewport, hiển thị tooltip lên trên
         if (rect.bottom + tooltipHeight > viewportHeight - 20) {
-          setTooltipPosition('top');
+          setTooltipPosition("top");
         } else {
-          setTooltipPosition('bottom');
+          setTooltipPosition("bottom");
         }
       }
     };
@@ -53,196 +42,102 @@ const JobCard = ({
       onMouseLeave={() => setShowTooltip(false)}
     >
       {/* Phần bên trái - Chứa tất cả nội dung với background */}
-      <div 
-        className="flex-1 flex items-center gap-3 px-3 py-1.5 rounded-l-lg cursor-pointer hover:bg-blue-50/30 transition-colors min-w-0"
-        onClick={() => setShowModal(true)}
+      <div
+        className="flex flex-1 gap-2 items-center px-2 py-1 min-w-0 rounded-l-lg transition-colors cursor-pointer hover:bg-blue-50/30"
+        onClick={() => onEdit(job, false)}
       >
-        {/* Mã công việc - Fixed width */}
-        <div className="flex-shrink-0 mr-3 w-16">
-          <div className="px-1.5 py-0.5 text-xs font-bold text-center rounded bg-brand-green/10 text-brand-green">
-            {job.job_code || "N/A"}
-          </div>
-        </div>
-        
+
         {/* Nội dung công việc + Thông tin khách hàng - Flexible */}
-        <div className="flex-1 min-w-0">
-          <div className="mb-1 text-sm font-semibold text-gray-900 truncate">
-            {job.job_content || "Không có nội dung"}
-          </div>
-          {/* Thông tin khách hàng - 1 dòng gọn */}
-          <div className="flex items-center space-x-4 text-xs text-gray-600">
+        <div className="flex flex-col flex-1 min-w-0 space-y-0.5">
+          {/* 1. Dòng 1: Mã + Nội dung công việc, Tên, SĐT, Thời gian hẹn */}
+          <div className="flex items-center space-x-2 text-xs text-gray-600">
+            {/* Mã công việc + Nội dung công việc */}
+            <div className="flex items-center space-x-1 min-w-0">
+              <span className="font-bold text-brand-green">
+                {job.job_code || ""}
+              </span>
+              <span className="font-semibold text-gray-900 truncate">
+                {job.job_content || "Không có nội dung"}
+              </span>
+            </div>
+            
+            {/* Tên khách hàng */}
             <div className="flex items-center space-x-1 min-w-0">
               <span className="text-brand-green">👤</span>
               <span className="font-medium truncate max-w-20">
-                {job.job_customer_name || "N/A"}
+                {job.job_customer_name || ""}
               </span>
             </div>
+            
+            {/* Số điện thoại */}
             <div className="flex items-center space-x-1 min-w-0">
               <Phone className="flex-shrink-0 w-3 h-3 text-brand-green" />
               <span className="font-medium truncate max-w-20">
-                {job.job_customer_phone || "N/A"} 
+                {job.job_customer_phone || ""}
               </span>
             </div>
-            <div className="flex items-center space-x-1 min-w-0">
-              <MapPin className="flex-shrink-0 w-3 h-3 text-brand-green" />
-              <span className="text-gray-700 truncate max-w-32">
-                {job.job_customer_address || "N/A"}
-              </span>
-            </div>
+            
+            {/* Thời gian hẹn */}
+            {job.job_appointment_time && (
+              <div className="flex items-center space-x-1 min-w-0">
+                <Clock className="flex-shrink-0 w-3 h-3 text-brand-yellow" />
+                <span className="font-medium text-brand-yellow">
+                  {job.job_appointment_time}
+                </span>
+              </div>
+            )}
           </div>
-        </div>
-        
-        {/* Trạng thái - Fixed width */}
-        <div className="flex-shrink-0 w-20">
-          <span
-            className={`px-1.5 py-0.5 text-xs font-medium rounded-full text-center block ${getStatusColor(
-              (job.job_priority || job.priority) === "high"
-                ? 4
-                : (job.job_priority || job.priority) === "normal"
-                ? 9
-                : (job.job_priority || job.priority) === "cancelled"
-                ? 3
-                : (job.job_priority || job.priority) === "no_answer"
-                ? 2
-                : (job.job_priority || job.priority) === "worker_return"
-                ? 1
-                : 0
-            )}`}
-            title={getStatusName(
-              (job.job_priority || job.priority) === "high"
-                ? 4
-                : (job.job_priority || job.priority) === "normal"
-                ? 9
-                : (job.job_priority || job.priority) === "cancelled"
-                ? 3
-                : (job.job_priority || job.priority) === "no_answer"
-                ? 2
-                : (job.job_priority || job.priority) === "worker_return"
-                ? 1
-                : 0
-            ).replace(/[^\w\s]/g, "")}
-          >
-            {(job.job_priority || job.priority) === "high"
-              ? "🔥 Gấp"
-              : (job.job_priority || job.priority) === "normal"
-              ? "🏠 Thường"
-              : (job.job_priority || job.priority) === "cancelled"
-              ? "❌ Hủy"
-              : (job.job_priority || job.priority) === "no_answer"
-              ? "📞 Không nghe"
-              : (job.job_priority || job.priority) === "worker_return"
-              ? "🔄 Thợ về"
-              : "⏳ Chưa phân"}
-          </span>
-        </div>
-        
-        {/* Thời gian + Hình ảnh - Fixed width */}
-        <div className="flex-shrink-0 w-24">
-          <div className="flex items-center space-x-1">
-            <div className="px-1.5 py-0.5 text-xs font-medium text-center rounded bg-brand-yellow/10 text-brand-yellow">
-              {job.job_appointment_time || ""}
+          
+          {/* 3. Dòng 2: Địa chỉ + Ghi chú + Hình ảnh + Thợ */}
+          <div className="flex items-center space-x-2 text-xs text-gray-600">
+            {/* Địa chỉ */}
+            <div className="flex flex-1 items-center space-x-1 min-w-0">
+              <MapPin className="flex-shrink-0 w-3 h-3 text-brand-green" />
+              <span className="text-gray-700 truncate">
+                {job.job_customer_address || ""}
+              </span>
             </div>
+            
+            {/* Ghi chú (nếu có) */}
+            {job.job_customer_note && (
+              <div className="flex items-center space-x-1 min-w-0">
+                <span className="text-brand-yellow">📝</span>
+                <span className="text-gray-500 truncate max-w-20" title={job.job_customer_note}>
+                  {job.job_customer_note.length > 15 
+                    ? job.job_customer_note.substring(0, 15) + "..." 
+                    : job.job_customer_note}
+                </span>
+              </div>
+            )}
+            
+            {/* Hình ảnh */}
             {job.images_count > 0 && (
-              <div className="px-1.5 py-0.5 text-xs font-medium text-center rounded bg-brand-green/20 text-brand-green">
-                📷{job.images_count}
+              <div className="flex items-center space-x-1 min-w-0">
+                <Image className="flex-shrink-0 w-3 h-3 text-brand-green" />
+                <span className="font-medium text-brand-green">
+                  {job.images_count}
+                </span>
+              </div>
+            )}
+            
+            {/* Thợ đã phân công */}
+            {job.id_worker && (
+              <div className="flex items-center space-x-1 min-w-0">
+                <span className="text-brand-green">👷</span>
+                <span className="font-medium truncate text-brand-green max-w-16">
+                  {job.worker_full_name || job.worker_code || ""}
+                </span>
               </div>
             )}
           </div>
         </div>
-        
-        {/* Thợ đã phân công - Fixed width */}
-        <div className="flex-shrink-0 w-24">
-          {job.id_worker ? (
-            <div className="px-1.5 py-0.5 text-xs font-medium text-center rounded bg-brand-green/10 text-brand-green">
-              <div className="truncate">
-                {job.worker_full_name || job.worker_code || "N/A"}
-              </div>
-            </div>
-          ) : (
-            <div className="px-1.5 py-0.5 text-xs font-medium text-center rounded bg-gray-100 text-gray-500">
-              <div className="truncate">
-                Chưa phân công
-              </div>
-            </div>
-          )}
-        </div>
       </div>
-      
+
       {/* Phần bên phải - Chứa các nút hành động - Cố định vị trí */}
       <div
-        className="flex flex-shrink-0 items-center px-3 py-1.5 space-x-1 bg-gray-100/50 rounded-r-lg border-l border-gray-200 w-auto"
+        className="flex flex-shrink-0 items-center px-2 py-1 space-x-0.5 w-auto rounded-r-lg border-l border-gray-200 bg-gray-100/50"
         onClick={(e) => e.stopPropagation()}
       >
-        <button
-          onMouseDown={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-          }}
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            // Tạo định dạng copy theo yêu cầu: mã | nội dung | tên khách | địa chỉ | quận | sđt
-            const copyContent = [
-              job.job_code || "",
-              job.job_content || "",
-              job.job_customer_name || "",
-              job.job_customer_address || "",
-              job.job_customer_district ||
-                job.district?.name ||
-                job.district?.district_name ||
-                "",
-              job.job_customer_phone || "",
-            ].join("\t"); // Sử dụng tab để tạo khoảng cách như định dạng yêu cầu
-
-            // Fallback method using textarea nếu clipboard API không khả dụng
-            const fallbackCopy = (text) => {
-              const textArea = document.createElement("textarea");
-              textArea.value = text;
-              textArea.style.position = "fixed";
-              textArea.style.left = "-999999px";
-              textArea.style.top = "-999999px";
-              document.body.appendChild(textArea);
-              textArea.focus();
-              textArea.select();
-
-              try {
-                const successful = document.execCommand("copy");
-                textArea.remove();
-                return successful;
-              } catch (err) {
-                console.error("Fallback copy failed:", err);
-                textArea.remove();
-                return false;
-              }
-            };
-
-            // Try using Clipboard API first
-            if (navigator.clipboard && window.isSecureContext) {
-              navigator.clipboard
-                .writeText(copyContent)
-                .then(() => {
-                  onCopy(job);
-                })
-                .catch((err) => {
-                  console.error("Clipboard API failed, using fallback:", err);
-                  fallbackCopy(copyContent);
-                  onCopy(job);
-                });
-            } else {
-              // Use fallback for non-secure contexts or when clipboard API is not available
-              fallbackCopy(copyContent);
-              onCopy(job);
-            }
-          }}
-          className={`p-1 rounded transition-all duration-200 ${
-            copiedWorkId === job.id
-              ? "text-brand-green bg-brand-green/20 shadow-md"
-              : "text-gray-500 hover:text-brand-green hover:bg-brand-green/10 hover:shadow-sm"
-          }`}
-          title="Sao chép lịch theo định dạng: Mã | Nội dung | Tên | Địa chỉ | Quận | SĐT"
-        >
-          <FileText className="w-4 h-4" />
-        </button>
         {job.id_worker ? (
           <>
             <button
@@ -259,7 +154,7 @@ const JobCard = ({
               className="p-1 text-gray-500 rounded transition-all duration-200 cursor-pointer hover:text-brand-green hover:bg-brand-green/10 hover:shadow-sm"
               title="Đổi thợ"
             >
-              <span className="text-sm">🔄</span>
+              <span className="text-xs">🔄</span>
             </button>
             <button
               onMouseDown={(e) => {
@@ -274,7 +169,7 @@ const JobCard = ({
               className="p-1 text-gray-500 rounded transition-all duration-200 hover:text-brand-green hover:bg-brand-green/10 hover:shadow-sm"
               title="Chỉnh sửa thông tin"
             >
-              <span className="text-sm">✏️</span>
+              <span className="text-xs">✏️</span>
             </button>
             <button
               onMouseDown={(e) => {
@@ -289,7 +184,7 @@ const JobCard = ({
               className="p-1 text-gray-500 rounded transition-all duration-200 hover:text-brand-green hover:bg-brand-green/10 hover:shadow-sm"
               title="Nhập thu chi"
             >
-              <span className="text-sm">💰</span>
+              <span className="text-xs">💰</span>
             </button>
           </>
         ) : (
@@ -308,42 +203,23 @@ const JobCard = ({
               className="p-1 text-gray-500 rounded transition-all duration-200 hover:text-brand-green hover:bg-brand-green/10 hover:shadow-sm"
               title="Phân công thợ"
             >
-              <span className="text-sm">👤+</span>
-            </button>
-            <button
-              onMouseDown={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-              }}
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                onEdit(job, false);
-              }}
-              className="p-1 text-gray-500 rounded transition-all duration-200 hover:text-brand-green hover:bg-brand-green/10 hover:shadow-sm"
-              title="Chỉnh sửa thông tin"
-            >
-              <span className="text-sm">✏️</span>
+              <span className="text-xs">👤+</span>
             </button>
           </>
         )}
       </div>
       {/* Tooltip */}
       {showTooltip && (
-        <div className={`absolute left-0 z-50 ${
-          tooltipPosition === 'top' 
-            ? 'bottom-full mb-1' 
-            : 'top-full mt-1'
-        }`}>
+        <div
+          className={`absolute left-0 z-50 ${
+            tooltipPosition === "top" ? "bottom-full mb-1" : "top-full mt-1"
+          }`}
+        >
           <JobDetailTooltip job={job} />
         </div>
       )}
-      {/* Modal xem chi tiết */}
-      <JobDetailModal
-        job={job}
-        open={showModal}
-        onClose={() => setShowModal(false)}
-      />
+      {/* Modal xem chi tiết (đã thay bằng mở modal chỉnh sửa) */}
+      {/* <JobDetailModal job={job} open={showModal} onClose={() => setShowModal(false)} /> */}
 
       {/* Assign Worker Modal */}
       {isAssignModalOpen && (

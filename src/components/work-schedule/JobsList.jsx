@@ -21,21 +21,7 @@ const JobsList = ({ jobs = [], workers = [], onAssign, onEdit, onCopy, copiedWor
 
   return (
     <div className="flex flex-col h-full">
-      {/* Filter buttons */}
-      <div className="flex gap-1 justify-end items-center mb-2">
-        <button
-          onClick={() => handleWorkerTypeChange("all")}
-          className={`px-1.5 py-0.5 text-xs font-medium rounded-full transition-all duration-200 ${
-            selectedWorkerType === "all"
-              ? "bg-brand-green text-[#125d0d] shadow-md"
-              : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-          }`}
-        >
-          Tất cả
-        </button>
-        {/* Bỏ phần filter theo loại công việc */}
-      </div>
-
+     
       {/* Jobs list */}
       <div className="overflow-y-auto flex-1 space-y-1">
         {filteredJobs.length === 0 ? (

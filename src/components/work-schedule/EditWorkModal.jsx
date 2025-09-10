@@ -1,192 +1,109 @@
-import { useState, useEffect } from 'react';
-import { X, Phone } from 'lucide-react';
-import { useDispatch, useSelector } from 'react-redux';
-import { assignWorker, updateWorkInList } from '@/store/slices/workSlice';
-import Select from 'react-select';
-import AddressAutocomplete from '@/components/ui/AddressAutocomplete';
-import keywordsData from '../../data/keywords.json';
-import actionsData from '../../data/actions.json';
-import materialServicesData from '../../data/material_services.json';
+import { useState, useEffect } from "react";
+import { X, Image, Upload, Trash2, Eye } from "lucide-react";
+import { useDispatch } from "react-redux";
+import { updateWorkInList } from "@/store/slices/workSlice";
+import Select from "react-select";
+import AddressAutocomplete from "@/components/ui/AddressAutocomplete";
+import keywordsData from "../../data/keywords.json";
+import actionsData from "../../data/actions.json";
+import materialServicesData from "../../data/material_services.json";
 
 const EditWorkModal = ({ work, onClose, onSave }) => {
   const dispatch = useDispatch();
-  const workers = useSelector((state) => state.work.workers);
   const [formData, setFormData] = useState({
-    job_id: '',
-    job_content: '',
-    job_customer_name: '',
-    job_customer_address: '',
-    job_customer_phone: '',
-    job_customer_note: '',
-    job_appointment_date: '',
-    job_type_id: '1', // Default to Điện Nước
-    job_source: 'call_center', // Default value same as CreateScheduleModal
-    job_appointment_time: '',
-    job_priority: '', // Default to empty (normal schedule)
-    // Thêm các field cho dropdown chọn nội dung
-    selected_keyword: '',
-    selected_action: '',
-    selected_material_service: '',
+    job_id: "", job_content: "", job_customer_name: "", job_customer_address: "",
+    job_customer_phone: "", job_customer_note: "", job_appointment_date: "",
+    job_type_id: "1", job_source: "call_center", job_appointment_time: "",
+    job_priority: "", selected_keyword: "", selected_action: "", selected_material_service: "",
   });
   const [originalData, setOriginalData] = useState({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [images, setImages] = useState([]);
+  const [showImageModal, setShowImageModal] = useState(false);
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
 
-  // Hàm phân tích nội dung hiện tại để tách thành các phần
   const parseExistingContent = (content) => {
-    if (!content) return { keyword: '', material: '', action: '' };
-    
-    const words = content.split(' ');
-    let keyword = '';
-    let material = '';
-    let action = '';
-    
-    // Tìm keyword (hành động chính)
-    for (const kw of keywordsData.keywords) {
-      if (content.includes(kw.name)) {
-        keyword = kw.name;
-        break;
-      }
-    }
-    
-    // Tìm material/service
-    for (const mat of materialServicesData.material_services) {
-      if (content.includes(mat.name)) {
-        material = mat.name;
-        break;
-      }
-    }
-    
-    // Tìm action (đối tượng)
-    for (const act of actionsData.actions) {
-      if (content.includes(act.name)) {
-        action = act.name;
-        break;
-      }
-    }
-    
-    return { keyword, material, action };
+    if (!content) return { keyword: "", material: "", action: "" };
+    const findInData = (data, content) => data.find((item) => content.includes(item.name))?.name || "";
+    return {
+      keyword: findInData(keywordsData.keywords, content),
+      material: findInData(materialServicesData.material_services, content),
+      action: findInData(actionsData.actions, content),
+    };
   };
 
-  // Hàm tự động cập nhật job_content khi 3 dropdown thay đổi
   const updateJobContent = (keyword, materialService, action) => {
-    const parts = [];
-    if (keyword) parts.push(keyword);
-    if (materialService) parts.push(materialService);
-    if (action) parts.push(action);
-    
-    const combinedContent = parts.join(" ");
-    setFormData(prev => ({
-      ...prev,
-      job_content: combinedContent
-    }));
+    const parts = [keyword, materialService, action].filter(Boolean);
+    setFormData((prev) => ({ ...prev, job_content: parts.join(" ") }));
   };
 
   useEffect(() => {
-    if (work) {
-      // Try to get ID from multiple possible fields
-      const workId = work.id || work.job_id || work.work_id || work.job_code;
-      
-      if (!workId) {
-        console.error('Work object:', work);
-        throw new Error('Work object does not contain a valid ID');
-      }
+    if (!work) return;
+    const workId = work.id || work.job_id || work.work_id || work.job_code;
+    if (!workId) throw new Error("Work object does not contain a valid ID");
 
-      // Get today's date for default
-      const today = new Date().toISOString().split('T')[0];
-      
-      // Format date properly if it exists
-      const formatDate = (dateStr) => {
-        if (!dateStr) return today;
-        if (dateStr.includes('T')) {
-          return dateStr.split('T')[0];
-        }
-        return dateStr;
-      };
+    const today = new Date().toISOString().split("T")[0];
+    const formatDate = (dateStr) => dateStr ? (dateStr.includes("T") ? dateStr.split("T")[0] : dateStr) : today;
+    const formatTime = (timeStr) => timeStr?.includes(":") ? timeStr.substring(0, 5) : "";
+    const existingContent = work.job_content || work.work_content || work.content || "";
+    const parsedContent = parseExistingContent(existingContent);
 
-      // Format time properly if it exists
-      const formatTime = (timeStr) => {
-        if (!timeStr) return '';
-        if (timeStr.includes(':')) {
-          return timeStr.substring(0, 5); // HH:MM format
-        }
-        return '';
-      };
+    const initialData = {
+      job_id: workId, job_content: existingContent,
+      job_customer_name: work.job_customer_name || work.name_cus || work.customer_name || "",
+      job_customer_address: work.job_customer_address || work.street || work.address || "",
+      job_customer_phone: work.job_customer_phone || work.phone_number || work.phone || "",
+      job_customer_note: work.job_customer_note || work.work_note || work.note || "",
+      job_appointment_date: formatDate(work.job_appointment_date || work.date_book || work.appointment_date),
+      job_type_id: work.job_type_id || work.kind_work || work.type_id || "1",
+      job_source: work.job_source || work.source || "call_center",
+      job_appointment_time: formatTime(work.job_appointment_time || work.appointment_time),
+      job_priority: work.job_priority || work.priority || work.priority_level || "",
+      selected_keyword: parsedContent.keyword, selected_action: parsedContent.action,
+      selected_material_service: parsedContent.material,
+    };
 
-      // Phân tích nội dung hiện tại
-      const existingContent = work.job_content || work.work_content || work.content || '';
-      const parsedContent = parseExistingContent(existingContent);
+    setFormData(initialData);
+    setOriginalData(initialData);
 
-      const initialData = {
-        job_id: workId,
-        job_content: existingContent,
-        job_customer_name: work.job_customer_name || work.name_cus || work.customer_name || '',
-        job_customer_address: work.job_customer_address || work.street || work.address || '',
-        job_customer_phone: work.job_customer_phone || work.phone_number || work.phone || '',
-        job_customer_note: work.job_customer_note || work.work_note || work.note || '',
-        job_appointment_date: formatDate(work.job_appointment_date || work.date_book || work.appointment_date),
-        job_type_id: work.job_type_id || work.kind_work || work.type_id || '1',
-        job_source: work.job_source || work.source || 'call_center',
-        job_appointment_time: formatTime(work.job_appointment_time || work.appointment_time),
-        job_priority: work.job_priority || work.priority || work.priority_level || '',
-        // Thêm các field đã phân tích
-        selected_keyword: parsedContent.keyword,
-        selected_action: parsedContent.action,
-        selected_material_service: parsedContent.material,
-      };
-      
-      setFormData(initialData);
-      setOriginalData(initialData);
+    if (work.images?.length) {
+      setImages(work.images);
+    } else if (work.images_count > 0) {
+      setImages(Array(work.images_count).fill().map((_, i) => ({
+        id: `mock-${i}`, url: `/api/placeholder/400/300?text=Hình+${i + 1}`,
+        name: `Hình ${i + 1}`, isMock: true,
+      })));
+    } else {
+      setImages([]);
     }
   }, [work]);
 
-  // Function to get only changed fields
   const getChangedFields = () => {
-    const changedFields = {};
-    
-    Object.keys(formData).forEach(key => {
-      if (key === 'id' || key === 'job_id') return; // Skip ID fields
-      
-      const currentValue = formData[key];
-      const originalValue = originalData[key];
-      
-      // Compare values (handle different data types and empty strings)
-      const isChanged = currentValue !== originalValue && 
-                       !(currentValue === '' && (originalValue === null || originalValue === undefined)) &&
-                       !(originalValue === '' && (currentValue === null || currentValue === undefined));
-      
-      if (isChanged) {
-        changedFields[key] = currentValue;
-      }
-    });
-    
-    return changedFields;
+    return Object.entries(formData).reduce((acc, [key, value]) => {
+      if (key === "id" || key === "job_id") return acc;
+      const original = originalData[key];
+      const isChanged = value !== original && !(value === "" && original == null) && !(original === "" && value == null);
+      if (isChanged) acc[key] = value;
+      return acc;
+    }, {});
   };
 
-  // Validate form data
   const validateForm = () => {
     const errors = [];
-    
-    if (!formData.job_content?.trim()) {
-      errors.push('Nội dung công việc là bắt buộc');
-    }
-    
-    if (!formData.job_customer_phone?.trim()) {
-      errors.push('Số điện thoại khách hàng là bắt buộc');
-    }
-    
-    if (!formData.job_customer_address?.trim()) {
-      errors.push('Địa chỉ khách hàng là bắt buộc');
-    }
-    
-    if (!formData.job_appointment_date) {
-      errors.push('Ngày hẹn là bắt buộc');
-    }
-    
+    const required = ["job_content", "job_customer_phone", "job_customer_address", "job_appointment_date"];
+    const labels = {
+      job_content: "Nội dung công việc", job_customer_phone: "Số điện thoại khách hàng",
+      job_customer_address: "Địa chỉ khách hàng", job_appointment_date: "Ngày hẹn",
+    };
+
+    required.forEach((field) => {
+      if (!formData[field]?.trim()) errors.push(`${labels[field]} là bắt buộc`);
+    });
+
     if (formData.job_customer_phone && !/^[0-9]{10,11}$/.test(formData.job_customer_phone)) {
-      errors.push('Số điện thoại phải có 10-11 chữ số');
+      errors.push("Số điện thoại phải có 10-11 chữ số");
     }
-    
     return errors;
   };
 
@@ -196,110 +113,65 @@ const EditWorkModal = ({ work, onClose, onSave }) => {
     setError(null);
 
     try {
-      // Validate form first
       const validationErrors = validateForm();
       if (validationErrors.length > 0) {
-        setError(validationErrors.join(', '));
+        setError(validationErrors.join(", "));
         setLoading(false);
         return;
       }
 
-      // Get only changed fields
       const changedFields = getChangedFields();
-      
       if (Object.keys(changedFields).length === 0) {
         onClose();
         return;
       }
-      
-      if (!formData.job_id || formData.job_id === null || formData.job_id === undefined) {
-        throw new Error('Job ID is required but not found');
-      }
 
-      // Prepare data for API - only send changed fields to avoid overwriting with empty values
+      if (!formData.job_id) throw new Error("Job ID is required but not found");
+
       const updateData = {
-        job_id: parseInt(formData.job_id),
-        user_id: 1, // TODO: Get from auth context
-        ...changedFields, // Only include changed fields
+        job_id: parseInt(formData.job_id), user_id: 1, ...changedFields,
       };
+      if (updateData.job_type_id) updateData.job_type_id = parseInt(updateData.job_type_id);
 
-      // Ensure proper data types
-      if (updateData.job_type_id) {
-        updateData.job_type_id = parseInt(updateData.job_type_id);
-      }
-
-
-      // Call our API route
-      const response = await fetch('/api/works/update', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+      const response = await fetch("/api/works/update", {
+        method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify(updateData),
       });
 
       if (!response.ok) {
         const errorData = await response.json();
-        console.error('API Error:', errorData);
         throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
       }
 
-      const result = await response.json();
-      // Cập nhật dữ liệu trong Redux store ngay lập tức
       const updatedWorkData = {
-        // Chỉ cập nhật các trường đã thay đổi để tránh ghi đè dữ liệu không cần thiết
-        ...changedFields,
-        // Đảm bảo tất cả các trường quan trọng được cập nhật với giá trị mới nhất
-        job_content: formData.job_content,
-        job_customer_name: formData.job_customer_name,
-        job_customer_address: formData.job_customer_address,
-        job_customer_phone: formData.job_customer_phone,
-        job_customer_note: formData.job_customer_note,
-        job_appointment_date: formData.job_appointment_date,
-        job_type_id: formData.job_type_id,
-        job_source: formData.job_source,
-        job_appointment_time: formData.job_appointment_time,
-        job_priority: formData.job_priority,
-        
-        // Cập nhật các field để tương thích với JobCard
-        priority: formData.job_priority, // Để tương thích với JobCard
-        status: formData.job_priority === "cancelled" ? "cancelled" : 
-               formData.job_priority === "no_answer" ? "no_answer" :
-               formData.job_priority === "worker_return" ? "worker_return" : "pending",
-        
-        // Cập nhật thời gian
+        ...changedFields, job_content: formData.job_content, job_customer_name: formData.job_customer_name,
+        job_customer_address: formData.job_customer_address, job_customer_phone: formData.job_customer_phone,
+        job_customer_note: formData.job_customer_note, job_appointment_date: formData.job_appointment_date,
+        job_type_id: formData.job_type_id, job_source: formData.job_source, job_appointment_time: formData.job_appointment_time,
+        job_priority: formData.job_priority, priority: formData.job_priority,
+        status: formData.job_priority === "cancelled" ? "cancelled" : formData.job_priority === "no_answer" ? "no_answer" : 
+                formData.job_priority === "worker_return" ? "worker_return" : "pending",
         updated_at: new Date().toISOString(),
       };
 
-      // Cập nhật Redux store để UI phản ánh thay đổi ngay lập tức
-      let reduxUpdateSuccess = false;
       try {
-        
-        dispatch(updateWorkInList({
-          workId: parseInt(formData.job_id),
-          updatedData: updatedWorkData
-        }));
-        reduxUpdateSuccess = true;
+        dispatch(updateWorkInList({ workId: parseInt(formData.job_id), updatedData: updatedWorkData }));
       } catch (error) {
-        console.error('❌ Redux update failed:', error);
-        reduxUpdateSuccess = false;
+        console.error("❌ Redux update failed:", error);
       }
 
-      // Gọi onSave để trigger UI re-render và load dữ liệu từ API
-      if (onSave && typeof onSave === 'function') {
+      if (onSave && typeof onSave === "function") {
         try {
-          await onSave(true); // Luôn force server refresh
+          await onSave(true);
         } catch (error) {
-          console.error('❌ EditWorkModal: Error loading server API data:', error);
-          // Không throw error vì job đã được cập nhật thành công
+          console.error("❌ EditWorkModal: Error loading server API data:", error);
         }
       }
 
-      // Close modal after successful update
       onClose();
     } catch (err) {
-      console.error('Update error:', err);
-      setError(err.message || 'Có lỗi xảy ra khi cập nhật công việc');
+      console.error("Update error:", err);
+      setError(err.message || "Có lỗi xảy ra khi cập nhật công việc");
     } finally {
       setLoading(false);
     }
@@ -307,451 +179,637 @@ const EditWorkModal = ({ work, onClose, onSave }) => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    
-    // Special handling for phone number - only allow numbers
-    if (name === 'job_customer_phone') {
-      const numbersOnly = value.replace(/\D/g, '').slice(0, 11);
-      setFormData(prev => ({
-        ...prev,
-        [name]: numbersOnly
-      }));
-    } else {
-      setFormData(prev => ({
-        ...prev,
-        [name]: value
-      }));
+    const newValue = name === "job_customer_phone" ? value.replace(/\D/g, "").slice(0, 11) : value;
+    setFormData((prev) => ({ ...prev, [name]: newValue }));
+  };
+
+  const handleImageUpload = (e) => {
+    const files = Array.from(e.target.files);
+    const newImages = files.map((file, i) => ({
+      id: `new-${Date.now()}-${i}`, file, url: URL.createObjectURL(file),
+      name: file.name, isNew: true,
+    }));
+    setImages((prev) => [...prev, ...newImages]);
+  };
+
+  const handlePasteImage = (e) => {
+    const items = e.clipboardData?.items;
+    if (!items) return;
+
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i];
+      if (item.type.indexOf('image') !== -1) {
+        const file = item.getAsFile();
+        if (file) {
+          const newImage = {
+            id: `paste-${Date.now()}-${i}`,
+            file,
+            url: URL.createObjectURL(file),
+            name: `Hình từ clipboard ${new Date().toLocaleTimeString()}`,
+            isNew: true,
+          };
+          setImages((prev) => [...prev, newImage]);
+        }
+      }
     }
   };
 
-  const handleWorkerChange = (selectedOption, { name }) => {
-    setFormData(prev => ({
-      ...prev,
-      [name]: selectedOption ? selectedOption.value : ''
-    }));
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
   };
 
-  const workerOptions = workers.map(worker => ({
-    value: worker.id,
-    label: `${worker.full_name} (${worker.type_code})`,
-    phone: worker.phone
-  }));
-
-  const customSelectStyles = {
-    control: (base) => ({
-      ...base,
-      minHeight: '42px',
-      borderColor: '#D1D5DB',
-      '&:hover': {
-        borderColor: '#9CA3AF'
-      }
-    }),
-    option: (base, state) => ({
-      ...base,
-      backgroundColor: state.isSelected ? '#2563EB' : state.isFocused ? '#EFF6FF' : 'white',
-      color: state.isSelected ? 'white' : '#1F2937',
-      '&:hover': {
-        backgroundColor: state.isSelected ? '#2563EB' : '#EFF6FF'
-      }
-    })
+  const handleDrop = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    const files = Array.from(e.dataTransfer.files);
+    const imageFiles = files.filter(file => file.type.startsWith('image/'));
+    
+    if (imageFiles.length > 0) {
+      const newImages = imageFiles.map((file, i) => ({
+        id: `drop-${Date.now()}-${i}`,
+        file,
+        url: URL.createObjectURL(file),
+        name: file.name,
+        isNew: true,
+      }));
+      setImages((prev) => [...prev, ...newImages]);
+    }
   };
 
-  // Job sources options (same as CreateScheduleModal)
+  const handleRemoveImage = (imageId) => setImages((prev) => prev.filter((img) => img.id !== imageId));
+  const handleViewImage = (index) => { setSelectedImageIndex(index); setShowImageModal(true); };
+
   const jobSources = [
-    { value: "call_center", label: "Tổng đài" },
-    { value: "app_customer", label: "App Khách hàng" },
-    { value: "app_worker", label: "App Thợ" },
-    { value: "website", label: "Website" },
-    { value: "zalo", label: "Zalo" },
-    { value: "facebook", label: "Facebook" },
-    { value: "tiktok", label: "TikTok" },
-    { value: "office", label: "Văn phòng" },
-    { value: "other", label: "Khác" },
+    { value: "call_center", label: "Tổng đài" }, { value: "app_customer", label: "App Khách hàng" },
+    { value: "app_worker", label: "App Thợ" }, { value: "website", label: "Website" },
+    { value: "zalo", label: "Zalo" }, { value: "facebook", label: "Facebook" },
+    { value: "tiktok", label: "TikTok" }, { value: "office", label: "Văn phòng" }, { value: "other", label: "Khác" }
   ];
 
+  const jobTypes = [
+    { value: "1", label: "Điện Nước" }, { value: "2", label: "Điện Lạnh" },
+    { value: "3", label: "Đồ gỗ" }, { value: "4", label: "Năng Lượng Mặt trời" },
+    { value: "5", label: "Xây Dựng" }, { value: "6", label: "Tài Xế" },
+    { value: "7", label: "Cơ Khí" }, { value: "8", label: "Điện - Điện Tử" }, { value: "9", label: "Văn Phòng" }
+  ];
+
+  const selectStyles = {
+    control: (base) => ({ ...base, minHeight: '32px', fontSize: '14px', borderColor: '#d1d5db', '&:hover': { borderColor: '#10b981' } }),
+    valueContainer: (base) => ({ ...base, padding: '2px 8px' }),
+    input: (base) => ({ ...base, margin: '0px', padding: '0px' }),
+    indicatorSeparator: () => ({ display: 'none' }),
+    indicatorsContainer: (base) => ({ ...base, padding: '0px 8px' })
+  };
+
   return (
-    <div className="flex fixed inset-0 z-50 justify-center items-start pt-16 bg-black/25" onClick={onClose}>
-      <div className="bg-white rounded-lg p-4 w-full max-w-xl max-h-[80vh] overflow-y-auto shadow-2xl" onClick={(e) => e.stopPropagation()}>
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-lg font-semibold text-gray-900">
-            Chỉnh sửa công việc
-          </h2>
+    <div
+      className="flex fixed inset-0 z-50 justify-center items-center backdrop-blur-sm bg-black/50"
+      onClick={onClose}
+    >
+      <div
+        className="bg-white rounded-xl w-full max-w-4xl max-h-[85vh] shadow-2xl flex flex-col"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Header */}
+        <div className="flex justify-between items-center px-4 py-1 bg-gradient-to-r border-b border-gray-200 from-brand-green/5 to-brand-yellow/5">
+          <div className="flex items-center space-x-2">
+            <div className="flex justify-center items-center w-6 h-6 bg-gradient-to-r rounded-lg from-brand-green to-brand-yellow">
+              <span className="text-xs font-bold text-white">✏️</span>
+            </div>
+            <div>
+              <h2 className="text-lg font-bold text-gray-900">
+                Chỉnh sửa công việc
+              </h2>
+            </div>
+          </div>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-500 focus:outline-none"
+            className="p-1.5 text-gray-400 rounded-lg transition-colors hover:text-gray-600 hover:bg-gray-100"
           >
             <X className="w-4 h-4" />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-3">
-          <div className="grid grid-cols-1 gap-3">
-            {/* 3 dropdown để chọn nội dung */}
-            <div>
-              <label className="block mb-1.5 text-sm font-medium text-gray-700">
-                Nội dung công việc <span className="text-red-500">*</span>
-              </label>
-              <div className="grid grid-cols-1 gap-3 lg:grid-cols-3">
-                {/* Keyword dropdown */}
+        {/* Content */}
+        <div 
+          className="overflow-y-auto flex-1 px-2 py-1"
+          onPaste={handlePasteImage}
+          tabIndex={0}
+        >
+          <form
+            id="edit-work-form"
+            onSubmit={handleSubmit}
+            className="space-y-2"
+          >
+            {/* Section 1: Thông tin khách hàng */}
+            <div className="p-1.5 bg-gray-50 rounded-lg border border-gray-200">
+              <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
                 <div>
-                  <label className="block mb-1.5 text-xs font-medium text-gray-600">
-                    Hành động chính
+                  <label className="block mb-1 text-sm font-medium text-gray-700">
+                    Tên khách hàng
                   </label>
-                  <select
-                    value={formData.selected_keyword}
-                    onChange={(e) => {
-                      const selectedKeyword = e.target.value;
-                      setFormData(prev => ({
-                        ...prev,
-                        selected_keyword: selectedKeyword
-                      }));
-                      updateJobContent(
-                        selectedKeyword,
-                        formData.selected_material_service,
-                        formData.selected_action
-                      );
-                    }}
-                    className="w-full rounded-lg border-gray-200 shadow-sm focus:border-brand-green focus:ring-brand-green bg-white text-sm px-3 py-2.5 transition-colors"
-                  >
-                    <option value="">Chọn hành động</option>
-                    {keywordsData.keywords.map((keyword) => (
-                      <option key={keyword.id} value={keyword.name}>
-                        {keyword.name}
-                      </option>
-                    ))}
-                  </select>
+                  <input
+                    type="text"
+                    name="job_customer_name"
+                    value={formData.job_customer_name}
+                    onChange={handleChange}
+                    className="px-2 py-2 w-full text-sm rounded-lg border border-gray-300 transition-colors focus:outline-none focus:ring-2 focus:ring-brand-green focus:border-brand-green"
+                    maxLength="255"
+                    placeholder="Nhập tên khách hàng"
+                  />
                 </div>
 
-                {/* Material/Service dropdown */}
                 <div>
-                  <label className="block mb-1.5 text-xs font-medium text-gray-600">
-                    Vật liệu/Dịch vụ
+                  <label className="block mb-1 text-sm font-medium text-gray-700">
+                    Số điện thoại <span className="text-red-500">*</span>
                   </label>
-                  <select
-                    value={formData.selected_material_service}
-                    onChange={(e) => {
-                      const selectedMaterial = e.target.value;
-                      setFormData(prev => ({
-                        ...prev,
-                        selected_material_service: selectedMaterial
-                      }));
-                      updateJobContent(
-                        formData.selected_keyword,
-                        selectedMaterial,
-                        formData.selected_action
-                      );
-                    }}
-                    className="w-full rounded-lg border-gray-200 shadow-sm focus:border-brand-green focus:ring-brand-green bg-white text-sm px-3 py-2.5 transition-colors"
-                  >
-                    <option value="">Chọn vật liệu</option>
-                    {materialServicesData.material_services.map((material) => (
-                      <option key={material.id} value={material.name}>
-                        {material.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                {/* Action dropdown */}
-                <div>
-                  <label className="block mb-1.5 text-xs font-medium text-gray-600">
-                    Đối tượng
-                  </label>
-                  <select
-                    value={formData.selected_action}
-                    onChange={(e) => {
-                      const selectedAction = e.target.value;
-                      setFormData(prev => ({
-                        ...prev,
-                        selected_action: selectedAction
-                      }));
-                      updateJobContent(
-                        formData.selected_keyword,
-                        formData.selected_material_service,
-                        selectedAction
-                      );
-                    }}
-                    className="w-full rounded-lg border-gray-200 shadow-sm focus:border-brand-green focus:ring-brand-green bg-white text-sm px-3 py-2.5 transition-colors"
-                  >
-                    <option value="">Chọn đối tượng</option>
-                    {actionsData.actions.map((action) => (
-                      <option key={action.id} value={action.name}>
-                        {action.name}
-                      </option>
-                    ))}
-                  </select>
+                  <input
+                    type="tel"
+                    name="job_customer_phone"
+                    value={formData.job_customer_phone}
+                    maxLength="20"
+                    onChange={handleChange}
+                    className="px-2 py-2 w-full text-sm rounded-lg border border-gray-300 transition-colors focus:outline-none focus:ring-2 focus:ring-brand-green focus:border-brand-green"
+                    required
+                    placeholder="Nhập số điện thoại"
+                  />
                 </div>
               </div>
+              <div className="grid grid-cols-1 gap-3 mt-3 md:grid-cols-2">
+                <div>
+                  <AddressAutocomplete
+                    value={formData.job_customer_address}
+                    onChange={(value) => {
+                      setFormData((prev) => ({
+                        ...prev,
+                        job_customer_address: value,
+                      }));
+                    }}
+                    onSelect={(address) => {
+                      setFormData((prev) => ({
+                        ...prev,
+                        job_customer_address: address.description,
+                      }));
+                    }}
+                    placeholder="Nhập địa chỉ để tìm kiếm tự động..."
+                    required={true}
+                    label="Địa chỉ"
+                  />
+                </div>
 
-              {/* Hiển thị nội dung đã ghép */}
-              <div className="p-3 mt-3 bg-gray-50 rounded-lg border border-gray-200">
-                <div className="flex justify-between items-center">
-                  <label className="block text-xs font-medium text-gray-600">
+                <div>
+                  <label className="block mb-1 text-sm font-medium text-gray-700">
+                    Nguồn công việc <span className="text-red-500">*</span>
+                  </label>
+                  <Select
+                    value={jobSources.find(source => source.value === formData.job_source)}
+                    onChange={(selectedOption) => {
+                      const value = selectedOption?.value || "";
+                      setFormData((prev) => ({ ...prev, job_source: value }));
+                    }}
+                    options={jobSources}
+                    placeholder="Chọn nguồn"
+                    isSearchable={true}
+                    isClearable={true}
+                    className="text-sm"
+                    styles={selectStyles}
+                  />
+                </div>
+              </div>
+            </div>
+            {/* Section 2: Nội dung công việc */}
+            <div className="p-1.5 bg-gray-50 rounded-lg border border-gray-200">
+              <div className="grid grid-cols-1 gap-2 lg:grid-cols-3">
+                {[
+                  {
+                    key: "selected_keyword",
+                    label: "Hành động chính",
+                    data: keywordsData.keywords,
+                  },
+                  {
+                    key: "selected_material_service",
+                    label: "Vật liệu/Dịch vụ",
+                    data: materialServicesData.material_services,
+                  },
+                  {
+                    key: "selected_action",
+                    label: "Đối tượng",
+                    data: actionsData.actions,
+                  },
+                ].map(({ key, label, data }) => {
+                  const options = data.map(item => ({
+                    value: item.name,
+                    label: item.name
+                  }));
+                  
+                  const selectedOption = options.find(option => option.value === formData[key]);
+                  
+                  return (
+                    <div key={key}>
+                      <label className="block mb-1 text-xs font-medium text-gray-600">
+                        {label}
+                      </label>
+                      <Select
+                        value={selectedOption}
+                        onChange={(selectedOption) => {
+                          const value = selectedOption?.value || "";
+                          setFormData((prev) => ({ ...prev, [key]: value }));
+                          updateJobContent(
+                            key === "selected_keyword" ? value : formData.selected_keyword,
+                            key === "selected_material_service" ? value : formData.selected_material_service,
+                            key === "selected_action" ? value : formData.selected_action
+                          );
+                        }}
+                        options={options}
+                        placeholder={`Chọn ${label.toLowerCase()}`}
+                        isSearchable={true}
+                        isClearable={true}
+                        className="text-sm"
+                        styles={selectStyles}
+                      />
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Nội dung đã ghép */}
+              <div className="p-2 mt-2 bg-gray-50 rounded-lg border border-gray-200">
+                <div className="grid grid-cols-6 gap-1 items-center">
+                  <label className="block col-span-1 text-xs font-medium text-gray-600">
                     Nội dung đã ghép:
                   </label>
+                  <div className="col-span-4 p-1 w-full bg-white border-gray-200">
+                    <span
+                      className={
+                        formData.job_content
+                          ? "text-sm font-medium text-gray-800"
+                          : "text-sm italic text-gray-400"
+                      }
+                    >
+                      {formData.job_content ||
+                        "Chọn từ 3 dropdown trên để tạo nội dung công việc"}
+                    </span>
+                  </div>
                   {formData.job_content && (
                     <button
                       type="button"
-                      onClick={() => {
-                        setFormData(prev => ({
+                      onClick={() =>
+                        setFormData((prev) => ({
                           ...prev,
                           selected_keyword: "",
                           selected_action: "",
                           selected_material_service: "",
-                          job_content: ""
-                        }));
-                      }}
+                          job_content: "",
+                        }))
+                      }
                       className="text-xs text-red-500 transition-colors hover:text-red-600"
-                      title="Xóa tất cả"
                     >
                       × Xóa
                     </button>
                   )}
                 </div>
-                <div className="mt-1.5 p-2 bg-white rounded border border-gray-200 min-h-[2.5rem] flex items-center">
-                  {formData.job_content ? (
-                    <span className="text-sm font-medium text-gray-800">
-                      {formData.job_content}
-                    </span>
-                  ) : (
-                    <span className="text-sm italic text-gray-400">
-                      Chọn từ 3 dropdown trên để tạo nội dung công việc
-                    </span>
-                  )}
+              </div>
+            </div>
+
+            {/* Section 3: Thông tin cơ bản & Lịch hẹn */}
+            <div className="p-1.5 bg-gray-50 rounded-lg border border-gray-200">
+              <div className="grid grid-cols-1 gap-2 md:grid-cols-2 lg:grid-cols-3">
+                <div>
+                  <label className="block mb-1 text-xs font-medium text-gray-700">
+                    Loại công việc <span className="text-red-500">*</span>
+                  </label>
+                  <Select
+                    value={jobTypes.find(type => type.value === formData.job_type_id)}
+                    onChange={(selectedOption) => {
+                      const value = selectedOption?.value || "";
+                      setFormData((prev) => ({ ...prev, job_type_id: value }));
+                    }}
+                    options={jobTypes}
+                    placeholder="Chọn loại công việc"
+                    isSearchable={true}
+                    isClearable={true}
+                    className="text-sm"
+                    styles={{...selectStyles, control: (base) => ({...base, minHeight: '28px'})}}
+                  />
+                </div>
+
+                <div>
+                  <label className="block mb-1 text-xs font-medium text-gray-700">
+                    Ngày hẹn <span className="text-red-500">*</span>
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="date"
+                      name="job_appointment_date"
+                      value={formData.job_appointment_date}
+                      onChange={handleChange}
+                      className="px-2 py-1.5 w-full text-sm rounded-md border border-gray-300 bg-white focus:outline-none focus:ring-2 focus:ring-brand-green cursor-pointer"
+                      required
+                      placeholder="Chọn hoặc nhập ngày"
+                      onClick={(e) => {
+                        e.target.showPicker && e.target.showPicker();
+                      }}
+                    />
+                    <div 
+                      className="flex absolute inset-y-0 right-0 items-center pr-2 cursor-pointer"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        const input = e.target.closest('.relative').querySelector('input[type="date"]');
+                        input.focus();
+                        input.showPicker && input.showPicker();
+                      }}
+                    >
+                      <svg className="w-4 h-4 text-gray-400 transition-colors hover:text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Only show time input if there's existing time or user wants to add time */}
+                {(formData.job_appointment_time ||
+                  originalData.job_appointment_time) && (
+                  <div>
+                    <label className="block mb-1 text-xs font-medium text-gray-700">
+                      Giờ hẹn
+                    </label>
+                    <input
+                      type="time"
+                      name="job_appointment_time"
+                      value={formData.job_appointment_time}
+                      onChange={handleChange}
+                      className="px-2 py-1.5 w-full text-sm rounded-md border border-gray-300 bg-white focus:outline-none focus:ring-2 focus:ring-brand-green"
+                    />
+                  </div>
+                )}
+              </div>
+
+              <div className="mt-2">
+                <label className="block mb-1 text-xs font-medium text-gray-700">
+                  Mức độ ưu tiên
+                </label>
+                <div className="flex gap-1">
+                  {[
+                    {
+                      value: "",
+                      label: "Bình Thường",
+                      color: "text-gray-500",
+                      bg: "bg-gray-600",
+                    },
+                    {
+                      value: "medium",
+                      label: "Khách Quen",
+                      color: "text-brand-green",
+                      bg: "bg-blue-600",
+                    },
+                    {
+                      value: "high",
+                      label: "Lịch Ưu Tiên",
+                      color: "text-brand-yellow",
+                      bg: "bg-red-600",
+                    },
+                  ].map((p) => (
+                    <label
+                      key={p.value}
+                      className={`flex items-center space-x-1 px-1.5 py-1 rounded cursor-pointer transition-all duration-200 text-xs font-medium border ${
+                        formData.job_priority === p.value
+                          ? `${p.bg} text-white border-gray-600 shadow-sm`
+                          : "bg-white border-gray-200 text-gray-600 hover:border-gray-300 hover:bg-gray-50"
+                      }`}
+                    >
+                      <input
+                        type="radio"
+                        name="job_priority"
+                        value={p.value}
+                        checked={formData.job_priority === p.value}
+                        onChange={(e) =>
+                          setFormData((prev) => ({
+                            ...prev,
+                            job_priority: e.target.value,
+                          }))
+                        }
+                        className="w-2.5 h-2.5 border-gray-300 text-brand-green focus:ring-brand-green"
+                      />
+                      <span
+                        className={
+                          formData.job_priority === p.value
+                            ? "text-white"
+                            : p.color
+                        }
+                      >
+                        {p.label}
+                      </span>
+                    </label>
+                  ))}
                 </div>
               </div>
-            </div>
 
-            <div>
-              <label className="block mb-1 text-sm font-medium text-gray-700">
-                Loại công việc <span className="text-red-500">*</span>
-              </label>
-              <select
-                name="job_type_id"
-                value={formData.job_type_id}
-                onChange={handleChange}
-                className="w-full px-2.5 py-1.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-green"
-                required
-              >
-                <option value="">Chọn loại công việc</option>
-                <option value="1">Điện Nước</option>
-                <option value="2">Điện Lạnh</option>
-                <option value="3">Đồ gỗ</option>
-                <option value="4">Năng Lượng Mặt trời</option>
-                <option value="5">Xây Dựng</option>
-                <option value="6">Tài Xế</option>
-                <option value="7">Cơ Khí</option>
-                <option value="8">Điện - Điện Tử</option>
-                <option value="9">Văn Phòng</option>
-              </select>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="block mb-1 text-sm font-medium text-gray-700">
-                Tên khách hàng
-              </label>
-              <input
-                type="text"
-                name="job_customer_name"
-                value={formData.job_customer_name}
-                onChange={handleChange}
-                className="w-full px-2.5 py-1.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-green"
-                maxLength="255"
-              />
-            </div>
-
-            <div>
-              <label className="block mb-1 text-sm font-medium text-gray-700">
-                Số điện thoại <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="tel"
-                name="job_customer_phone"
-                value={formData.job_customer_phone}
-                maxLength="20"
-                onChange={handleChange}
-                className="w-full px-2.5 py-1.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-green"
-                required
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <AddressAutocomplete
-                value={formData.job_customer_address}
-                onChange={(value) => {
-                  setFormData(prev => ({
-                    ...prev,
-                    job_customer_address: value,
-                  }));
-                }}
-                onSelect={(address) => {
-                  setFormData(prev => ({
-                    ...prev,
-                    job_customer_address: address.description,
-                  }));
-                }}
-                placeholder="Nhập địa chỉ để tìm kiếm tự động..."
-                required={true}
-                label="Địa chỉ"
-              />
-            </div>
-
-            <div>
-              <label className="block mb-1 text-sm font-medium text-gray-700">
-                Nguồn công việc <span className="text-red-500">*</span>
-              </label>
-              <select
-                name="job_source"
-                value={formData.job_source}
-                onChange={handleChange}
-                className="w-full px-2.5 py-1.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-green"
-                required
-              >
-                <option value="">Chọn nguồn</option>
-                {jobSources.map((source) => (
-                  <option key={source.value} value={source.value}>
-                    {source.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
-
-          <div>
-            <label className="block mb-1 text-sm font-medium text-gray-700">
-              Ngày hẹn <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="date"
-              name="job_appointment_date"
-              value={formData.job_appointment_date}
-              onChange={handleChange}
-              className="w-full px-2.5 py-1.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-green"
-              required
-            />
-          </div>
-
-          <div className="grid grid-cols-2 gap-3">
-            {/* Only show time input if there's existing time or user wants to add time */}
-            {(formData.job_appointment_time || originalData.job_appointment_time) && (
-              <div>
-                <label className="block mb-1 text-sm font-medium text-gray-700">
-                  Giờ hẹn
+              <div className="mt-2">
+                <label className="block mb-1 text-xs font-medium text-gray-700">
+                  Ghi chú khách hàng
                 </label>
-                <input
-                  type="time"
-                  name="job_appointment_time"
-                  value={formData.job_appointment_time}
+                <textarea
+                  name="job_customer_note"
+                  value={formData.job_customer_note}
                   onChange={handleChange}
-                  className="w-full px-2.5 py-1.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-green"
+                  className="px-2 py-1.5 w-full text-sm rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-brand-green"
+                  rows="1"
+                  maxLength="500"
+                  placeholder="Nhập ghi chú khách hàng"
                 />
               </div>
-            )}
+            </div>
 
-            <div>
-              <label className="block mb-1 text-sm font-medium text-gray-700">
-                Mức độ ưu tiên
-              </label>
-              <div className="flex gap-1.5">
-                {[
-                  { value: "", label: "KH Bình Thường", color: "text-gray-500" },
-                  { value: "medium", label: "Khách quen", color: "text-brand-green" },
-                  { value: "high", label: "Lịch ưu tiên", color: "text-brand-yellow" },
-                ].map((priority) => (
-                  <label
-                    key={priority.value}
-                    className={`flex items-center space-x-1.5 px-2.5 py-1.5 rounded-md cursor-pointer transition-all duration-200 text-xs font-medium border ${
-                      formData.job_priority === priority.value
-                        ? priority.value === ""
-                          ? "bg-gray-600 text-white border-gray-600 shadow-sm"
-                          : priority.value === "medium"
-                          ? "bg-blue-600 text-white border-blue-600 shadow-sm"
-                          : "bg-red-600 text-white border-red-600 shadow-sm"
-                        : "bg-white border-gray-200 text-gray-600 hover:border-gray-300 hover:bg-gray-50"
-                    }`}
-                  >
+            {/* Section 4: Hình ảnh đính kèm */}
+            <div 
+              className="p-1.5 bg-gray-50 rounded-lg border border-gray-200"
+              onDragOver={handleDragOver}
+              onDrop={handleDrop}
+            >
+              <div className="flex justify-between items-center mb-1">
+                <h3 className="flex items-center text-xs font-semibold text-gray-900">
+                  <span className="flex justify-center items-center mr-1 w-3 h-3 text-xs text-white rounded-full bg-brand-green">
+                    4
+                  </span>
+                  Hình ảnh ({images.length})
+                </h3>
+                <div className="flex space-x-1">
+                  <label className="inline-flex items-center px-1.5 py-0.5 text-xs font-medium text-white rounded transition-colors cursor-pointer bg-brand-green hover:bg-green-700">
+                    <Upload className="mr-1 w-2.5 h-2.5" />
+                    Upload
                     <input
-                      type="radio"
-                      name="job_priority"
-                      value={priority.value}
-                      checked={formData.job_priority === priority.value}
-                      onChange={(e) => {
-                        const newPriority = e.target.value;
-                        setFormData(prev => ({
-                          ...prev,
-                          job_priority: newPriority,
-                        }));
-                      }}
-                      className="w-3 h-3 border-gray-300 text-brand-green focus:ring-brand-green"
+                      type="file"
+                      multiple
+                      accept="image/*"
+                      onChange={handleImageUpload}
+                      className="hidden"
                     />
-                    <span className={formData.job_priority === priority.value ? "text-white" : priority.color}>
-                      {priority.value === "" ? "Bình Thường" : 
-                       priority.value === "medium" ? "Khách Quen" : 
-                       priority.value === "high" ? "Lịch Ưu Tiên" : priority.label}
-                    </span>
                   </label>
-                ))}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const input = document.createElement('input');
+                      input.type = 'file';
+                      input.multiple = true;
+                      input.accept = 'image/*';
+                      input.onchange = handleImageUpload;
+                      input.click();
+                    }}
+                    className="inline-flex items-center px-1.5 py-0.5 text-xs font-medium text-white rounded transition-colors cursor-pointer bg-blue-600 hover:bg-blue-700"
+                  >
+                    Upload
+                  </button>
+                </div>
               </div>
+
+              {/* Image grid - compact with preview */}
+              {images.length > 0 ? (
+                <div className="space-y-2">
+                  <div className="grid grid-cols-6 gap-0.5 sm:grid-cols-8 lg:grid-cols-10">
+                    {images.map((image, index) => (
+                      <div key={image.id} className="relative group">
+                        <div className="overflow-hidden bg-gray-100 rounded border border-gray-200 aspect-square">
+                          <img
+                            src={image.url}
+                            alt={image.name}
+                            className="object-cover w-full h-full transition-opacity cursor-pointer hover:opacity-80"
+                            onClick={() => handleViewImage(index)}
+                          />
+                        </div>
+                        <div className="flex absolute top-0 right-0 space-x-0 opacity-0 transition-opacity group-hover:opacity-100">
+                          <button
+                            type="button"
+                            onClick={() => handleViewImage(index)}
+                            className="p-0.5 text-white rounded transition-colors bg-black/50 hover:bg-black/70"
+                            title="Xem"
+                          >
+                            <Eye className="w-1.5 h-1.5" />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveImage(image.id)}
+                            className="p-0.5 text-white rounded transition-colors bg-red-500/80 hover:bg-red-600"
+                            title="Xóa"
+                          >
+                            <Trash2 className="w-1.5 h-1.5" />
+                          </button>
+                        </div>
+                        {/* Image info overlay */}
+                        <div className="absolute right-0 bottom-0 left-0 p-1 text-xs text-white opacity-0 transition-opacity bg-black/70 group-hover:opacity-100">
+                          <div className="truncate" title={image.name}>
+                            {image.name}
+                          </div>
+                          <div className="text-xs opacity-75">
+                            {image.isNew ? 'Mới' : 'Có sẵn'}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  
+                  {/* Image summary */}
+                  <div className="flex justify-between items-center p-2 text-xs text-gray-600 bg-gray-100 rounded">
+                    <span>Tổng: {images.length} hình ảnh</span>
+                    <div className="flex space-x-2">
+                      <span>Mới: {images.filter(img => img.isNew).length}</span>
+                      <span>Có sẵn: {images.filter(img => !img.isNew).length}</span>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex flex-col justify-center items-center py-6 text-gray-400 rounded border-2 border-gray-300 border-dashed transition-colors hover:border-brand-green">
+                  <Image className="mb-2 w-8 h-8" />
+                  <p className="text-sm font-medium">Chưa có hình ảnh</p>
+                  <p className="mt-1 text-xs text-center">
+                    Kéo thả file, dán hình ảnh từ clipboard,<br />
+                    hoặc click Upload để chọn file
+                  </p>
+                </div>
+              )}
             </div>
-          </div>
 
-          <div>
-            <label className="block mb-1 text-sm font-medium text-gray-700">
-              Ghi chú khách hàng
-            </label>
-            <textarea
-              name="job_customer_note"
-              value={formData.job_customer_note}
-              onChange={handleChange}
-              className="w-full px-2.5 py-1.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-green"
-              rows="2"
-              maxLength="500"
-              placeholder="Nhập ghi chú khách hàng"
-            />
-          </div>
+            {error && (
+              <div className="p-2.5 text-sm text-red-600 border border-red-200 rounded-md bg-red-50">
+                {error}
+              </div>
+            )}
+          </form>
+        </div>
 
-          {error && (
-            <div className="p-2.5 text-sm text-red-600 border border-red-200 rounded-md bg-red-50">
-              {error}
+        {/* Footer */}
+        <div className="px-3 py-2 bg-gray-50 rounded-b-xl border-t border-gray-200">
+          <div className="flex justify-between items-center">
+            <div className="text-xs text-gray-500">
+              <span className="font-medium">Lưu ý:</span> Các trường có dấu{" "}
+              <span className="text-red-500">*</span> là bắt buộc
             </div>
-          )}
-
-          {/* Nút điều khiển - Di chuyển lên trên */}
-          <div className="pt-4 pb-2 border-t border-gray-200">
-            <div className="flex justify-end space-x-2">
+            <div className="flex space-x-1.5">
               <button
                 type="button"
                 onClick={onClose}
-                className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg transition-colors hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+                className="px-3 py-1.5 text-xs font-medium text-gray-700 bg-white rounded border border-gray-300 transition-colors hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
               >
                 Hủy
               </button>
               <button
                 type="submit"
+                form="edit-work-form"
                 disabled={loading}
-                className="px-6 py-2.5 text-sm font-semibold text-white bg-gradient-to-r from-blue-600 to-blue-700 rounded-lg hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm transition-all duration-200"
+                className="flex items-center px-4 py-1.5 text-xs font-semibold text-[#125d0d] hover:text-white bg-gradient-to-r rounded shadow-sm transition-all duration-200 from-brand-green to-brand-yellow hover:from-green-600 hover:to-yellow-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-green disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {loading ? (
-                  <span className="flex items-center">
-                    <svg className="mr-2 -ml-1 w-4 h-4 text-white animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
+                  <>
                     Đang lưu...
-                  </span>
+                  </>
                 ) : (
-                  'Lưu thay đổi'
+                  <>
+                    <span className="mr-1">💾</span>
+                    Lưu thay đổi
+                  </>
                 )}
               </button>
             </div>
           </div>
-        </form>
+        </div>
       </div>
+
+      {/* Image Modal */}
+      {showImageModal && images.length > 0 && (
+        <div className="flex fixed inset-0 justify-center items-center z-60 bg-black/75" onClick={() => setShowImageModal(false)}>
+          <div className="relative max-w-4xl max-h-[90vh] bg-white rounded-lg overflow-hidden" onClick={(e) => e.stopPropagation()}>
+            <div className="flex justify-between items-center p-4 border-b border-gray-200">
+              <h3 className="text-lg font-semibold text-gray-900">Hình ảnh ({selectedImageIndex + 1}/{images.length})</h3>
+              <button onClick={() => setShowImageModal(false)} className="text-gray-400 hover:text-gray-500 focus:outline-none">
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+            <div className="relative p-4">
+              <img src={images[selectedImageIndex]?.url} alt={images[selectedImageIndex]?.name} className="max-w-full max-h-[60vh] mx-auto object-contain rounded-lg" />
+              {images.length > 1 && (
+                <>
+                  <button onClick={() => setSelectedImageIndex((prev) => prev > 0 ? prev - 1 : images.length - 1)} className="absolute left-4 top-1/2 p-2 text-white rounded-full transition-colors -translate-y-1/2 bg-black/50 hover:bg-black/70">←</button>
+                  <button onClick={() => setSelectedImageIndex((prev) => prev < images.length - 1 ? prev + 1 : 0)} className="absolute right-4 top-1/2 p-2 text-white rounded-full transition-colors -translate-y-1/2 bg-black/50 hover:bg-black/70">→</button>
+                </>
+              )}
+            </div>
+            {images.length > 1 && (
+              <div className="p-4 border-t border-gray-200">
+                <div className="flex overflow-x-auto space-x-2">
+                  {images.map((image, index) => (
+                    <button key={image.id} onClick={() => setSelectedImageIndex(index)} className={`flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 transition-colors ${index === selectedImageIndex ? "border-brand-green" : "border-gray-200 hover:border-gray-300"}`}>
+                      <img src={image.url} alt={image.name} className="object-cover w-full h-full" />
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 };
 
-export default EditWorkModal; 
+export default EditWorkModal;

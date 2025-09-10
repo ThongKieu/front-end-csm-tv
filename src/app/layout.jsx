@@ -27,6 +27,7 @@ function AppContent({ children }) {
     notifyJobCreated 
   } = useSchedule()
   const isLoading = useSelector(selectAuthLoading)
+  const isAuthenticated = useSelector(state => state.auth?.isAuthenticated)
   
   // Lấy selectedDate từ Redux store nếu có
   const selectedDate = useSelector(state => state.work?.selectedDate)
@@ -39,15 +40,22 @@ function AppContent({ children }) {
   return (
     <>
       {children}
-      <CreateScheduleButton />
-      <CreateScheduleModal
-        isOpen={isCreateScheduleModalOpen}
-        onClose={() => setIsCreateScheduleModalOpen(false)}
-        workers={workers}
-        onSuccess={refreshData}
-        selectedDate={selectedDate}
-        onJobCreated={notifyJobCreated}
-      />
+      {/* Chỉ hiển thị nút tạo công việc và modal khi đã đăng nhập */}
+      {isAuthenticated && (
+        <>
+          <CreateScheduleButton />
+          <CreateScheduleModal
+            isOpen={isCreateScheduleModalOpen}
+            onClose={() => setIsCreateScheduleModalOpen(false)}
+            workers={workers}
+            onSuccess={async (targetDate) => {
+              // Chỉ gọi refreshData từ ScheduleContext, không gọi notifyJobCreated để tránh duplicate API calls
+              await refreshData(targetDate);
+            }}
+            selectedDate={selectedDate}
+          />
+        </>
+      )}
       <ToastContainer />
     </>
   )

@@ -157,7 +157,7 @@ const initialState = {
     assignedWorks: {}, // { date: { data: [...], timestamp: number } }
     unassignedWorks: {}, // { date: { data: [...], timestamp: number } }
     workers: {}, // { jobDataKey: { data: [...], timestamp: number } }
-    cacheExpiry: 1 * 60 * 1000, // Giảm xuống 1 phút để cập nhật thường xuyên hơn
+    cacheExpiry: 5 * 60 * 1000, // Tăng lên 5 phút để giảm số lần gọi API
   },
 };
 
@@ -528,7 +528,6 @@ const workSlice = createSlice({
       .addCase(assignWorker.pending, (state) => {
         state.loading = true;
         state.error = null;
-        console.log('🔄 assignWorker.pending: Starting worker assignment');
       })
       .addCase(assignWorker.fulfilled, (state, action) => {
         state.loading = false;
@@ -536,8 +535,6 @@ const workSlice = createSlice({
         state.cache.assignedWorks = {};
         state.cache.unassignedWorks = {};
         state.error = null;
-        console.log('✅ assignWorker.fulfilled: Cache cleared, data will be refreshed');
-        console.log('✅ assignWorker.fulfilled: Response data:', action.payload);
       })
       .addCase(assignWorker.rejected, (state, action) => {
         state.loading = false;

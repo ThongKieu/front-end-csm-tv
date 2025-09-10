@@ -43,16 +43,13 @@ const timeInputStyles = `
   }
 `;
 
-
 export default function CreateScheduleModal({
   isOpen,
   onClose,
   workers,
   onSuccess,
   selectedDate = null, // Thêm prop để nhận ngày hiện tại được chọn
-  onJobCreated = null, // Callback khi tạo job thành công để cập nhật UI
 }) {
-
   // Không cần dispatch nữa vì chỉ dựa vào API
   const fileInputRef = useRef(null);
   const submissionRef = useRef(false); // Track submission state
@@ -62,13 +59,24 @@ export default function CreateScheduleModal({
   const getTodayDate = () => new Date().toISOString().split("T")[0];
   const getCurrentTime = () => {
     const now = new Date();
-    return `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+    return `${now.getHours().toString().padStart(2, "0")}:${now
+      .getMinutes()
+      .toString()
+      .padStart(2, "0")}`;
   };
   const getDefaultFormData = (time = getCurrentTime()) => ({
-    job_content: "", job_appointment_date: getTodayDate(), job_appointment_time: time,
-    job_customer_address: "", job_customer_phone: "", job_customer_name: "", job_customer_note: "",
+    job_content: "",
+    job_appointment_date: getTodayDate(),
+    job_appointment_time: time,
+    job_customer_address: "",
+    job_customer_phone: "",
+    job_customer_name: "",
+    job_customer_note: "",
     job_type_id: "1", // Mặc định chọn "Điện Nước" (value = "1")
-    job_source: "call_center", job_priority: "", user_id: "1", job_images: [],
+    job_source: "call_center",
+    job_priority: "",
+    user_id: "1",
+    job_images: [],
     has_appointment_time: false, // Thêm field để kiểm soát việc có hẹn giờ hay không
     // Thêm các field mới cho 3 dropdown
     selected_keyword: "",
@@ -79,6 +87,7 @@ export default function CreateScheduleModal({
 
   const [scheduleData, setScheduleData] = useState(defaultFormData);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
   const [imageViewerOpen, setImageViewerOpen] = useState(false);
   const [phoneError, setPhoneError] = useState(false);
@@ -91,31 +100,32 @@ export default function CreateScheduleModal({
       if (savedData) {
         try {
           const parsedData = JSON.parse(savedData);
-          const hasAppointmentTime = parsedData.has_appointment_time !== undefined 
-            ? parsedData.has_appointment_time 
-            : (parsedData.job_appointment_time && parsedData.job_appointment_time.trim() !== "");
-          
+          const hasAppointmentTime =
+            parsedData.has_appointment_time !== undefined
+              ? parsedData.has_appointment_time
+              : parsedData.job_appointment_time &&
+                parsedData.job_appointment_time.trim() !== "";
+
           // Format giờ hẹn
           let appointmentTime = parsedData.job_appointment_time || "";
           if (appointmentTime && hasAppointmentTime) {
             const timeMatch = appointmentTime.match(/(\d{1,2}):(\d{2})/);
             if (timeMatch) {
-              const hour = parseInt(timeMatch[1]).toString().padStart(2, '0');
+              const hour = parseInt(timeMatch[1]).toString().padStart(2, "0");
               appointmentTime = `${hour}:${timeMatch[2]}`;
             }
           }
-          
-          setScheduleData({ 
-            ...defaultFormData, 
+
+          setScheduleData({
+            ...defaultFormData,
             ...parsedData,
             has_appointment_time: hasAppointmentTime,
             job_appointment_time: appointmentTime,
             // Bỏ các field không còn sử dụng
             job_content_construction: undefined,
             job_content_installation: undefined,
-            job_content_aircon: undefined
+            job_content_aircon: undefined,
           });
-          
         } catch (error) {
           console.error("Error parsing saved form data:", error);
           resetForm();
@@ -174,7 +184,6 @@ export default function CreateScheduleModal({
               job_images: [...prev.job_images, newFile],
             }));
 
-    
             break;
           }
         }
@@ -190,19 +199,19 @@ export default function CreateScheduleModal({
     };
   }, [isOpen]);
 
-
-  const clearSavedData = () => localStorage.removeItem("createScheduleFormData");
+  const clearSavedData = () =>
+    localStorage.removeItem("createScheduleFormData");
   const resetForm = () => {
     setScheduleData(getDefaultFormData(currentTime));
   };
 
-
-    // Phone number handlers
+  // Phone number handlers
   const handlePhoneChange = (e) => {
     const numbersOnly = e.target.value.replace(/\D/g, "").slice(0, 11);
     setScheduleData({ ...scheduleData, job_customer_phone: numbersOnly });
   };
-  const getPhoneDigitsCount = () => scheduleData.job_customer_phone.replace(/\D/g, "").length;
+  const getPhoneDigitsCount = () =>
+    scheduleData.job_customer_phone.replace(/\D/g, "").length;
   const isPhoneValid = () => {
     const digits = getPhoneDigitsCount();
     return digits >= 10 && digits <= 11;
@@ -215,38 +224,50 @@ export default function CreateScheduleModal({
     { value: "high", label: "Lịch ưu tiên", color: "text-brand-yellow" },
   ];
   const jobTypes = [
-    { value: "1", label: "Điện Nước" }, { value: "2", label: "Điện Lạnh" },
-    { value: "3", label: "Đồ gỗ" }, { value: "4", label: "Năng Lượng Mặt trời" },
-    { value: "5", label: "Xây Dựng" }, { value: "6", label: "Tài Xế" },
-    { value: "7", label: "Cơ Khí" }, { value: "8", label: "Điện - Điện Tử" },
+    { value: "1", label: "Điện Nước" },
+    { value: "2", label: "Điện Lạnh" },
+    { value: "3", label: "Đồ gỗ" },
+    { value: "4", label: "Năng Lượng Mặt trời" },
+    { value: "5", label: "Xây Dựng" },
+    { value: "6", label: "Tài Xế" },
+    { value: "7", label: "Cơ Khí" },
+    { value: "8", label: "Điện - Điện Tử" },
     { value: "9", label: "Văn Phòng" },
   ];
   const jobSources = [
-    { value: "call_center", label: "Tổng đài" }, { value: "app_customer", label: "App Khách hàng" },
-    { value: "app_worker", label: "App Thợ" }, { value: "website", label: "Website" },
-    { value: "zalo", label: "Zalo" }, { value: "facebook", label: "Facebook" },
-    { value: "tiktok", label: "TikTok" }, { value: "office", label: "Văn phòng" },
+    { value: "call_center", label: "Tổng đài" },
+    { value: "app_customer", label: "App Khách hàng" },
+    { value: "app_worker", label: "App Thợ" },
+    { value: "website", label: "Website" },
+    { value: "zalo", label: "Zalo" },
+    { value: "facebook", label: "Facebook" },
+    { value: "tiktok", label: "TikTok" },
+    { value: "office", label: "Văn phòng" },
     { value: "other", label: "Khác" },
   ];
 
   // Handlers
   const handleFileChange = (e) => {
     const files = Array.from(e.target.files);
-    setScheduleData(prev => ({ ...prev, job_images: [...prev.job_images, ...files] }));
-    
+    setScheduleData((prev) => ({
+      ...prev,
+      job_images: [...prev.job_images, ...files],
+    }));
   };
   const handleRemoveImage = (index) => {
-    setScheduleData(prev => ({ ...prev, job_images: prev.job_images.filter((_, i) => i !== index) }));
-    
+    setScheduleData((prev) => ({
+      ...prev,
+      job_images: prev.job_images.filter((_, i) => i !== index),
+    }));
   };
   const handlePasteClick = () => fileInputRef.current?.click();
-  const handleImageClick = (file, index) => { 
-    setSelectedImage({ file, index }); 
-    setImageViewerOpen(true); 
+  const handleImageClick = (file, index) => {
+    setSelectedImage({ file, index });
+    setImageViewerOpen(true);
   };
-  const handleCloseImageViewer = () => { 
-    setImageViewerOpen(false); 
-    setSelectedImage(null); 
+  const handleCloseImageViewer = () => {
+    setImageViewerOpen(false);
+    setSelectedImage(null);
   };
 
   const handleCreateSchedule = async (e) => {
@@ -281,11 +302,18 @@ export default function CreateScheduleModal({
     }
 
     // Validate giờ hẹn
-    if (scheduleData.has_appointment_time && (!scheduleData.job_appointment_time || !scheduleData.job_appointment_time.trim())) {
+    if (
+      scheduleData.has_appointment_time &&
+      (!scheduleData.job_appointment_time ||
+        !scheduleData.job_appointment_time.trim())
+    ) {
       return;
     }
 
-    if (scheduleData.has_appointment_time && scheduleData.job_appointment_time) {
+    if (
+      scheduleData.has_appointment_time &&
+      scheduleData.job_appointment_time
+    ) {
       const timeRegex = /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/;
       if (!timeRegex.test(scheduleData.job_appointment_time)) {
         return;
@@ -296,11 +324,15 @@ export default function CreateScheduleModal({
     if (!isPhoneValid()) {
       return;
     }
-    
+
     // Generate unique request ID to prevent duplicates
-    const requestId = `job_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    const requestId = `job_${Date.now()}_${Math.random()
+      .toString(36)
+      .substr(2, 9)}`;
     requestIdRef.current = requestId;
     submissionRef.current = true; // Set submission state to true
+    setIsSubmitting(true);
+
     try {
       // Check if this request is still valid (not superseded by another)
       if (requestIdRef.current !== requestId) {
@@ -328,8 +360,6 @@ export default function CreateScheduleModal({
         user_id: parseInt(scheduleData.user_id) || 1, // Đảm bảo là số
         // Thêm các field có thể cần thiết
         job_status: "pending", // Trạng thái mặc định
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
       };
 
       // Final validation: priority có thể để trống hoặc là giá trị hợp lệ
@@ -357,19 +387,15 @@ export default function CreateScheduleModal({
           formData.append("job_images[]", file);
         });
       }
-      
-      const response = await axios.post(
-        API_URLS.JOB_CREATE,
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-            Accept: "application/json",
-            "X-Request-ID": requestId, // Add request ID to headers
-          },
-          timeout: 30000, // 30 giây timeout
-        }
-      );
+
+      const response = await axios.post(API_URLS.JOB_CREATE, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          Accept: "application/json",
+          "X-Request-ID": requestId, // Add request ID to headers
+        },
+        timeout: 30000, // 30 giây timeout
+      });
 
       // Check if this request is still valid
       if (requestIdRef.current !== requestId) {
@@ -381,35 +407,38 @@ export default function CreateScheduleModal({
         if (requestIdRef.current !== requestId) {
           return;
         }
-        
+
         // Validate response data to ensure only one job was created
         if (response.data) {
           // Check if response indicates duplicate creation
-          if (response.data.message && response.data.message.includes("duplicate")) {
+          if (
+            response.data.message &&
+            response.data.message.includes("duplicate")
+          ) {
             console.error("API indicates duplicate job creation");
             throw new Error("Duplicate job detected by API");
           }
         }
 
         clearSavedData();
-        if (onJobCreated && typeof onJobCreated === "function") {
-          onJobCreated();
-        }
 
-        // Đợi một chút để API hoàn tất
-        await new Promise(resolve => setTimeout(resolve, 100));
-
-        // Gọi callback để refresh data từ server (giống như phần edit)
+        // Gọi callback để refresh data từ server
         if (onSuccess && typeof onSuccess === "function") {
           const targetDate = selectedDate || scheduleData.job_appointment_date;
           try {
+            setIsRefreshing(true);
             await onSuccess(targetDate);
           } catch (error) {
-            console.error('❌ CreateScheduleModal: Server refresh failed:', error);
+            console.error(
+              "❌ CreateScheduleModal: Server refresh failed:",
+              error
+            );
             // Không throw error vì job đã được tạo thành công
+          } finally {
+            setIsRefreshing(false);
           }
-        }
-
+        }        
+        // Đóng modal và reset form (không cần alert)
         onClose();
         resetForm();
       } else {
@@ -421,7 +450,7 @@ export default function CreateScheduleModal({
       if (requestIdRef.current !== requestId) {
         return;
       }
-      
+
       console.error("Error creating job:", error);
       console.error("Error response:", error.response);
       console.error("Error request:", error.request);
@@ -464,12 +493,13 @@ export default function CreateScheduleModal({
       if (requestIdRef.current !== requestId) {
         return;
       }
-      
+
       submissionRef.current = false; // Reset submission state
+      setIsSubmitting(false);
     }
   };
 
-  const handleResetForm = () => { 
+  const handleResetForm = () => {
     resetForm();
     clearSavedData();
   };
@@ -482,11 +512,11 @@ export default function CreateScheduleModal({
     if (keyword) parts.push(keyword);
     if (materialService) parts.push(materialService);
     if (action) parts.push(action);
-    
+
     const combinedContent = parts.join(" ");
-    setScheduleData(prev => ({
+    setScheduleData((prev) => ({
       ...prev,
-      job_content: combinedContent
+      job_content: combinedContent,
     }));
   };
 
@@ -522,7 +552,7 @@ export default function CreateScheduleModal({
           </div>
 
           <div className="overflow-y-auto flex-1">
-            <form 
+            <form
               onSubmit={(e) => {
                 // Prevent form submission if already submitting
                 if (submissionRef.current) {
@@ -530,11 +560,11 @@ export default function CreateScheduleModal({
                   return false;
                 }
                 handleCreateSchedule(e);
-              }} 
+              }}
               className="p-6 space-y-6"
               onKeyDown={(e) => {
                 // Prevent form submission on Enter key if already submitting
-                if (e.key === 'Enter' && submissionRef.current) {
+                if (e.key === "Enter" && submissionRef.current) {
                   e.preventDefault();
                 }
               }}
@@ -626,12 +656,12 @@ export default function CreateScheduleModal({
                   </h3>
                 </div>
 
-                                {/* Nội dung công việc - 3 dropdown */}
+                {/* Nội dung công việc - 3 dropdown */}
                 <div className="space-y-3">
                   <label className="block mb-2 text-xs font-medium text-gray-700">
                     Nội dung công việc <span className="text-red-500">*</span>
                   </label>
-                  
+
                   {/* 3 dropdown để chọn nội dung */}
                   <div className="grid grid-cols-1 gap-3 lg:grid-cols-3">
                     {/* Keyword dropdown */}
@@ -643,9 +673,9 @@ export default function CreateScheduleModal({
                         value={scheduleData.selected_keyword}
                         onChange={(e) => {
                           const selectedKeyword = e.target.value;
-                          setScheduleData(prev => ({
+                          setScheduleData((prev) => ({
                             ...prev,
-                            selected_keyword: selectedKeyword
+                            selected_keyword: selectedKeyword,
                           }));
                           updateJobContent(
                             selectedKeyword,
@@ -667,15 +697,15 @@ export default function CreateScheduleModal({
                     {/* Material/Service dropdown */}
                     <div>
                       <label className="block mb-1.5 text-xs font-medium text-gray-600">
-                        Vị trí/Vật liệu
+                        Vật liệu/Dịch vụ
                       </label>
                       <select
                         value={scheduleData.selected_material_service}
                         onChange={(e) => {
                           const selectedMaterialService = e.target.value;
-                          setScheduleData(prev => ({
+                          setScheduleData((prev) => ({
                             ...prev,
-                            selected_material_service: selectedMaterialService
+                            selected_material_service: selectedMaterialService,
                           }));
                           updateJobContent(
                             scheduleData.selected_keyword,
@@ -685,12 +715,14 @@ export default function CreateScheduleModal({
                         }}
                         className="w-full rounded-lg border-gray-200 shadow-sm focus:border-brand-green focus:ring-brand-green bg-white text-sm px-3 py-2.5 transition-colors"
                       >
-                        <option value="">Chọn vị trí</option>
-                        {materialServicesData.material_services.map((material) => (
-                          <option key={material.id} value={material.name}>
-                            {material.name}
-                          </option>
-                        ))}
+                        <option value="">Chọn vật liệu</option>
+                        {materialServicesData.material_services.map(
+                          (material) => (
+                            <option key={material.id} value={material.name}>
+                              {material.name}
+                            </option>
+                          )
+                        )}
                       </select>
                     </div>
 
@@ -703,9 +735,9 @@ export default function CreateScheduleModal({
                         value={scheduleData.selected_action}
                         onChange={(e) => {
                           const selectedAction = e.target.value;
-                          setScheduleData(prev => ({
+                          setScheduleData((prev) => ({
                             ...prev,
-                            selected_action: selectedAction
+                            selected_action: selectedAction,
                           }));
                           updateJobContent(
                             scheduleData.selected_keyword,
@@ -735,12 +767,12 @@ export default function CreateScheduleModal({
                         <button
                           type="button"
                           onClick={() => {
-                            setScheduleData(prev => ({
+                            setScheduleData((prev) => ({
                               ...prev,
                               selected_keyword: "",
                               selected_action: "",
                               selected_material_service: "",
-                              job_content: ""
+                              job_content: "",
                             }));
                           }}
                           className="text-xs text-red-500 transition-colors hover:text-red-600"
@@ -762,8 +794,6 @@ export default function CreateScheduleModal({
                       )}
                     </div>
                   </div>
-
-
                 </div>
 
                 <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
@@ -858,20 +888,32 @@ export default function CreateScheduleModal({
                             type="radio"
                             name="job_priority"
                             value={priority.value}
-                            checked={scheduleData.job_priority === priority.value}
+                            checked={
+                              scheduleData.job_priority === priority.value
+                            }
                             onChange={(e) => {
                               const newPriority = e.target.value;
-                              setScheduleData(prev => ({
+                              setScheduleData((prev) => ({
                                 ...prev,
                                 job_priority: newPriority,
                               }));
                             }}
                             className="w-3 h-3 border-gray-300 text-brand-green focus:ring-brand-green"
                           />
-                          <span className={scheduleData.job_priority === priority.value ? "text-white" : priority.color}>
-                            {priority.value === "" ? "Bình Thường" : 
-                             priority.value === "medium" ? "Khách quen" : 
-                             priority.value === "high" ? "Lịch ưu tiên" : priority.label}
+                          <span
+                            className={
+                              scheduleData.job_priority === priority.value
+                                ? "text-white"
+                                : priority.color
+                            }
+                          >
+                            {priority.value === ""
+                              ? "Bình Thường"
+                              : priority.value === "medium"
+                              ? "Khách quen"
+                              : priority.value === "high"
+                              ? "Lịch ưu tiên"
+                              : priority.label}
                           </span>
                         </label>
                       ))}
@@ -879,7 +921,7 @@ export default function CreateScheduleModal({
                   </div>
                 </div>
 
-                                {/* Chọn giờ hẹn */}
+                {/* Chọn giờ hẹn */}
                 <div className="flex justify-between items-center p-2 bg-gray-50 rounded-lg border border-gray-200">
                   <label className="flex items-center space-x-2 cursor-pointer">
                     <input
@@ -889,7 +931,9 @@ export default function CreateScheduleModal({
                         setScheduleData({
                           ...scheduleData,
                           has_appointment_time: e.target.checked,
-                          job_appointment_time: e.target.checked ? scheduleData.job_appointment_time : "",
+                          job_appointment_time: e.target.checked
+                            ? scheduleData.job_appointment_time
+                            : "",
                         })
                       }
                       className="w-4 h-4 rounded border-gray-300 text-brand-green focus:ring-brand-green"
@@ -898,74 +942,124 @@ export default function CreateScheduleModal({
                       Khách có hẹn giờ cụ thể
                     </span>
                   </label>
-                  
+
                   {scheduleData.has_appointment_time && (
                     <div className="flex items-center space-x-2">
                       <div className="flex items-center px-3 py-1 space-x-1 bg-white rounded border border-gray-200">
                         <select
-                          value={scheduleData.job_appointment_time ? scheduleData.job_appointment_time.split(':')[0] : '00'}
+                          value={
+                            scheduleData.job_appointment_time
+                              ? scheduleData.job_appointment_time.split(":")[0]
+                              : "00"
+                          }
                           onChange={(e) => {
-                            const currentMinute = scheduleData.job_appointment_time ? scheduleData.job_appointment_time.split(':')[1] || '00' : '00';
-                            const newTime = `${e.target.value.padStart(2, '0')}:${currentMinute}`;
+                            const currentMinute =
+                              scheduleData.job_appointment_time
+                                ? scheduleData.job_appointment_time.split(
+                                    ":"
+                                  )[1] || "00"
+                                : "00";
+                            const newTime = `${e.target.value.padStart(
+                              2,
+                              "0"
+                            )}:${currentMinute}`;
                             setScheduleData({
                               ...scheduleData,
                               job_appointment_time: newTime,
                             });
                           }}
                           onKeyDown={(e) => {
-                            if (e.key === 'Tab' && !e.shiftKey) {
+                            if (e.key === "Tab" && !e.shiftKey) {
                               e.preventDefault();
                               e.target.nextElementSibling?.nextElementSibling?.focus();
-                            } else if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+                            } else if (
+                              e.key === "ArrowUp" ||
+                              e.key === "ArrowDown"
+                            ) {
                               e.preventDefault();
                               const currentValue = parseInt(e.target.value);
-                              const newValue = e.key === 'ArrowUp' 
-                                ? (currentValue + 1) % 24 
-                                : (currentValue - 1 + 24) % 24;
-                              e.target.value = newValue.toString().padStart(2, '0');
-                              e.target.dispatchEvent(new Event('change', { bubbles: true }));
+                              const newValue =
+                                e.key === "ArrowUp"
+                                  ? (currentValue + 1) % 24
+                                  : (currentValue - 1 + 24) % 24;
+                              e.target.value = newValue
+                                .toString()
+                                .padStart(2, "0");
+                              e.target.dispatchEvent(
+                                new Event("change", { bubbles: true })
+                              );
                             }
                           }}
                           className="w-12 text-sm font-medium text-center bg-transparent border-none cursor-pointer outline-none hover:bg-gray-50 focus:bg-blue-50"
                           title="Chọn giờ"
                         >
                           {Array.from({ length: 24 }, (_, i) => (
-                            <option key={i} value={i.toString().padStart(2, '0')}>
-                              {i.toString().padStart(2, '0')}
+                            <option
+                              key={i}
+                              value={i.toString().padStart(2, "0")}
+                            >
+                              {i.toString().padStart(2, "0")}
                             </option>
                           ))}
                         </select>
-                        <span className="text-sm font-bold text-gray-400">:</span>
+                        <span className="text-sm font-bold text-gray-400">
+                          :
+                        </span>
                         <select
-                          value={scheduleData.job_appointment_time ? scheduleData.job_appointment_time.split(':')[1] || '00' : '00'}
+                          value={
+                            scheduleData.job_appointment_time
+                              ? scheduleData.job_appointment_time.split(
+                                  ":"
+                                )[1] || "00"
+                              : "00"
+                          }
                           onChange={(e) => {
-                            const currentHour = scheduleData.job_appointment_time ? scheduleData.job_appointment_time.split(':')[0] || '00' : '00';
-                            const newTime = `${currentHour}:${e.target.value.padStart(2, '0')}`;
+                            const currentHour =
+                              scheduleData.job_appointment_time
+                                ? scheduleData.job_appointment_time.split(
+                                    ":"
+                                  )[0] || "00"
+                                : "00";
+                            const newTime = `${currentHour}:${e.target.value.padStart(
+                              2,
+                              "0"
+                            )}`;
                             setScheduleData({
                               ...scheduleData,
                               job_appointment_time: newTime,
                             });
                           }}
                           onKeyDown={(e) => {
-                            if (e.key === 'Tab' && e.shiftKey) {
+                            if (e.key === "Tab" && e.shiftKey) {
                               e.preventDefault();
                               e.target.previousElementSibling?.previousElementSibling?.focus();
-                            } else if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+                            } else if (
+                              e.key === "ArrowUp" ||
+                              e.key === "ArrowDown"
+                            ) {
                               e.preventDefault();
                               const currentValue = parseInt(e.target.value);
-                              const newValue = e.key === 'ArrowUp' 
-                                ? (currentValue + 1) % 60 
-                                : (currentValue - 1 + 60) % 60;
-                              e.target.value = newValue.toString().padStart(2, '0');
-                              e.target.dispatchEvent(new Event('change', { bubbles: true }));
+                              const newValue =
+                                e.key === "ArrowUp"
+                                  ? (currentValue + 1) % 60
+                                  : (currentValue - 1 + 60) % 60;
+                              e.target.value = newValue
+                                .toString()
+                                .padStart(2, "0");
+                              e.target.dispatchEvent(
+                                new Event("change", { bubbles: true })
+                              );
                             }
                           }}
                           className="w-12 text-sm font-medium text-center bg-transparent border-none cursor-pointer outline-none hover:bg-gray-50 focus:bg-blue-50"
                           title="Chọn phút"
                         >
                           {Array.from({ length: 60 }, (_, i) => (
-                            <option key={i} value={i.toString().padStart(2, '0')}>
-                              {i.toString().padStart(2, '0')}
+                            <option
+                              key={i}
+                              value={i.toString().padStart(2, "0")}
+                            >
+                              {i.toString().padStart(2, "0")}
                             </option>
                           ))}
                         </select>
@@ -988,18 +1082,18 @@ export default function CreateScheduleModal({
                 </div>
               </div>
 
-                          {/* Ghi chú và ảnh */}
-            <div className="space-y-3">
-              <div className="flex items-center space-x-2">
-                <div className="flex justify-center items-center w-6 h-6 bg-gradient-to-r from-[#125d0d] to-[#f5d20d] rounded-md">
-                  <FileText className="w-3 h-3 text-white" />
+              {/* Ghi chú và ảnh */}
+              <div className="space-y-3">
+                <div className="flex items-center space-x-2">
+                  <div className="flex justify-center items-center w-6 h-6 bg-gradient-to-r from-[#125d0d] to-[#f5d20d] rounded-md">
+                    <FileText className="w-3 h-3 text-white" />
+                  </div>
+                  <h3 className="text-sm font-semibold text-gray-900">
+                    Ghi chú & Hình ảnh
+                  </h3>
                 </div>
-                <h3 className="text-sm font-semibold text-gray-900">
-                  Ghi chú & Hình ảnh
-                </h3>
-              </div>
 
-              <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
+                <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
                   <div>
                     <label className="block mb-1.5 text-xs font-medium text-gray-700">
                       Ghi chú thêm
@@ -1018,11 +1112,11 @@ export default function CreateScheduleModal({
                     />
                   </div>
 
-                                    <div>
+                  <div>
                     <label className="block mb-1.5 text-xs font-medium text-gray-700">
                       Chọn ảnh
                     </label>
-                    
+
                     {/* Upload area */}
                     <div className="p-3 text-center rounded-lg border-2 border-gray-300 border-dashed transition-colors hover:border-brand-green">
                       <div className="flex justify-center items-center space-x-2">
@@ -1034,50 +1128,60 @@ export default function CreateScheduleModal({
                         >
                           Chọn file ảnh
                         </button>
-                        <span className="text-xs text-gray-500">hoặc dán ảnh (Ctrl+V)</span>
+                        <span className="text-xs text-gray-500">
+                          hoặc dán ảnh (Ctrl+V)
+                        </span>
                       </div>
                     </div>
-                    
+
                     {/* Ảnh đã chọn */}
-                    {scheduleData.job_images && scheduleData.job_images.length > 0 && (
-                      <div className="mt-2">
-                        <div className="flex justify-between items-center mb-1.5">
-                          <p className="text-xs text-gray-600">Ảnh ({scheduleData.job_images.length})</p>
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setScheduleData(prev => ({ ...prev, job_images: [] }));
-                      
-                            }}
-                            className="text-xs text-red-500 transition-colors hover:text-red-600"
-                          >
-                            Xóa tất cả
-                          </button>
-                        </div>
-                        <div className="grid grid-cols-4 gap-1.5 max-h-20 overflow-y-auto">
-                          {scheduleData.job_images.map((file, index) => (
-                            <div key={index} className="relative group aspect-square">
-                              <img
-                                src={URL.createObjectURL(file)}
-                                alt={`Ảnh ${index + 1}`}
-                                className="object-cover w-full h-full rounded border border-gray-200 transition-opacity cursor-pointer hover:opacity-80"
-                                onClick={() => handleImageClick(file, index)}
-                              />
-                              <button
-                                type="button"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleRemoveImage(index);
-                                }}
-                                className="absolute top-0.5 right-0.5 w-4 h-4 bg-red-500 text-white rounded-full text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                    {scheduleData.job_images &&
+                      scheduleData.job_images.length > 0 && (
+                        <div className="mt-2">
+                          <div className="flex justify-between items-center mb-1.5">
+                            <p className="text-xs text-gray-600">
+                              Ảnh ({scheduleData.job_images.length})
+                            </p>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setScheduleData((prev) => ({
+                                  ...prev,
+                                  job_images: [],
+                                }));
+                              }}
+                              className="text-xs text-red-500 transition-colors hover:text-red-600"
+                            >
+                              Xóa tất cả
+                            </button>
+                          </div>
+                          <div className="grid grid-cols-4 gap-1.5 max-h-20 overflow-y-auto">
+                            {scheduleData.job_images.map((file, index) => (
+                              <div
+                                key={index}
+                                className="relative group aspect-square"
                               >
-                                ×
-                              </button>
-                            </div>
-                          ))}
+                                <img
+                                  src={URL.createObjectURL(file)}
+                                  alt={`Ảnh ${index + 1}`}
+                                  className="object-cover w-full h-full rounded border border-gray-200 transition-opacity cursor-pointer hover:opacity-80"
+                                  onClick={() => handleImageClick(file, index)}
+                                />
+                                <button
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleRemoveImage(index);
+                                  }}
+                                  className="absolute top-0.5 right-0.5 w-4 h-4 bg-red-500 text-white rounded-full text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                                >
+                                  ×
+                                </button>
+                              </div>
+                            ))}
+                          </div>
                         </div>
-                      </div>
-                    )}
+                      )}
 
                     <input
                       ref={fileInputRef}
@@ -1104,16 +1208,16 @@ export default function CreateScheduleModal({
                   <button
                     type="button"
                     onClick={handleResetForm}
-                    disabled={isSubmitting}
-                    className="px-4 py-2 text-sm font-medium text-white bg-red-500 rounded-lg transition-colors hover:bg-red-600"
+                    disabled={isSubmitting || isRefreshing}
+                    className="px-4 py-2 text-sm font-medium text-white bg-red-500 rounded-lg transition-colors hover:bg-red-600 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     Xóa form
                   </button>
                   <button
                     type="submit"
-                    disabled={isSubmitting}
+                    disabled={isSubmitting || isRefreshing}
                     className={`flex-1 px-4 py-2.5 text-sm font-medium text-white bg-gradient-to-r from-[#125d0d] to-[#f5d20d] rounded-lg shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-green disabled:opacity-50 disabled:cursor-not-allowed ${
-                      isSubmitting
+                      isSubmitting || isRefreshing
                         ? "opacity-50 cursor-not-allowed from-green-700 to-yellow-600"
                         : "hover:from-green-700 hover:to-yellow-600"
                     }`}
@@ -1130,6 +1234,11 @@ export default function CreateScheduleModal({
                       <>
                         <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-1.5"></div>
                         Đang tạo...
+                      </>
+                    ) : isRefreshing ? (
+                      <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-1.5"></div>
+                        Đang cập nhật...
                       </>
                     ) : (
                       <div className="flex justify-center items-center">
@@ -1158,9 +1267,7 @@ export default function CreateScheduleModal({
             >
               <X className="w-5 h-5" />
             </button>
-            <div 
-              className="flex justify-center items-center w-full h-full"
-            >
+            <div className="flex justify-center items-center w-full h-full">
               <img
                 src={URL.createObjectURL(selectedImage.file)}
                 alt={`Ảnh ${selectedImage.index + 1}`}
@@ -1168,7 +1275,7 @@ export default function CreateScheduleModal({
               />
             </div>
             <div className="absolute bottom-4 left-4 px-3 py-1 text-sm text-white rounded-lg bg-black/50">
-              Ảnh {selectedImage.index + 1} / {scheduleData.job_images.length} 
+              Ảnh {selectedImage.index + 1} / {scheduleData.job_images.length}
             </div>
           </div>
         </div>

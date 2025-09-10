@@ -20,38 +20,30 @@ export function ScheduleProvider({ children }) {
       // Nếu không có selectedDate, sử dụng ngày hiện tại
       const targetDate = selectedDate || new Date().toISOString().split('T')[0];
       
+      // Clear cache trước khi fetch data mới để đảm bảo có data mới nhất
+      const { clearCacheForDate } = await import('@/store/slices/workSlice');
+      dispatch(clearCacheForDate(targetDate));
+      
       // Luôn load data từ server để đảm bảo có data mới nhất từ API
       await Promise.all([
         dispatch(fetchAssignedWorks(targetDate)),
-        dispatch(fetchUnassignedWorks(targetDate)),
-        // Chỉ load workers nếu chưa có
-        ...(workers.length === 0 ? [dispatch(fetchWorkers())] : [])
+        dispatch(fetchUnassignedWorks(targetDate))
+        // Không load workers ở đây để tránh duplicate calls
       ]);
+      
       
     } catch (error) {
       console.error('❌ ScheduleContext: Error refreshing data from server:', error);
     }
-  }, [dispatch, workers.length]);
+  }, [dispatch]); // Loại bỏ workers.length khỏi dependencies để tránh gọi API liên tục
 
-  // Hàm để đăng ký callback khi job được tạo
-  const setJobCreatedCallback = useCallback((callback) => {
-    setOnJobCreatedCallback(() => callback);
-  }, []);
-
-  // Hàm để gọi callback khi job được tạo
-  const notifyJobCreated = useCallback(() => {
-    if (onJobCreatedCallback && typeof onJobCreatedCallback === 'function') {
-      onJobCreatedCallback();
-    }
-  }, [onJobCreatedCallback]);
+  // Không cần callback system nữa vì đã được xử lý trực tiếp
 
   const value = {
     isCreateScheduleModalOpen,
     setIsCreateScheduleModalOpen,
     workers,
-    refreshData,
-    setJobCreatedCallback,
-    notifyJobCreated
+    refreshData
   };
 
   return (

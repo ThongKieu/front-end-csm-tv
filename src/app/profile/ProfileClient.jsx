@@ -25,21 +25,87 @@ export default function ProfileClient() {
     role: '',
   })
 
+  // Helper function để format ngày tháng từ backend (YYYY-MM-DD) sang hiển thị (DD/MM/YYYY)
+  const formatDateForDisplay = (dateString) => {
+    if (!dateString) return ''
+    
+    // Nếu đã đúng format YYYY-MM-DD
+    if (/^\d{4}-\d{2}-\d{2}$/.test(dateString)) {
+      const parts = dateString.split('-')
+      const year = parts[0]
+      const month = parts[1]
+      const day = parts[2]
+      return `${day}/${month}/${year}`
+    }
+    
+    // Nếu đã là format DD/MM/YYYY thì giữ nguyên
+    if (/^\d{2}\/\d{2}\/\d{4}$/.test(dateString)) {
+      return dateString
+    }
+    
+    // Nếu là Date object hoặc timestamp
+    try {
+      const date = new Date(dateString)
+      if (!isNaN(date.getTime())) {
+        const day = String(date.getDate()).padStart(2, '0')
+        const month = String(date.getMonth() + 1).padStart(2, '0')
+        const year = date.getFullYear()
+        return `${day}/${month}/${year}`
+      }
+    } catch (error) {
+      console.warn('Cannot parse date for display:', dateString, error)
+    }
+    
+    return ''
+  }
+
+  // Helper function để format ngày tháng từ hiển thị (DD/MM/YYYY) sang API (YYYY-MM-DD)
+  const formatDateForAPI = (dateString) => {
+    if (!dateString) return ''
+    
+    // Nếu đã đúng format YYYY-MM-DD
+    if (/^\d{4}-\d{2}-\d{2}$/.test(dateString)) {
+      return dateString
+    }
+    
+    // Nếu là format DD/MM/YYYY
+    if (/^\d{2}\/\d{2}\/\d{4}$/.test(dateString)) {
+      const parts = dateString.split('/')
+      const day = parts[0]
+      const month = parts[1]
+      const year = parts[2]
+      return `${year}-${month}-${day}`
+    }
+    
+    // Nếu là Date object hoặc timestamp
+    try {
+      const date = new Date(dateString)
+      if (!isNaN(date.getTime())) {
+        return date.toISOString().split('T')[0]
+      }
+    } catch (error) {
+      console.warn('Cannot parse date for API:', dateString, error)
+    }
+    
+    return ''
+  }
+
   useEffect(() => {
     if (user) {
       // Điền thông tin user hiện tại vào form
-      setFormData({
+      const userData = {
         id: user.id || user.user_id || '',
         type: user.type || user.job_type || '',
         code: user.code || user.user_code || '',
         full_name: user.full_name || user.name || user.user_name || '',
-        date_of_birth: user.date_of_birth || user.birth_date || '',
+        date_of_birth: formatDateForDisplay(user.date_of_birth || user.birth_date || ''),
         address: user.address || user.user_address || '',
         phone_business: user.phone_business || user.business_phone || user.phone || '',
         phone_personal: user.phone_personal || user.personal_phone || '',
         phone_family: user.phone_family || user.family_phone || '',
         role: user.role || user.user_role || '',
-      })
+      }
+      setFormData(userData)
     }
   }, [user])
 
@@ -49,8 +115,23 @@ export default function ProfileClient() {
       return false
     }
     
-    if (!formData.full_name.trim()) {
+    if (!formData.full_name || !formData.full_name.trim()) {
       setError('Họ và tên là bắt buộc')
+      return false
+    }
+    
+    // Kiểm tra ít nhất có một field được cập nhật (ngoài ID và full_name)
+    const hasUpdates = formData.type || 
+                      (formData.code && formData.code !== '') || 
+                      formData.date_of_birth || 
+                      formData.address || 
+                      formData.phone_business || 
+                      formData.phone_personal || 
+                      formData.phone_family || 
+                      formData.role
+    
+    if (!hasUpdates) {
+      setError('Vui lòng cập nhật ít nhất một thông tin')
       return false
     }
     
@@ -59,6 +140,36 @@ export default function ProfileClient() {
       return false
     }
     
+    // Validate date format (DD/MM/YYYY)
+    if (formData.date_of_birth && !/^\d{2}\/\d{2}\/\d{4}$/.test(formData.date_of_birth)) {
+      setError('Ngày sinh phải có định dạng DD/MM/YYYY (VD: 01/01/1990)')
+      return false
+    }
+    
+    // Validate date is not in the future
+    if (formData.date_of_birth) {
+      const birthDate = new Date(formData.date_of_birth)
+      const today = new Date()
+      if (birthDate > today) {
+        setError('Ngày sinh không thể là ngày trong tương lai')
+        return false
+      }
+      
+      // Validate reasonable age (not older than 150 years)
+      const age = today.getFullYear() - birthDate.getFullYear()
+      if (age > 150) {
+        setError('Ngày sinh không hợp lệ')
+        return false
+      }
+    }
+    
+    // Validate role
+    if (formData.role && !['worker', 'office'].includes(formData.role)) {
+      setError('Vai trò phải là "worker" hoặc "office"')
+      return false
+    }
+    
+    // Validate phone numbers (optional but if provided, should be valid)
     if (formData.phone_business && !/^[0-9+\-\s()]+$/.test(formData.phone_business)) {
       setError('Số điện thoại công ty không hợp lệ')
       return false
@@ -86,11 +197,22 @@ export default function ProfileClient() {
     }
     setIsLoading(true)
     try {
-      // Lấy ID từ user object hiện tại thay vì từ form
+      // Chuẩn bị dữ liệu theo đúng format API yêu cầu - chỉ gửi field có giá trị
       const requestData = {
-        ...formData,
-        id: user?.id || user?.user_id || formData.id, // Ưu tiên lấy từ user object
+        id: user?.id || user?.user_id || formData.id, // ID bắt buộc
+        ...(formData.type && { type: formData.type }), // VP, A, B, C,...
+        ...(formData.code && formData.code !== '' && { code: parseInt(formData.code) }), // 0-999, convert to number
+        ...(formData.full_name && formData.full_name.trim() && { full_name: formData.full_name.trim() }), // Bắt buộc
+        ...(formData.date_of_birth && formData.date_of_birth !== '' && { 
+          date_of_birth: formatDateForAPI(formData.date_of_birth) // Format từ DD/MM/YYYY sang YYYY-MM-DD
+        }),
+        ...(formData.address && formData.address.trim() && { address: formData.address.trim() }),
+        ...(formData.phone_business && formData.phone_business.trim() && { phone_business: formData.phone_business.trim() }),
+        ...(formData.phone_personal && formData.phone_personal.trim() && { phone_personal: formData.phone_personal.trim() }),
+        ...(formData.phone_family && formData.phone_family.trim() && { phone_family: formData.phone_family.trim() }),
+        ...(formData.role && { role: formData.role }), // "worker" hoặc "office"
       }
+
       const response = await fetch('/api/user/update', {
         method: 'POST',
         headers: {
@@ -102,13 +224,14 @@ export default function ProfileClient() {
       const data = await response.json()
       
       if (!response.ok) {
-        throw new Error(data.message || 'Cập nhật thông tin thất bại')
+        throw new Error(data.message || `Cập nhật thông tin thất bại (${response.status})`)
       }
       
       setSuccess('Cập nhật thông tin thành công!')
       setIsEditing(false)
       
     } catch (error) {
+      console.error('Update error:', error)
       setError(error.message)
     } finally {
       setIsLoading(false)
@@ -116,7 +239,33 @@ export default function ProfileClient() {
   }
 
   const handleInputChange = (field, value) => {
-    setFormData(prev => ({ ...prev, [field]: value }))
+    // Tự động format ngày sinh khi user nhập
+    if (field === 'date_of_birth') {
+      // Chỉ cho phép số và dấu /
+      const cleaned = value.replace(/[^\d\/]/g, '')
+      
+      // Tự động thêm dấu / sau 2 số đầu và 4 số cuối
+      let formatted = cleaned
+      if (cleaned.length >= 2 && !cleaned.includes('/')) {
+        formatted = cleaned.substring(0, 2) + '/' + cleaned.substring(2)
+      }
+      if (formatted.length >= 5 && formatted.split('/').length === 2) {
+        const parts = formatted.split('/')
+        if (parts[1].length >= 4) {
+          formatted = parts[0] + '/' + parts[1].substring(0, 2) + '/' + parts[1].substring(2)
+        }
+      }
+      
+      // Giới hạn độ dài tối đa
+      if (formatted.length > 10) {
+        formatted = formatted.substring(0, 10)
+      }
+      
+      setFormData(prev => ({ ...prev, [field]: formatted }))
+    } else {
+      setFormData(prev => ({ ...prev, [field]: value }))
+    }
+    
     setError('')
     setSuccess('')
   }
@@ -129,11 +278,31 @@ export default function ProfileClient() {
     { value: 'D', label: 'D' },
     { value: 'E', label: 'E' },
     { value: 'F', label: 'F' },
+    { value: 'G', label: 'G' },
+    { value: 'H', label: 'H' },
+    { value: 'I', label: 'I' },
+    { value: 'J', label: 'J' },
+    { value: 'K', label: 'K' },
+    { value: 'L', label: 'L' },
+    { value: 'M', label: 'M' },
+    { value: 'N', label: 'N' },
+    { value: 'O', label: 'O' },
+    { value: 'P', label: 'P' },
+    { value: 'Q', label: 'Q' },
+    { value: 'R', label: 'R' },
+    { value: 'S', label: 'S' },
+    { value: 'T', label: 'T' },
+    { value: 'U', label: 'U' },
+    { value: 'V', label: 'V' },
+    { value: 'W', label: 'W' },
+    { value: 'X', label: 'X' },
+    { value: 'Y', label: 'Y' },
+    { value: 'Z', label: 'Z' },
   ]
 
   const roles = [
-    { value: 'worker', label: 'Worker' },
-    { value: 'office', label: 'Office' },
+    { value: 'worker', label: 'Thợ' },
+    { value: 'office', label: 'Văn phòng' },
   ]
 
   const inputClassName = (isDisabled = false) => `
@@ -190,7 +359,7 @@ export default function ProfileClient() {
 
             {/* Success Message */}
             {success && (
-              <div className="flex items-center p-4 mb-6 text-sm text-brand-green bg-brand-green/10 rounded-lg border border-brand-green/20">
+              <div className="flex items-center p-4 mb-6 text-sm rounded-lg border text-brand-green bg-brand-green/10 border-brand-green/20">
                 <CheckCircle className="mr-3 w-5 h-5 text-brand-green" />
                 <span className="font-medium">{success}</span>
               </div>
@@ -296,13 +465,21 @@ export default function ProfileClient() {
                       <Calendar className="w-5 h-5 text-gray-400" />
                     </div>
                     <input
-                      type="date"
+                      type="text"
                       value={formData.date_of_birth}
-                      onChange={(e) => handleInputChange('date_of_birth', e.target.value)}
+                      onChange={(e) => {
+                        handleInputChange('date_of_birth', e.target.value)
+                      }}
                       disabled={!isEditing}
                       className={inputClassName(!isEditing)}
+                      placeholder="01/01/1990"
+                      pattern="\d{2}/\d{2}/\d{4}"
+                      inputMode="numeric"
+                      autoComplete="off"
+                      data-lpignore="true"
                     />
                   </div>
+                  
                 </div>
 
                 {/* Role */}
@@ -428,7 +605,7 @@ export default function ProfileClient() {
                           type: user.type || user.job_type || '',
                           code: user.code || user.user_code || '',
                           full_name: user.full_name || user.name || user.user_name || '',
-                          date_of_birth: user.date_of_birth || user.birth_date || '',
+                          date_of_birth: formatDateForDisplay(user.date_of_birth || user.birth_date || ''),
                           address: user.address || user.user_address || '',
                           phone_business: user.phone_business || user.business_phone || user.phone || '',
                           phone_personal: user.phone_personal || user.personal_phone || '',

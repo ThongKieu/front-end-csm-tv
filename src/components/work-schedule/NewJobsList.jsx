@@ -7,10 +7,7 @@ const NewJobsList = ({
   workers = [],
   onAssign,
   onEdit,
-  onCopy,
-  copiedWorkId,
 }) => {
-  const [selectedCategory, setSelectedCategory] = useState("all");
   const [isAssignModalOpen, setIsAssignModalOpen] = useState(false);
   const [selectedWork, setSelectedWork] = useState(null);
   const [isChangingWorker, setIsChangingWorker] = useState(false);
@@ -19,69 +16,46 @@ const NewJobsList = ({
   // Lấy dữ liệu từ data object
   const jobData = jobs?.data || jobs || {};
 
-  // Tạo danh sách tất cả jobs từ các category
-  const allJobs = [
-    ...(jobData.job_priority || []).map((job) => ({
-      ...job,
-      category: "priority",
-      priority: "high",
-    })),
-    ...(jobData.job_normal || []).map((job) => ({
-      ...job,
-      category: "normal",
-      priority: "normal",
-    })),
-    ...(jobData.job_cancelled || []).map((job) => ({
-      ...job,
-      category: "cancelled",
-      priority: "cancelled",
-    })),
-    ...(jobData.job_no_answer || []).map((job) => ({
-      ...job,
-      category: "no_answer",
-      priority: "no_answer",
-    })),
-    ...(jobData.job_worker_return || []).map((job) => ({
-      ...job,
-      category: "worker_return",
-      priority: "worker_return",
-    })),
-    ...(jobData.job_phone_error || []).map((job) => ({
-      ...job,
-      category: "phone_error",
-      priority: "phone_error",
-    })),
+  // Tạo danh sách jobs theo thứ tự ưu tiên: cancelled, no_answer, phone_error, worker_return, normal, priority
+  const jobCategories = [
+    {
+      key: 'job_cancelled',
+      title: '🚫 Lịch hủy',
+      color: 'bg-red-100 border-red-200 text-red-800',
+      jobs: jobData.job_cancelled || []
+    },
+    {
+      key: 'job_no_answer', 
+      title: '📞 Lịch không nghe máy',
+      color: 'bg-orange-100 border-orange-200 text-orange-800',
+      jobs: jobData.job_no_answer || []
+    },
+    {
+      key: 'job_phone_error',
+      title: '❌ Lịch lỗi số điện thoại',
+      color: 'bg-purple-100 border-purple-200 text-purple-800',
+      jobs: jobData.job_phone_error || []
+    },
+    {
+      key: 'job_worker_return',
+      title: '🔄 Lịch thợ trả',
+      color: 'bg-yellow-100 border-yellow-200 text-yellow-800', 
+      jobs: jobData.job_worker_return || []
+    },
+    {
+      key: 'job_normal',
+      title: '📋 Lịch bình thường',
+      color: 'bg-blue-100 border-blue-200 text-blue-800',
+      jobs: jobData.job_normal || []
+    },
+    {
+      key: 'job_priority',
+      title: '⭐ Lịch ưu tiên',
+      color: 'bg-green-100 border-green-200 text-green-800',
+      jobs: jobData.job_priority || []
+    }
   ];
 
-  // Lọc jobs theo category
-  const filteredJobs =
-    selectedCategory === "all"
-      ? allJobs
-      : allJobs.filter((job) => job.category === selectedCategory);
-
-  // Tính tổng số jobs theo category
-  const categoryCounts = {
-    priority: jobData.job_priority?.length || 0,
-    normal: jobData.job_normal?.length || 0,
-    cancelled: jobData.job_cancelled?.length || 0,
-    no_answer: jobData.job_no_answer?.length || 0,
-    worker_return: jobData.job_worker_return?.length || 0,
-    phone_error: jobData.job_phone_error?.length || 0,
-  };
-
-  // Category button config
-  const categoryButtons = [
-    { key: "priority", label: "🔥 Ưu tiên", color: "red" },
-    { key: "normal", label: "🏠 Thường", color: "blue" },
-    { key: "cancelled", label: "❌ Đã hủy", color: "gray" },
-    { key: "no_answer", label: "📞 Không nghe", color: "yellow" },
-    { key: "worker_return", label: "🔄 Thợ về", color: "orange" },
-    { key: "phone_error", label: "📱 Lỗi số điện thoại", color: "purple" },
-  ];
-
-  const handleCategoryChange = (category) => {
-    setSelectedCategory(category);
-  };
 
   const handlePriorityChange = (priority) => {
     setSelectedPriority(priority);
@@ -117,74 +91,52 @@ const NewJobsList = ({
     setIsChangingWorker(false);
     setSelectedPriority(""); // Reset priority khi đóng modal
   };
+  // Tính tổng số jobs
+  const totalJobs = jobCategories.reduce((total, category) => total + category.jobs.length, 0);
 
   return (
     <div className="flex flex-col h-full">
-      <div className="flex flex-wrap gap-1 justify-end items-center mb-3">
-        {/* Tất cả button */}
-        <button
-          onClick={() => handleCategoryChange("all")}
-          className={`px-2 py-1 text-[10px] font-medium rounded-full transition-all duration-200 ${
-            selectedCategory === "all"
-              ? "bg-brand-green text-[#125d0d] shadow-md"
-              : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-          }`}
-        >
-          Tất cả ({allJobs.length})
-        </button>
-
-        {/* Category buttons */}
-        {categoryButtons.map(({ key, label, color }) => {
-          const count = categoryCounts[key];
-          if (count === 0) return null;
-
-          const isSelected = selectedCategory === key;
-          const bgColor = isSelected ? `${color}-500` : `${color}-100`;
-          const textColor = isSelected ? "white" : `${color}-700`;
-          const hoverColor = isSelected ? "" : `${color}-200`;
-
-          return (
-            <button
-              key={key}
-              onClick={() => handleCategoryChange(key)}
-              className={`px-2 py-1 text-xs font-medium rounded-full transition-all duration-200 ${
-                isSelected
-                  ? `shadow-md bg-${bgColor} text-${textColor}`
-                  : `bg-${bgColor} text-${textColor} hover:bg-${hoverColor}`
-              }`}
-            >
-              {label} ({count})
-            </button>
-          );
-        })}
-      </div>
-
       {/* Jobs list */}
-      <div className="overflow-y-auto flex-1 space-y-1">
-        {filteredJobs.length === 0 ? (
+      <div className="overflow-y-auto flex-1 space-y-2">
+        {totalJobs === 0 ? (
           <div className="p-6 text-center text-gray-500">
             <p className="text-sm">Không có công việc nào</p>
             <p className="mt-1 text-xs opacity-75">
-              {selectedCategory === "all" 
-                ? "Chưa có công việc nào được tạo" 
-                : `Không có công việc nào trong danh mục "${selectedCategory}"`
-              }
+              Chưa có công việc nào được tạo
             </p>
           </div>
         ) : (
-          <div className="space-y-1">
-            {filteredJobs.map((job, index) => (
-              <JobCard
-                key={`${job.job_code}-${job.category}-${index}`}
-                job={job}
-                index={index}
-                workers={workers}
-                onAssign={handleAssignWorker}
-                onEdit={onEdit}
-                onCopy={onCopy}
-                copiedWorkId={copiedWorkId}
-              />
-            ))}
+          <div className="space-y-2">
+            {jobCategories.map((category) => {
+              if (category.jobs.length === 0) return null;
+              
+              return (
+                <div key={category.key} className="space-y-1">
+                  {/* Category Header */}
+                  <div className={`px-3 py-2 rounded-lg border text-xs font-semibold ${category.color}`}>
+                    {category.title} ({category.jobs.length})
+                  </div>
+                  
+                  {/* Jobs in this category */}
+                  <div className="space-y-1">
+                    {category.jobs.map((job, index) => (
+                      <JobCard
+                        key={`${job.job_code}-${category.key}-${index}`}
+                        job={{
+                          ...job,
+                          category: category.key,
+                          priority: category.key === 'job_priority' ? 'high' : 'normal'
+                        }}
+                        index={index}
+                        workers={workers}
+                        onAssign={handleAssignWorker}
+                        onEdit={onEdit}
+                      />
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
           </div>
         )}
       </div>

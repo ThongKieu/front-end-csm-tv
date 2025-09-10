@@ -52,14 +52,14 @@ const DateNavigator = ({
 
   if (compact) {
     return (
-      <div className={`flex flex-col gap-2 ${className}`}>
+      <div className={`flex flex-row items-center ${className}`}>
         {/* Navigation Buttons */}
-        <div className="flex gap-1">
+        <div className="flex">
           <button
             onClick={onPreviousDay}
             className="flex flex-1 justify-center items-center p-2 text-xs text-gray-600 bg-white rounded-md border border-gray-200 transition-colors hover:bg-gray-50"
           >
-            <ChevronLeft className="w-3 h-3" />
+            <ChevronLeft className="w-3 h-3" /> Trước
           </button>
           
           <button
@@ -73,7 +73,7 @@ const DateNavigator = ({
             onClick={onNextDay}
             className="flex flex-1 justify-center items-center p-2 text-xs text-gray-600 bg-white rounded-md border border-gray-200 transition-colors hover:bg-gray-50"
           >
-            <ChevronRight className="w-3 h-3" />
+            Sau <ChevronRight className="w-3 h-3" />
           </button>
         </div>
 
