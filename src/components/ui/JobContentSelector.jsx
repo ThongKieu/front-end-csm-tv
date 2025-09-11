@@ -67,58 +67,39 @@ const JobContentSelector = ({
     if (!isInitialized) return; // Don't update during initialization
     
     const content = selectedServices.map(service => service.name).join(", ");
-    console.log("JobContentSelector - selectedServices changed:", {
-      selectedServices: selectedServices.map(s => s.name),
-      content,
-      value,
-      isInitialized
-    });
-    
     if (onContentChange && content !== value) {
-      console.log("JobContentSelector - calling onContentChange with:", content);
       onContentChange(content);
     }
   }, [selectedServices, onContentChange, value, isInitialized]);
 
   // Parse existing content when value changes (only once)
   useEffect(() => {
-    console.log("JobContentSelector - parse existing content:", {
-      value,
-      isInitialized,
-      servicesLength: services.length
-    });
-    
     if (value && !isInitialized && services.length > 0) {
       // Try to match existing content with services
       const matchedServices = services.filter(service => 
         value.includes(service.name)
       );
-      console.log("JobContentSelector - matchedServices:", matchedServices.map(s => s.name));
       
       if (matchedServices.length > 0) {
         setSelectedServices(matchedServices);
         // Also call onContentChange to ensure parent component is updated
         if (onContentChange) {
           const content = matchedServices.map(service => service.name).join(", ");
-          console.log("JobContentSelector - calling onContentChange during init:", content);
           onContentChange(content);
         }
       }
       setIsInitialized(true);
     } else if (!value && !isInitialized && services.length > 0) {
       // If no value but services are loaded, mark as initialized
-      console.log("JobContentSelector - no value, marking as initialized");
       setIsInitialized(true);
     }
   }, [value, services, isInitialized, onContentChange]);
 
   const handleServiceSelect = useCallback((service) => {
-    console.log("JobContentSelector - handleServiceSelect called with:", service.name);
     const isAlreadySelected = selectedServices.some(s => s.id === service.id);
     if (!isAlreadySelected) {
       setSelectedServices(prev => {
         const newServices = [...prev, service];
-        console.log("JobContentSelector - new selectedServices:", newServices.map(s => s.name));
         return newServices;
       });
     }

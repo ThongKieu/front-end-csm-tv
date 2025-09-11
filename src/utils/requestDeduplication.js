@@ -10,7 +10,6 @@ export class RequestDeduplication {
   static async makeRequest(key, requestFn) {
     // Kiểm tra xem có request đang pending không
     if (pendingRequests.has(key)) {
-      console.log(`🔄 Deduplicating request: ${key}`);
       return pendingRequests.get(key);
     }
 

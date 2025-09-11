@@ -26,7 +26,7 @@ import { selectSelectedDate } from "@/store/slices/workSlice";
 import { clearCacheForDate } from "@/store/slices/workSlice";
 import { useSchedule } from "@/contexts/ScheduleContext";
 import axios from "axios";
-import { getClientApiUrl, CONFIG } from "@/config/constants";
+import { getClientApiUrl, CONFIG, API_URLS } from "@/config/constants";
 
 // Export các function để sử dụng ở component khác
 export const getWorkTypeColor = (kindWork) => {
@@ -360,7 +360,7 @@ Ghi chú: ${work.work_note || work.job_customer_note || "Không có"}`;
         kind_work: editValue.kind_work || 0,
       };
       // Call API to update server
-      await axios.post(getClientApiUrl("/api/web/update/work"), data);
+      await axios.post(API_URLS.JOB_UPDATE, data);
 
       // Refresh data after successful edit
       // Chỉ gọi 1 API duy nhất dựa vào loại work
@@ -420,7 +420,7 @@ Ghi chú: ${work.work_note || work.job_customer_note || "Không có"}`;
     try {
       setIsRefreshing(true);
       // Call API to update server
-      await axios.post(getClientApiUrl("/api/web/update/work_ass"), formData);
+      await axios.post(API_URLS.JOB_UPDATE, formData);
 
       // Refresh data after successful save
       await dispatch(fetchAssignedWorks(selectedDate));

@@ -427,7 +427,6 @@ const workSlice = createSlice({
         if (forceRefresh && state.selectedDate) {
           delete state.cache.assignedWorks[state.selectedDate];
           delete state.cache.unassignedWorks[state.selectedDate];
-          console.log('✅ Cache cleared for date:', state.selectedDate);
         }
         
       } catch (error) {

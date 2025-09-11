@@ -6,6 +6,7 @@ import Select from "react-select";
 import AddressAutocomplete from "@/components/ui/AddressAutocomplete";
 import DateInput from "@/components/ui/DateInput";
 import JobContentSelector from "@/components/ui/JobContentSelector";
+import { API_URLS } from "@/config/constants";
 
 const EditWorkModal = ({ work, onClose, onSave }) => {
   const dispatch = useDispatch();
@@ -118,7 +119,7 @@ const EditWorkModal = ({ work, onClose, onSave }) => {
       };
       if (updateData.job_type_id) updateData.job_type_id = parseInt(updateData.job_type_id);
 
-      const response = await fetch("/api/works/update", {
+      const response = await fetch(API_URLS.JOB_UPDATE, {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify(updateData),
       });
@@ -153,7 +154,6 @@ const EditWorkModal = ({ work, onClose, onSave }) => {
       if (onSave && typeof onSave === "function") {
         try {
           await onSave(true);
-          console.log('✅ Data refreshed successfully after work update');
         } catch (error) {
           console.error("❌ EditWorkModal: Error loading server API data:", error);
         }
@@ -306,7 +306,7 @@ const EditWorkModal = ({ work, onClose, onSave }) => {
                     name="job_customer_name"
                     value={formData.job_customer_name}
                     onChange={handleChange}
-                    className="px-2 py-2 w-full text-sm rounded-lg border border-gray-300 transition-colors focus:outline-none focus:ring-2 focus:ring-brand-green focus:border-brand-green"
+                    className="px-2 py-2 w-full text-sm bg-white rounded-lg border border-gray-300 transition-colors focus:outline-none focus:ring-2 focus:ring-brand-green focus:border-brand-green"
                     maxLength="255"
                     placeholder="Nhập tên khách hàng"
                   />
@@ -322,7 +322,7 @@ const EditWorkModal = ({ work, onClose, onSave }) => {
                     value={formData.job_customer_phone}
                     maxLength="20"
                     onChange={handleChange}
-                    className="px-2 py-2 w-full text-sm rounded-lg border border-gray-300 transition-colors focus:outline-none focus:ring-2 focus:ring-brand-green focus:border-brand-green"
+                    className="px-2 py-2 w-full text-sm bg-white rounded-lg border border-gray-300 transition-colors focus:outline-none focus:ring-2 focus:ring-brand-green focus:border-brand-green"
                     required
                     placeholder="Nhập số điện thoại"
                   />
@@ -506,7 +506,7 @@ const EditWorkModal = ({ work, onClose, onSave }) => {
                   name="job_customer_note"
                   value={formData.job_customer_note}
                   onChange={handleChange}
-                  className="px-2 py-1.5 w-full text-sm rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-brand-green"
+                  className="px-2 py-1.5 w-full bg-white text-sm rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-brand-green"
                   rows="1"
                   maxLength="500"
                   placeholder="Nhập ghi chú khách hàng"

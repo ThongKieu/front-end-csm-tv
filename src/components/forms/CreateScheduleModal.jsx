@@ -304,14 +304,7 @@ export default function CreateScheduleModal({
     // Validate nội dung công việc - chỉ kiểm tra job_content
     const hasJobContent = scheduleData.job_content && scheduleData.job_content.trim();
     
-    console.log("Job content validation:", {
-      job_content: scheduleData.job_content,
-      hasJobContent,
-      trimmed: scheduleData.job_content?.trim()
-    });
-    
     if (!hasJobContent) {
-      console.log("Validation failed: No job content");
       setJobContentError(true);
       return;
     } else {
@@ -453,7 +446,6 @@ export default function CreateScheduleModal({
           try {
             setIsRefreshing(true);
             await onSuccess(targetDate, true); // Force refresh
-            console.log("✅ Data refreshed successfully after creating job");
           } catch (error) {
             console.error(
               "❌ CreateScheduleModal: Server refresh failed:",
@@ -673,13 +665,11 @@ export default function CreateScheduleModal({
                   <JobContentSelector
                     value={scheduleData.job_content}
                     onContentChange={(content) => {
-                      console.log("CreateScheduleModal - onContentChange called with:", content);
                       setScheduleData((prev) => {
                         const newData = {
                           ...prev,
                           job_content: content,
                         };
-                        console.log("CreateScheduleModal - new scheduleData:", newData);
                         return newData;
                       });
                       // Clear error when content changes

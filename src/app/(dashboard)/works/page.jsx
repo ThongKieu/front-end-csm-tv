@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import WorkTable from '@/components/work-schedule/WorkTable'
+import WorkTable from '@/components/features/work-schedule/WorkTable'
 import { Calendar } from 'lucide-react'
 import { getWorksByDate } from '@/data/demoWorks'
 

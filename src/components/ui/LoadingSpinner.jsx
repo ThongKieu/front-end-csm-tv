@@ -1,12 +1,12 @@
 "use client";
 
-import { Loader2 } from 'lucide-react';
+import { memo } from 'react';
 
-export default function LoadingSpinner({ 
+const LoadingSpinner = memo(function LoadingSpinner({ 
   size = 'md', 
   color = 'brand-green', 
-  className = '',
-  text = null 
+  text = 'Đang tải...',
+  showText = true 
 }) {
   const sizeClasses = {
     sm: 'w-4 h-4',
@@ -16,22 +16,35 @@ export default function LoadingSpinner({
   };
 
   const colorClasses = {
-    'brand-green': 'text-brand-green',
-    'blue': 'text-blue-600',
-    'gray': 'text-gray-600',
-    'white': 'text-white'
+    'brand-green': 'border-t-brand-green',
+    'brand-yellow': 'border-t-brand-yellow',
+    'blue': 'border-t-blue-500',
+    'red': 'border-t-red-500',
+    'gray': 'border-t-gray-500'
   };
 
   return (
-    <div className={`flex items-center justify-center ${className}`}>
-      <div className="flex flex-col items-center space-y-2">
-        <Loader2 
-          className={`${sizeClasses[size]} ${colorClasses[color]} animate-spin`} 
-        />
-        {text && (
-          <p className="text-sm text-gray-600">{text}</p>
-        )}
+    <div className="flex flex-col items-center justify-center space-y-2">
+      <div className="relative">
+        <div 
+          className={`${sizeClasses[size]} border-2 border-gray-200 rounded-full ${colorClasses[color]}`}
+          style={{ 
+            animation: 'loaderSpin 1s linear infinite',
+            willChange: 'transform',
+            contain: 'layout style paint'
+          }}
+        ></div>
       </div>
+      
+      {showText && (
+        <div className="text-center">
+          <p className="text-xs font-medium text-gray-600">
+            {text}
+          </p>
+        </div>
+      )}
     </div>
   );
-}
+});
+
+export default LoadingSpinner;

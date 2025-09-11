@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from "react";
 import { X, User, UserPlus, Search, CheckCircle } from "lucide-react";
 import { useSelector, useDispatch } from "react-redux";
 import { useSchedule } from "@/contexts/ScheduleContext";
+import { API_URLS } from "@/config/constants";
 
 const AssignWorkerModal = ({
   work,
@@ -47,7 +48,7 @@ const AssignWorkerModal = ({
   // Hàm gọi API phân công thợ
   const assignWorkerAPI = async (assignData) => {
     try {
-      const response = await fetch("/api/works/assign-worker", {
+      const response = await fetch(API_URLS.WORK_ASSIGNMENT_ASSIGN, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -107,7 +108,6 @@ const AssignWorkerModal = ({
       
       // Refresh data sau khi đóng modal (không await để không block UI)
       refreshData().then(() => {
-        console.log('✅ Data refreshed successfully after worker assignment');
       }).catch(error => {
         console.error('❌ Error refreshing data after worker assignment:', error);
       });

@@ -28,16 +28,13 @@ export default function ProfileClient() {
 
   // Helper function để format ngày tháng từ backend sang hiển thị (DD/MM/YYYY)
   const formatDateForDisplay = (dateString) => {
-    console.log('formatDateForDisplay input:', dateString, 'type:', typeof dateString)
     
     if (!dateString) {
-      console.log('formatDateForDisplay: empty string')
       return ''
     }
     
     // Nếu đã là format DD/MM/YYYY thì giữ nguyên
     if (/^\d{2}\/\d{2}\/\d{4}$/.test(dateString)) {
-      console.log('formatDateForDisplay: already DD/MM/YYYY format')
       return dateString
     }
     
@@ -52,17 +49,14 @@ export default function ProfileClient() {
         const month = parts[1]
         const day = parts[2]
         const result = `${day}/${month}/${year}`
-        console.log('formatDateForDisplay: YYYY-MM-DD format ->', result)
         return result
       }
       
       // Nếu là format ISO 8601 (YYYY-MM-DDTHH:mm:ss.sssZ)
       if (dateString.includes('T') || dateString.includes('Z')) {
-        console.log('formatDateForDisplay: ISO 8601 format detected')
         date = new Date(dateString)
       } else {
         // Thử parse như Date object thông thường
-        console.log('formatDateForDisplay: trying to parse as Date object')
         date = new Date(dateString)
       }
       
@@ -71,16 +65,13 @@ export default function ProfileClient() {
         const month = String(date.getMonth() + 1).padStart(2, '0')
         const year = date.getFullYear()
         const result = `${day}/${month}/${year}`
-        console.log('formatDateForDisplay: parsed successfully ->', result)
         return result
       } else {
-        console.log('formatDateForDisplay: invalid date')
       }
     } catch (error) {
       console.warn('Cannot parse date for display:', dateString, error)
     }
     
-    console.log('formatDateForDisplay: no match, returning empty')
     return ''
   }
 
@@ -117,16 +108,6 @@ export default function ProfileClient() {
 
   useEffect(() => {
     if (user) {
-      console.log('Loading user data - user object:', user)
-      console.log('Original date_of_birth:', user.date_of_birth || user.birth_date)
-      console.log('All date fields:', {
-        date_of_birth: user.date_of_birth,
-        birth_date: user.birth_date,
-        dateOfBirth: user.dateOfBirth,
-        birthDate: user.birthDate,
-        dob: user.dob,
-        DOB: user.DOB
-      })
       
       // Điền thông tin user hiện tại vào form
       const userData = {
@@ -142,8 +123,6 @@ export default function ProfileClient() {
         role: user.role || user.user_role || '',
       }
       
-      console.log('Formatted userData:', userData)
-      console.log('Formatted date_of_birth:', userData.date_of_birth)
       setFormData(userData)
     }
   }, [user])

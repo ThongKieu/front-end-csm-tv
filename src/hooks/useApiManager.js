@@ -22,7 +22,6 @@ export const useApiManager = () => {
     if (!forceRefresh && !skipCache) {
       // Prevent duplicate calls
       if (pendingCallsRef.current.has(callKey)) {
-        console.log(`🔄 Skipping duplicate API call: ${callKey}`);
         return;
       }
 
@@ -30,7 +29,6 @@ export const useApiManager = () => {
       const now = Date.now();
       const lastCall = lastCallRef.current[callKey];
       if (lastCall && (now - lastCall) < 1000) { // 1 second cooldown
-        console.log(`🔄 Skipping recent API call: ${callKey}`);
         return;
       }
     }
@@ -39,7 +37,6 @@ export const useApiManager = () => {
     lastCallRef.current[callKey] = Date.now();
 
     try {
-      console.log(`🚀 Fetching data for date: ${date}`, { forceRefresh, includeWorkers, skipCache });
 
       const promises = [
         dispatch(fetchAssignedWorks({ date, forceRefresh, skipCache })),
@@ -52,7 +49,6 @@ export const useApiManager = () => {
 
       await Promise.all(promises);
       
-      console.log(`✅ Data fetched successfully for date: ${date}`);
     } catch (error) {
       console.error(`❌ Error fetching data for date: ${date}`, error);
       throw error;

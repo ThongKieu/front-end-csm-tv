@@ -111,7 +111,6 @@ export const fetchAssignedWorksAPI = async (date, page = 1, limit = 50, useCache
     if (useCache) {
       const cached = ApiCache.get(cacheKey);
       if (cached) {
-        console.log("📦 Using cached assigned works data");
         return cached;
       }
     }
@@ -146,7 +145,6 @@ export const fetchUnassignedWorksAPI = async (date, page = 1, limit = 50, useCac
     if (useCache) {
       const cached = ApiCache.get(cacheKey);
       if (cached) {
-        console.log("📦 Using cached unassigned works data");
         return cached;
       }
     }

@@ -3,17 +3,19 @@
 import { useEffect, useCallback, useState, useMemo, useRef, memo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import Link from "next/link";
-import WorkTable from "@/components/work-schedule/WorkTable";
-import NewJobsList from "@/components/work-schedule/NewJobsList";
+import WorkTable from "@/components/features/work-schedule/WorkTable";
+import NewJobsList from "@/components/features/work-schedule/NewJobsList";
 import DateNavigator from "@/components/ui/DateNavigator";
 import { useSchedule } from '@/contexts/ScheduleContext';
-import AssignWorkerModal from "@/components/work-schedule/AssignWorkerModal";
-import EditWorkModal from "@/components/work-schedule/EditWorkModal";
-import EditAssignedWorkModal from "@/components/work-schedule/EditAssignedWorkModal";
+import AssignWorkerModal from "@/components/features/work-schedule/AssignWorkerModal";
+import EditWorkModal from "@/components/features/work-schedule/EditWorkModal";
+import EditAssignedWorkModal from "@/components/features/work-schedule/EditAssignedWorkModal";
 import { AlertCircle, Crown } from "lucide-react";
 import {
   fetchWorkers,
   setSelectedDate,
+} from "@/store/slices/workSlice";
+import { 
   selectSelectedDate,
   selectAssignedWorks,
   selectUnassignedWorks,
@@ -21,6 +23,7 @@ import {
   selectLoading,
 } from "@/store/slices/workSlice";
 import { ROUTES } from "@/config/routes";
+import { API_URLS } from "@/config/constants";
 
 // Memoized components để tránh re-renders không cần thiết
 const MemoizedWorkTable = memo(WorkTable);
@@ -30,13 +33,14 @@ const MemoizedAssignWorkerModal = memo(AssignWorkerModal);
 export default function DashboardClient() {
   const dispatch = useDispatch();
   const selectedDate = useSelector(selectSelectedDate);
-  const assignedWorks = useSelector(selectAssignedWorks);
-  const unassignedWorks = useSelector(selectUnassignedWorks);
-  // Sử dụng workers từ Redux thay vì ScheduleContext
-  const workers = useSelector(selectWorkers);
-  const loading = useSelector(selectLoading);
   const { user } = useSelector((state) => state.auth);
   const [error, setError] = useState(null);
+  
+  // Sử dụng Redux selectors
+  const assignedWorks = useSelector(selectAssignedWorks);
+  const unassignedWorks = useSelector(selectUnassignedWorks);
+  const workers = useSelector(selectWorkers);
+  const loading = useSelector(selectLoading);
   
   // Sử dụng ScheduleContext để gọi API thay vì gọi trực tiếp
   const { refreshData: scheduleRefreshData } = useSchedule();
@@ -56,7 +60,7 @@ export default function DashboardClient() {
   // Function chung để refresh data cho tất cả modals - sử dụng ScheduleContext
   const refreshData = useCallback(async (showError = false, forceRefresh = false) => {
     try {
-      // Sử dụng ScheduleContext để gọi API (đã có loading built-in)
+   
       await scheduleRefreshData(selectedDate, forceRefresh);
       
       // Force re-render sau khi load data từ API
@@ -184,7 +188,7 @@ export default function DashboardClient() {
         };
 
         // Call API to update work
-        const response = await fetch("/api/works/update", {
+        const response = await fetch(API_URLS.JOB_UPDATE, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -215,7 +219,7 @@ export default function DashboardClient() {
     async (formData) => {
       try {
         // Call API to update assigned work
-        const response = await fetch("/api/web/job/update", {
+        const response = await fetch(API_URLS.JOB_UPDATE, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -257,7 +261,7 @@ export default function DashboardClient() {
     }
   }, [dispatch]); // Loại bỏ workers khỏi dependencies để tránh gọi API liên tục
 
-  // Fetch data khi selectedDate thay đổi hoặc chưa initialized
+  // Fetch data khi selectedDate thay đổi hoặc chưa initialized - sử dụng ScheduleContext
   useEffect(() => {
     if (selectedDate && !isInitialized) {
       const initializeData = async () => {
@@ -266,30 +270,31 @@ export default function DashboardClient() {
           await scheduleRefreshData(selectedDate, true); // Force refresh khi initialize
           setIsInitialized(true);
         } catch (err) {
+          console.error('❌ Data initialization failed:', err);
           setError("Không thể tải dữ liệu. Vui lòng thử lại sau.");
         }
       };
 
       initializeData();
     }
-  }, [selectedDate, isInitialized, scheduleRefreshData]); // Sử dụng scheduleRefreshData thay vì fetchDataRef
+  }, [selectedDate, isInitialized, scheduleRefreshData]); // Sử dụng ScheduleContext
 
-  // Memoize date change handler với debounce
+  // Memoize date change handler với debounce - sử dụng ScheduleContext
   const handleDateChange = useCallback(
     async (e) => {
       const newDate = e.target.value;
-      // Clear cache cho ngày cũ trước khi thay đổi
-      const { clearCacheForDate } = await import("@/store/slices/workSlice");
-      dispatch(clearCacheForDate(selectedDate));
-
+      
       dispatch(setSelectedDate(newDate));
       // Lưu ngày đã chọn vào localStorage
       localStorage.setItem("selectedWorkDate", newDate);
 
       // Reset initialization để fetch data mới
       setIsInitialized(false);
+      
+      // Fetch data cho ngày mới với ScheduleContext
+      await scheduleRefreshData(newDate, true);
     },
-    [dispatch, selectedDate]
+    [dispatch, scheduleRefreshData]
   );
 
 
@@ -355,11 +360,7 @@ export default function DashboardClient() {
   // Effect để load dữ liệu khi edit modal đóng (chỉ một lần)
   useEffect(() => {
     if (!isEditModalOpen && selectedWorkForEdit === null && isInitialized) {
-      console.log('🔄 Edit modal closed, refreshing data...');
-      // Chỉ refresh khi edit modal đóng và đã initialized để tránh gọi API không cần thiết
-      // Sử dụng forceRefresh = true để đảm bảo data được load lại
       scheduleRefreshData(selectedDate, true).then(() => {
-        console.log('✅ Data refreshed successfully after edit modal close');
       }).catch(error => {
         console.error('❌ Error refreshing data after edit modal close:', error);
         // Nếu refresh thất bại, reset initialization để force reload
@@ -376,8 +377,6 @@ export default function DashboardClient() {
       const hasUnassignedData = unassignedWorks && (Array.isArray(unassignedWorks) ? unassignedWorks.length > 0 : Object.keys(unassignedWorks || {}).length > 0);
       
       if (!hasAssignedData && !hasUnassignedData) {
-        console.log('⚠️ No data found after initialization, attempting reload...');
-        // Reset initialization để force reload
         setIsInitialized(false);
       }
     }
@@ -412,8 +411,6 @@ export default function DashboardClient() {
 
   // Fallback: Nếu không có data và đã initialized, thử reload
   if (isInitialized && !loading && (!unassignedWorks && !assignedWorks)) {
-    console.log('⚠️ No data found after initialization, attempting reload...');
-    // Reset initialization để force reload
     setIsInitialized(false);
     return (
       <div className="flex items-center justify-center h-[calc(100vh-64px)] bg-gradient-to-br from-brand-green/10 to-brand-yellow/10">

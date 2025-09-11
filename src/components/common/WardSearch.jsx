@@ -71,7 +71,7 @@ const WardSearch = () => {
 
   const wards = useMemo(() => {
     try {
-      const data = require('../data/tphcm-wards-complete.json');
+      const data = require('../../data/tphcm-wards-complete.json');
       return data.wards || [];
     } catch (error) {
       console.error('Error loading ward data:', error);

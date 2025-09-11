@@ -20,16 +20,13 @@ export function ScheduleProvider({ children }) {
   
   // Hàm refresh data - chỉ load data khi thực sự cần thiết
   const refreshData = useCallback(async (selectedDate = null, forceRefresh = false) => {
-    console.log("🔄 ScheduleContext.refreshData called:", { selectedDate, forceRefresh });
     
     // Nếu không có selectedDate, sử dụng ngày hiện tại
     const targetDate = selectedDate || new Date().toISOString().split('T')[0];
     
-    console.log("🔄 Refreshing data for date:", targetDate, "forceRefresh:", forceRefresh);
     
     // Clear cache nếu force refresh
     if (forceRefresh) {
-      console.log("🗑️ Clearing cache for date:", targetDate);
       clearCache(targetDate);
     }
     
@@ -40,7 +37,6 @@ export function ScheduleProvider({ children }) {
       skipCache: forceRefresh
     });
     
-    console.log("✅ ScheduleContext.refreshData completed for date:", targetDate);
   }, [fetchData, clearCache]);
 
   // Không cần callback system nữa vì đã được xử lý trực tiếp

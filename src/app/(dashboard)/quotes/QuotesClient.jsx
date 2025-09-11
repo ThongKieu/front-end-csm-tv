@@ -23,7 +23,7 @@ import {
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import DateNavigator from "@/components/ui/DateNavigator";
-import QuoteDetailModal from "@/components/quotes/QuoteDetailModal";
+import QuoteDetailModal from "@/components/features/quotes/QuoteDetailModal";
 
 export default function QuotesClient() {
   const [date, setDate] = useState(new Date());

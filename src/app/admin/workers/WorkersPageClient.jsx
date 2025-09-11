@@ -2,11 +2,11 @@
 
 import { useState, useEffect } from "react";
 import { User } from "lucide-react";
-import WorkerDetailModal from "@/components/workers/WorkerDetailModal";
-import WorkerEditModal from "@/components/workers/WorkerEditModal";
-import WorkerAddModal from "@/components/workers/WorkerAddModal";
-import WorkersHeader from "@/components/workers/WorkersHeader";
-import WorkerCard from "@/components/workers/WorkerCard";
+import WorkerDetailModal from "@/components/features/workers/WorkerDetailModal";
+import WorkerEditModal from "@/components/features/workers/WorkerEditModal";
+import WorkerAddModal from "@/components/features/workers/WorkerAddModal";
+import WorkersHeader from "@/components/features/workers/WorkersHeader";
+import WorkerCard from "@/components/features/workers/WorkerCard";
 import { getClientApiUrl, CONFIG } from "@/config/constants";
 import { useSchedule } from "@/contexts/ScheduleContext";
 

@@ -132,7 +132,7 @@ export default function AddressAutocomplete({
               setShowAddressDropdown(false);
             }, 200);
           }}
-          className={`w-full px-2.5 py-1.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-green ${
+          className={`w-full px-2.5 py-1.5 bg-white text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-green ${
             error ? "border-red-500" : ""
           } ${disabled ? "bg-gray-100 cursor-not-allowed" : ""} ${className}`}
           placeholder={placeholder}
@@ -143,19 +143,19 @@ export default function AddressAutocomplete({
         {/* Loading indicator */}
         {isLoadingAddress && (
           <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-            <div className="w-4 h-4 rounded-full border-2 border-gray-300 border-t-brand-green animate-spin"></div>
+            <div className="w-4 h-4 rounded-full border-2 border-gray-300 animate-spin border-t-brand-green"></div>
           </div>
         )}
 
         {/* Address suggestions dropdown */}
         {showAddressDropdown && addressSuggestions.length > 0 && (
-          <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg max-h-60 overflow-y-auto">
+          <div className="overflow-y-auto absolute z-50 mt-1 w-full max-h-60 bg-white rounded-md border border-gray-200 shadow-lg">
             {addressSuggestions.map((address, index) => (
               <button
                 key={address.place_id}
                 type="button"
                 onClick={() => handleAddressSelect(address)}
-                className="w-full px-3 py-2 text-left transition-colors hover:bg-brand-green/5 border-b border-gray-100 last:border-b-0"
+                className="px-3 py-2 w-full text-left border-b border-gray-100 transition-colors hover:bg-brand-green/5 last:border-b-0"
               >
                 <div className="flex items-start space-x-2">
                   <div className="flex-shrink-0 mt-0.5">

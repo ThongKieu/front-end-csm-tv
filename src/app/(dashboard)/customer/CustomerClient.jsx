@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import CustomerSearch from '@/components/customer/CustomerSearch'
+import CustomerSearch from '@/components/features/customer/CustomerSearch'
 import { Plus, Users, Search, Filter, Download } from 'lucide-react'
 import axios from 'axios'
 import { getClientApiUrl, CONFIG } from '@/config/constants'
@@ -101,7 +101,7 @@ const CustomerClient = () => {
       </div>
 
       {/* Customer Search Table */}
-      <div className="bg-white border border-gray-100 rounded-lg shadow-sm">
+      <div className="bg-white rounded-lg border border-gray-100 shadow-sm">
         <CustomerSearch onSearchResults={handleSearchResults} />
       </div>
     </div>

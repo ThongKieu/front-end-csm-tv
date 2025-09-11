@@ -3,8 +3,8 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { X, Save, Send, DollarSign } from "lucide-react";
-import QuoteForm from "@/components/quotes/QuoteForm";
-import QuotePreview from "@/components/quotes/QuotePreview";
+import QuoteForm from "@/components/forms/QuoteForm";
+import QuotePreview from "@/components/features/quotes/QuotePreview";
 import { useQuoteForm } from "@/hooks/useQuoteForm";
 
 export default function CreateQuotePage() {
