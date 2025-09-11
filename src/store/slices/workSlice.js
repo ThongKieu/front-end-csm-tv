@@ -19,12 +19,16 @@ export const fetchAssignedWorks = createAsyncThunk(
     const cacheData = state.work.cache.assignedWorks[date];
     const expiryTime = state.work.cache.cacheExpiry;
     
-    // Kiểm tra cache trước khi gọi API
-    if (isCacheValid(cacheData, expiryTime)) {
+    // Kiểm tra cache trước khi gọi API (trừ khi forceRefresh)
+    const options = typeof date === 'object' ? date : { date, forceRefresh: false, skipCache: false };
+    const { forceRefresh = false, skipCache = false } = options;
+    const targetDate = options.date || date;
+    
+    if (!forceRefresh && !skipCache && isCacheValid(cacheData, expiryTime)) {
       return cacheData.data;
     }
 
-    const response = await fetchAssignedWorksAPI(date);
+    const response = await fetchAssignedWorksAPI(targetDate, 1, 50, !skipCache);
     return response.data;
   },
   {
@@ -55,11 +59,16 @@ export const fetchUnassignedWorks = createAsyncThunk(
     const cacheData = state.work.cache.unassignedWorks[date];
     const expiryTime = state.work.cache.cacheExpiry;
     
-    // Kiểm tra cache trước khi gọi API
-    if (isCacheValid(cacheData, expiryTime)) {
+    // Kiểm tra cache trước khi gọi API (trừ khi forceRefresh)
+    const options = typeof date === 'object' ? date : { date, forceRefresh: false, skipCache: false };
+    const { forceRefresh = false, skipCache = false } = options;
+    const targetDate = options.date || date;
+    
+    if (!forceRefresh && !skipCache && isCacheValid(cacheData, expiryTime)) {
       return cacheData.data;
     }
-    const response = await fetchUnassignedWorksAPI(date);
+    
+    const response = await fetchUnassignedWorksAPI(targetDate, 1, 50, !skipCache);
     return response.data;
   },
   {
@@ -262,7 +271,7 @@ const workSlice = createSlice({
     },
     // Cập nhật work trong danh sách - phiên bản đơn giản
     updateWorkInList: (state, action) => {
-      const { workId, updatedData } = action.payload;
+      const { workId, updatedData, forceRefresh = true } = action.payload;
       try {
         // Đảm bảo assignedWorks và unassignedWorks là arrays hoặc objects
         if (!Array.isArray(state.assignedWorks) && typeof state.assignedWorks !== 'object') {
@@ -414,6 +423,13 @@ const workSlice = createSlice({
           updateCacheData(state.cache.unassignedWorks[state.selectedDate].data);
         }
         
+        // Clear cache cho ngày hiện tại để đảm bảo data được refresh
+        if (forceRefresh && state.selectedDate) {
+          delete state.cache.assignedWorks[state.selectedDate];
+          delete state.cache.unassignedWorks[state.selectedDate];
+          console.log('✅ Cache cleared for date:', state.selectedDate);
+        }
+        
       } catch (error) {
         console.error('❌ Error in updateWorkInList:', error);
         // Không throw error để tránh crash app
@@ -531,9 +547,11 @@ const workSlice = createSlice({
       })
       .addCase(assignWorker.fulfilled, (state, action) => {
         state.loading = false;
-        // Clear cache sau khi assign worker để refresh data
-        state.cache.assignedWorks = {};
-        state.cache.unassignedWorks = {};
+        // Chỉ clear cache cho ngày hiện tại, không clear toàn bộ cache
+        if (state.selectedDate) {
+          delete state.cache.assignedWorks[state.selectedDate];
+          delete state.cache.unassignedWorks[state.selectedDate];
+        }
         state.error = null;
       })
       .addCase(assignWorker.rejected, (state, action) => {
@@ -550,9 +568,11 @@ const workSlice = createSlice({
       })
       .addCase(changeWorker.fulfilled, (state, action) => {
         state.loading = false;
-        // Clear cache sau khi change worker để refresh data
-        state.cache.assignedWorks = {};
-        state.cache.unassignedWorks = {};
+        // Chỉ clear cache cho ngày hiện tại, không clear toàn bộ cache
+        if (state.selectedDate) {
+          delete state.cache.assignedWorks[state.selectedDate];
+          delete state.cache.unassignedWorks[state.selectedDate];
+        }
         state.error = null;
       })
       .addCase(changeWorker.rejected, (state, action) => {

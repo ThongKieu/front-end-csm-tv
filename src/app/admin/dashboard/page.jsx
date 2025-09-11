@@ -121,7 +121,10 @@ export default function AdminDashboard() {
       }
     };
 
+    // Chỉ fetch stats một lần khi component mount
     fetchStats();
+    
+    // Chỉ update thời gian, không fetch API lại
     const interval = setInterval(() => {
       setLastUpdated(format(new Date(), "HH:mm:ss dd/MM/yyyy", { locale: vi }));
     }, 60000);

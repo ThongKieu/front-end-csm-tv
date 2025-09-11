@@ -2,6 +2,7 @@
 
 import { Plus, Trash2, DollarSign, FileText, User, Phone, MapPin, Calendar, Building, Mail, Crown, Briefcase, Calculator, Zap, ArrowRight, ArrowLeft, Save, Copy } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import DateInput from "@/components/ui/DateInput";
 import { useState, useEffect, useRef } from "react";
 
 export default function QuoteForm({ 
@@ -427,12 +428,12 @@ export default function QuoteForm({
                         <Calendar className="inline mr-1 w-3 h-3" />
                         Hiệu lực
                       </label>
-                      <Input
+                      <DateInput
                         ref={(el) => inputRefs.current['validUntil'] = el}
-                        type="date"
                         value={formData.validUntil}
                         onChange={(e) => handleInputChange("validUntil", e.target.value)}
-                        className="h-8 text-xs rounded-lg border-gray-300 transition-all focus:border-brand-green focus:ring-brand-green"
+                        placeholder="DD/MM/YYYY"
+                        className="h-8 text-xs"
                       />
                     </div>
                     <div className="flex items-end">

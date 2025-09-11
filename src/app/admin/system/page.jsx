@@ -13,7 +13,7 @@ import {
   HardDrive,
   Wifi,
   Cpu,
-  Memory,
+  MemoryStick,
   HardDriveIcon,
   Network,
   AlertTriangle,
@@ -208,7 +208,7 @@ export default function SystemPage() {
                 <div className="space-y-3">
                   <div className="flex justify-between items-center">
                     <div className="flex items-center gap-2">
-                      <Memory className="w-4 h-4 text-brand-green" />
+                      <MemoryStick className="w-4 h-4 text-brand-green" />
                       <span className="text-sm text-gray-600">Memory Usage</span>
                     </div>
                     <span className="text-sm font-medium text-brand-green">{systemInfo.memoryUsage}</span>

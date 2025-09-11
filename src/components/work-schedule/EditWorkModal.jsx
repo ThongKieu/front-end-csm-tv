@@ -4,9 +4,8 @@ import { useDispatch } from "react-redux";
 import { updateWorkInList } from "@/store/slices/workSlice";
 import Select from "react-select";
 import AddressAutocomplete from "@/components/ui/AddressAutocomplete";
-import keywordsData from "../../data/keywords.json";
-import actionsData from "../../data/actions.json";
-import materialServicesData from "../../data/material_services.json";
+import DateInput from "@/components/ui/DateInput";
+import JobContentSelector from "@/components/ui/JobContentSelector";
 
 const EditWorkModal = ({ work, onClose, onSave }) => {
   const dispatch = useDispatch();
@@ -14,7 +13,7 @@ const EditWorkModal = ({ work, onClose, onSave }) => {
     job_id: "", job_content: "", job_customer_name: "", job_customer_address: "",
     job_customer_phone: "", job_customer_note: "", job_appointment_date: "",
     job_type_id: "1", job_source: "call_center", job_appointment_time: "",
-    job_priority: "", selected_keyword: "", selected_action: "", selected_material_service: "",
+    job_priority: "",
   });
   const [originalData, setOriginalData] = useState({});
   const [loading, setLoading] = useState(false);
@@ -23,19 +22,8 @@ const EditWorkModal = ({ work, onClose, onSave }) => {
   const [showImageModal, setShowImageModal] = useState(false);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
 
-  const parseExistingContent = (content) => {
-    if (!content) return { keyword: "", material: "", action: "" };
-    const findInData = (data, content) => data.find((item) => content.includes(item.name))?.name || "";
-    return {
-      keyword: findInData(keywordsData.keywords, content),
-      material: findInData(materialServicesData.material_services, content),
-      action: findInData(actionsData.actions, content),
-    };
-  };
-
-  const updateJobContent = (keyword, materialService, action) => {
-    const parts = [keyword, materialService, action].filter(Boolean);
-    setFormData((prev) => ({ ...prev, job_content: parts.join(" ") }));
+  const handleJobContentChange = (content) => {
+    setFormData((prev) => ({ ...prev, job_content: content }));
   };
 
   useEffect(() => {
@@ -47,7 +35,6 @@ const EditWorkModal = ({ work, onClose, onSave }) => {
     const formatDate = (dateStr) => dateStr ? (dateStr.includes("T") ? dateStr.split("T")[0] : dateStr) : today;
     const formatTime = (timeStr) => timeStr?.includes(":") ? timeStr.substring(0, 5) : "";
     const existingContent = work.job_content || work.work_content || work.content || "";
-    const parsedContent = parseExistingContent(existingContent);
 
     const initialData = {
       job_id: workId, job_content: existingContent,
@@ -60,8 +47,6 @@ const EditWorkModal = ({ work, onClose, onSave }) => {
       job_source: work.job_source || work.source || "call_center",
       job_appointment_time: formatTime(work.job_appointment_time || work.appointment_time),
       job_priority: work.job_priority || work.priority || work.priority_level || "",
-      selected_keyword: parsedContent.keyword, selected_action: parsedContent.action,
-      selected_material_service: parsedContent.material,
     };
 
     setFormData(initialData);
@@ -155,14 +140,20 @@ const EditWorkModal = ({ work, onClose, onSave }) => {
       };
 
       try {
-        dispatch(updateWorkInList({ workId: parseInt(formData.job_id), updatedData: updatedWorkData }));
+        dispatch(updateWorkInList({ 
+          workId: parseInt(formData.job_id), 
+          updatedData: updatedWorkData,
+          forceRefresh: true 
+        }));
       } catch (error) {
         console.error("❌ Redux update failed:", error);
       }
 
+      // Refresh data trước khi đóng modal
       if (onSave && typeof onSave === "function") {
         try {
           await onSave(true);
+          console.log('✅ Data refreshed successfully after work update');
         } catch (error) {
           console.error("❌ EditWorkModal: Error loading server API data:", error);
         }
@@ -381,96 +372,12 @@ const EditWorkModal = ({ work, onClose, onSave }) => {
             </div>
             {/* Section 2: Nội dung công việc */}
             <div className="p-1.5 bg-gray-50 rounded-lg border border-gray-200">
-              <div className="grid grid-cols-1 gap-2 lg:grid-cols-3">
-                {[
-                  {
-                    key: "selected_keyword",
-                    label: "Hành động chính",
-                    data: keywordsData.keywords,
-                  },
-                  {
-                    key: "selected_material_service",
-                    label: "Vật liệu/Dịch vụ",
-                    data: materialServicesData.material_services,
-                  },
-                  {
-                    key: "selected_action",
-                    label: "Đối tượng",
-                    data: actionsData.actions,
-                  },
-                ].map(({ key, label, data }) => {
-                  const options = data.map(item => ({
-                    value: item.name,
-                    label: item.name
-                  }));
-                  
-                  const selectedOption = options.find(option => option.value === formData[key]);
-                  
-                  return (
-                    <div key={key}>
-                      <label className="block mb-1 text-xs font-medium text-gray-600">
-                        {label}
-                      </label>
-                      <Select
-                        value={selectedOption}
-                        onChange={(selectedOption) => {
-                          const value = selectedOption?.value || "";
-                          setFormData((prev) => ({ ...prev, [key]: value }));
-                          updateJobContent(
-                            key === "selected_keyword" ? value : formData.selected_keyword,
-                            key === "selected_material_service" ? value : formData.selected_material_service,
-                            key === "selected_action" ? value : formData.selected_action
-                          );
-                        }}
-                        options={options}
-                        placeholder={`Chọn ${label.toLowerCase()}`}
-                        isSearchable={true}
-                        isClearable={true}
-                        className="text-sm"
-                        styles={selectStyles}
-                      />
-                    </div>
-                  );
-                })}
-              </div>
-
-              {/* Nội dung đã ghép */}
-              <div className="p-2 mt-2 bg-gray-50 rounded-lg border border-gray-200">
-                <div className="grid grid-cols-6 gap-1 items-center">
-                  <label className="block col-span-1 text-xs font-medium text-gray-600">
-                    Nội dung đã ghép:
-                  </label>
-                  <div className="col-span-4 p-1 w-full bg-white border-gray-200">
-                    <span
-                      className={
-                        formData.job_content
-                          ? "text-sm font-medium text-gray-800"
-                          : "text-sm italic text-gray-400"
-                      }
-                    >
-                      {formData.job_content ||
-                        "Chọn từ 3 dropdown trên để tạo nội dung công việc"}
-                    </span>
-                  </div>
-                  {formData.job_content && (
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setFormData((prev) => ({
-                          ...prev,
-                          selected_keyword: "",
-                          selected_action: "",
-                          selected_material_service: "",
-                          job_content: "",
-                        }))
-                      }
-                      className="text-xs text-red-500 transition-colors hover:text-red-600"
-                    >
-                      × Xóa
-                    </button>
-                  )}
-                </div>
-              </div>
+              <JobContentSelector
+                value={formData.job_content}
+                onContentChange={handleJobContentChange}
+                required={true}
+                error={error && error.includes("Nội dung công việc") ? error : null}
+              />
             </div>
 
             {/* Section 3: Thông tin cơ bản & Lịch hẹn */}
@@ -499,33 +406,18 @@ const EditWorkModal = ({ work, onClose, onSave }) => {
                   <label className="block mb-1 text-xs font-medium text-gray-700">
                     Ngày hẹn <span className="text-red-500">*</span>
                   </label>
-                  <div className="relative">
-                    <input
-                      type="date"
-                      name="job_appointment_date"
-                      value={formData.job_appointment_date}
-                      onChange={handleChange}
-                      className="px-2 py-1.5 w-full text-sm rounded-md border border-gray-300 bg-white focus:outline-none focus:ring-2 focus:ring-brand-green cursor-pointer"
-                      required
-                      placeholder="Chọn hoặc nhập ngày"
-                      onClick={(e) => {
-                        e.target.showPicker && e.target.showPicker();
-                      }}
-                    />
-                    <div 
-                      className="flex absolute inset-y-0 right-0 items-center pr-2 cursor-pointer"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        const input = e.target.closest('.relative').querySelector('input[type="date"]');
-                        input.focus();
-                        input.showPicker && input.showPicker();
-                      }}
-                    >
-                      <svg className="w-4 h-4 text-gray-400 transition-colors hover:text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                      </svg>
-                    </div>
-                  </div>
+                  <DateInput
+                    value={formData.job_appointment_date}
+                    onChange={(e) => {
+                      setFormData((prev) => ({
+                        ...prev,
+                        job_appointment_date: e.target.value,
+                      }));
+                    }}
+                    placeholder="DD/MM/YYYY"
+                    className="px-2 py-1.5 w-full text-sm rounded-lg border border-gray-300 bg-white focus:outline-none focus:ring-2 focus:ring-brand-green focus:border-brand-green"
+                    required
+                  />
                 </div>
 
                 {/* Only show time input if there's existing time or user wants to add time */}

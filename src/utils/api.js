@@ -1,4 +1,6 @@
 import { getApiUrl, CONFIG } from "@/config/constants";
+import { ApiCache, createCacheKey } from "./apiCache";
+import { RequestDeduplication, createRequestKey } from "./requestDeduplication";
 
 /**
  * Simple API utility để tránh lỗi "Failed to fetch"
@@ -99,27 +101,71 @@ export class ApiManager {
 // Tạo instance mặc định
 const apiManager = new ApiManager();
 
-// API functions đơn giản
-export const fetchAssignedWorksAPI = async (date, page = 1, limit = 50) => {
+// API functions đơn giản với cache và deduplication
+export const fetchAssignedWorksAPI = async (date, page = 1, limit = 50, useCache = true) => {
   try {
-    return await apiManager.post(CONFIG.API.JOB.GET_ASSIGNED_WORKER_BY_DATE, {
-      date,
-      page,
-      limit
+    const cacheKey = createCacheKey(CONFIG.API.JOB.GET_ASSIGNED_WORKER_BY_DATE, { date, page, limit });
+    const requestKey = createRequestKey(CONFIG.API.JOB.GET_ASSIGNED_WORKER_BY_DATE, { date, page, limit });
+    
+    // Check cache first
+    if (useCache) {
+      const cached = ApiCache.get(cacheKey);
+      if (cached) {
+        console.log("📦 Using cached assigned works data");
+        return cached;
+      }
+    }
+    
+    // Use deduplication to prevent duplicate requests
+    const data = await RequestDeduplication.makeRequest(requestKey, async () => {
+      return await apiManager.post(CONFIG.API.JOB.GET_ASSIGNED_WORKER_BY_DATE, {
+        date,
+        page,
+        limit
+      });
     });
+    
+    // Cache the result
+    if (useCache) {
+      ApiCache.set(cacheKey, data);
+    }
+    
+    return data;
   } catch (error) {
     console.error("❌ Failed to fetch assigned works:", error);
     throw error;
   }
 };
 
-export const fetchUnassignedWorksAPI = async (date, page = 1, limit = 50) => {
+export const fetchUnassignedWorksAPI = async (date, page = 1, limit = 50, useCache = true) => {
   try {
-    return await apiManager.post(CONFIG.API.JOB.GET_BY_DATE, { 
-      date,
-      page,
-      limit
+    const cacheKey = createCacheKey(CONFIG.API.JOB.GET_BY_DATE, { date, page, limit });
+    const requestKey = createRequestKey(CONFIG.API.JOB.GET_BY_DATE, { date, page, limit });
+    
+    // Check cache first
+    if (useCache) {
+      const cached = ApiCache.get(cacheKey);
+      if (cached) {
+        console.log("📦 Using cached unassigned works data");
+        return cached;
+      }
+    }
+    
+    // Use deduplication to prevent duplicate requests
+    const data = await RequestDeduplication.makeRequest(requestKey, async () => {
+      return await apiManager.post(CONFIG.API.JOB.GET_BY_DATE, { 
+        date,
+        page,
+        limit
+      });
     });
+    
+    // Cache the result
+    if (useCache) {
+      ApiCache.set(cacheKey, data);
+    }
+    
+    return data;
   } catch (error) {
     console.error("❌ Failed to fetch unassigned works:", error);
     throw error;
@@ -135,22 +181,29 @@ export const fetchWorkersAPI = async (jobData = null) => {
         jobData.job_appointment_date ||
         jobData.job_appointment_time)
     ) {
-      const response = await fetch("/api/works/get-suitable-workers", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(jobData),
+      const requestKey = createRequestKey('/api/works/get-suitable-workers', jobData);
+      
+      return await RequestDeduplication.makeRequest(requestKey, async () => {
+        const response = await fetch("/api/works/get-suitable-workers", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(jobData),
+        });
+
+        if (!response.ok) {
+          throw new Error("Lỗi lấy danh sách thợ phù hợp");
+        }
+
+        return await response.json();
       });
-
-      if (!response.ok) {
-        throw new Error("Lỗi lấy danh sách thợ phù hợp");
-      }
-
-      return await response.json();
     }
 
-    return await apiManager.get('/api/user/get-workers');
+    const requestKey = createRequestKey('/api/user/get-workers');
+    return await RequestDeduplication.makeRequest(requestKey, async () => {
+      return await apiManager.get('/api/user/get-workers');
+    });
   } catch (error) {
     console.error("❌ Failed to fetch workers:", error);
     throw error;

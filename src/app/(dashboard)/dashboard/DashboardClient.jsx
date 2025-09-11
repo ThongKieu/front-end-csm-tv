@@ -54,10 +54,10 @@ export default function DashboardClient() {
   // Không cần fetchDataRef nữa vì sử dụng ScheduleContext
 
   // Function chung để refresh data cho tất cả modals - sử dụng ScheduleContext
-  const refreshData = useCallback(async (showError = false) => {
+  const refreshData = useCallback(async (showError = false, forceRefresh = false) => {
     try {
-      // Sử dụng ScheduleContext để gọi API
-      await scheduleRefreshData(selectedDate);
+      // Sử dụng ScheduleContext để gọi API (đã có loading built-in)
+      await scheduleRefreshData(selectedDate, forceRefresh);
       
       // Force re-render sau khi load data từ API
       setRefreshTrigger(prev => prev + 1);
@@ -263,7 +263,7 @@ export default function DashboardClient() {
       const initializeData = async () => {
         try {
           setError(null);
-          await scheduleRefreshData(selectedDate);
+          await scheduleRefreshData(selectedDate, true); // Force refresh khi initialize
           setIsInitialized(true);
         } catch (err) {
           setError("Không thể tải dữ liệu. Vui lòng thử lại sau.");
@@ -341,13 +341,47 @@ export default function DashboardClient() {
 
   // Effect để load dữ liệu khi assign modal đóng (chỉ một lần)
   useEffect(() => {
-    if (!isAssignModalOpen && selectedWork === null) {
-      // Load data từ server khi assign modal đóng
-      scheduleRefreshData(selectedDate).catch(error => {
+    if (!isAssignModalOpen && selectedWork === null && isInitialized) {
+      // Chỉ refresh khi modal đóng và đã initialized để tránh gọi API không cần thiết
+      // Sử dụng forceRefresh = true để đảm bảo data được load lại
+      scheduleRefreshData(selectedDate, true).catch(error => {
         console.error('❌ Error refreshing data after assign modal close:', error);
+        // Nếu refresh thất bại, reset initialization để force reload
+        setIsInitialized(false);
       });
     }
-  }, [isAssignModalOpen, selectedWork, selectedDate, scheduleRefreshData]); // Thêm scheduleRefreshData vào dependencies
+  }, [isAssignModalOpen, selectedWork, isInitialized, selectedDate, scheduleRefreshData]);
+
+  // Effect để load dữ liệu khi edit modal đóng (chỉ một lần)
+  useEffect(() => {
+    if (!isEditModalOpen && selectedWorkForEdit === null && isInitialized) {
+      console.log('🔄 Edit modal closed, refreshing data...');
+      // Chỉ refresh khi edit modal đóng và đã initialized để tránh gọi API không cần thiết
+      // Sử dụng forceRefresh = true để đảm bảo data được load lại
+      scheduleRefreshData(selectedDate, true).then(() => {
+        console.log('✅ Data refreshed successfully after edit modal close');
+      }).catch(error => {
+        console.error('❌ Error refreshing data after edit modal close:', error);
+        // Nếu refresh thất bại, reset initialization để force reload
+        setIsInitialized(false);
+      });
+    }
+  }, [isEditModalOpen, selectedWorkForEdit, isInitialized, selectedDate, scheduleRefreshData]);
+
+  // Effect để kiểm tra và reload data nếu bị mất sau khi assign worker
+  useEffect(() => {
+    if (isInitialized && !loading && selectedDate) {
+      // Kiểm tra nếu không có data sau khi initialized
+      const hasAssignedData = assignedWorks && (Array.isArray(assignedWorks) ? assignedWorks.length > 0 : Object.keys(assignedWorks || {}).length > 0);
+      const hasUnassignedData = unassignedWorks && (Array.isArray(unassignedWorks) ? unassignedWorks.length > 0 : Object.keys(unassignedWorks || {}).length > 0);
+      
+      if (!hasAssignedData && !hasUnassignedData) {
+        console.log('⚠️ No data found after initialization, attempting reload...');
+        // Reset initialization để force reload
+        setIsInitialized(false);
+      }
+    }
+  }, [isInitialized, loading, selectedDate, assignedWorks, unassignedWorks]);
 
   // Effect để đảm bảo modal đóng khi cần thiết
   useEffect(() => {
@@ -372,6 +406,21 @@ export default function DashboardClient() {
     return (
       <div className="flex items-center justify-center h-[calc(100vh-64px)] bg-gradient-to-br from-brand-green/10 to-brand-yellow/10">
         <div className="w-12 h-12 rounded-full border-b-2 animate-spin border-brand-green"></div>
+      </div>
+    );
+  }
+
+  // Fallback: Nếu không có data và đã initialized, thử reload
+  if (isInitialized && !loading && (!unassignedWorks && !assignedWorks)) {
+    console.log('⚠️ No data found after initialization, attempting reload...');
+    // Reset initialization để force reload
+    setIsInitialized(false);
+    return (
+      <div className="flex items-center justify-center h-[calc(100vh-64px)] bg-gradient-to-br from-brand-green/10 to-brand-yellow/10">
+        <div className="text-center">
+          <div className="mb-4 w-12 h-12 rounded-full border-b-2 animate-spin border-brand-green"></div>
+          <p className="text-sm text-gray-600">Đang tải lại dữ liệu...</p>
+        </div>
       </div>
     );
   }
@@ -415,6 +464,21 @@ export default function DashboardClient() {
 
         {/* Right side - Date picker and admin button */}
         <div className="flex gap-2 items-center mr-[15%]">
+          {/* Refresh button */}
+          <button
+            onClick={() => {
+              setIsInitialized(false);
+              refreshData(true);
+            }}
+            className="flex items-center gap-1 px-2 py-1.5 text-xs text-gray-600 bg-white rounded-md border border-gray-300 transition-colors hover:bg-gray-50 hover:border-brand-green"
+            title="Tải lại dữ liệu"
+          >
+            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+            Tải lại
+          </button>
+
           {/* Date Navigator - Sử dụng UI component */}
           <DateNavigator
             selectedDate={selectedDate}

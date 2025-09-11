@@ -3,6 +3,8 @@
 import { createContext, useContext, useState, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchAssignedWorks, fetchUnassignedWorks, fetchWorkers } from '@/store/slices/workSlice';
+import { useApiLoading } from '@/hooks/useApiLoading';
+import { useApiManager } from '@/hooks/useApiManager';
 
 const ScheduleContext = createContext();
 
@@ -10,32 +12,36 @@ export function ScheduleProvider({ children }) {
   const [isCreateScheduleModalOpen, setIsCreateScheduleModalOpen] = useState(false);
   const [onJobCreatedCallback, setOnJobCreatedCallback] = useState(null);
   const dispatch = useDispatch();
+  const { withLoading } = useApiLoading();
+  const { fetchData, clearCache } = useApiManager();
   
   // Lấy workers từ Redux store
   const workers = useSelector(state => state.work.workers || []);
   
-  // Hàm refresh data - luôn load data từ server để đảm bảo có data mới nhất
-  const refreshData = useCallback(async (selectedDate = null) => {
-    try {
-      // Nếu không có selectedDate, sử dụng ngày hiện tại
-      const targetDate = selectedDate || new Date().toISOString().split('T')[0];
-      
-      // Clear cache trước khi fetch data mới để đảm bảo có data mới nhất
-      const { clearCacheForDate } = await import('@/store/slices/workSlice');
-      dispatch(clearCacheForDate(targetDate));
-      
-      // Luôn load data từ server để đảm bảo có data mới nhất từ API
-      await Promise.all([
-        dispatch(fetchAssignedWorks(targetDate)),
-        dispatch(fetchUnassignedWorks(targetDate))
-        // Không load workers ở đây để tránh duplicate calls
-      ]);
-      
-      
-    } catch (error) {
-      console.error('❌ ScheduleContext: Error refreshing data from server:', error);
+  // Hàm refresh data - chỉ load data khi thực sự cần thiết
+  const refreshData = useCallback(async (selectedDate = null, forceRefresh = false) => {
+    console.log("🔄 ScheduleContext.refreshData called:", { selectedDate, forceRefresh });
+    
+    // Nếu không có selectedDate, sử dụng ngày hiện tại
+    const targetDate = selectedDate || new Date().toISOString().split('T')[0];
+    
+    console.log("🔄 Refreshing data for date:", targetDate, "forceRefresh:", forceRefresh);
+    
+    // Clear cache nếu force refresh
+    if (forceRefresh) {
+      console.log("🗑️ Clearing cache for date:", targetDate);
+      clearCache(targetDate);
     }
-  }, [dispatch]); // Loại bỏ workers.length khỏi dependencies để tránh gọi API liên tục
+    
+    // Sử dụng useApiManager để tránh duplicate calls - không dùng withLoading để tránh hiển thị loading overlay
+    await fetchData(targetDate, {
+      forceRefresh,
+      includeWorkers: false, // Không load workers ở đây để tránh duplicate calls
+      skipCache: forceRefresh
+    });
+    
+    console.log("✅ ScheduleContext.refreshData completed for date:", targetDate);
+  }, [fetchData, clearCache]);
 
   // Không cần callback system nữa vì đã được xử lý trực tiếp
 

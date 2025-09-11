@@ -1,4 +1,5 @@
 import { Calendar, ChevronLeft, ChevronRight, Clock, AlertTriangle, CalendarDays } from "lucide-react";
+import DateInput from "./DateInput";
 
 const DateNavigator = ({
   selectedDate,
@@ -36,19 +37,6 @@ const DateNavigator = ({
     }
   };
 
-  const getStatusText = (date) => {
-    const status = getDateStatus(date);
-    switch (status) {
-      case "today":
-        return "Hôm nay";
-      case "past":
-        return "Quá hạn";
-      case "future":
-        return "Tương lai";
-      default:
-        return "Không xác định";
-    }
-  };
 
   if (compact) {
     return (
@@ -78,25 +66,14 @@ const DateNavigator = ({
         </div>
 
         {/* Date Input */}
-        <div className="relative">
-          <Calendar className="absolute left-2 top-1/2 w-3 h-3 text-gray-400 transform -translate-y-1/2" />
-          <input
-            type="date"
-            value={selectedDate}
-            onChange={onDateChange}
-            className="w-full pl-7 pr-2 py-1.5 text-xs font-medium text-gray-900 bg-white border border-gray-200 rounded-md focus:ring-1 focus:ring-brand-green focus:border-brand-green"
-          />
-        </div>
+        <DateInput
+          value={selectedDate}
+          onChange={onDateChange}
+          placeholder="DD/MM/YYYY"
+          className="w-full py-1.5 text-xs font-medium text-gray-900"
+        />
 
-        {/* Status */}
-        {showStatus && (
-          <div className="flex gap-1 justify-center items-center px-2 py-1 bg-gray-50 rounded-md">
-            {getStatusIcon(selectedDate)}
-            <span className="text-xs font-medium text-gray-600">
-              {getStatusText(selectedDate)}
-            </span>
-          </div>
-        )}
+       
       </div>
     );
   }
@@ -131,15 +108,12 @@ const DateNavigator = ({
       {showStatus && (
         <div className="flex items-center px-2 py-1 space-x-1 rounded-md bg-brand-green/10">
           <Calendar className="w-3 h-3 text-brand-green" />
-          <input
-            type="date"
+          <DateInput
             value={selectedDate}
             onChange={onDateChange}
+            placeholder="DD/MM/YYYY"
             className="w-24 text-xs font-medium bg-transparent border-none text-brand-green focus:ring-0"
           />
-          <span className="text-xs font-medium text-brand-green">
-            {getStatusText(selectedDate)}
-          </span>
         </div>
       )}
     </div>

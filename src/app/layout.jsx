@@ -11,7 +11,10 @@ import CreateScheduleModal from '@/components/layout/CreateScheduleModal'
 import { useSchedule } from '@/contexts/ScheduleContext'
 import { SettingsProvider } from '@/contexts/SettingsContext'
 import { ToastProvider } from '@/contexts/ToastContext'
+import { LoadingProvider } from '@/contexts/LoadingContext'
 import { ToastContainer } from '@/components/ui/toast'
+import LoadingOverlay from '@/components/ui/LoadingOverlay'
+import PageTransition from '@/components/ui/PageTransition'
 import { useSelector } from 'react-redux'
 import { selectAuthLoading } from '@/store/slices/authSlice'
 import AuthLoading from '@/components/AuthLoading'
@@ -39,7 +42,9 @@ function AppContent({ children }) {
 
   return (
     <>
-      {children}
+      <PageTransition>
+        {children}
+      </PageTransition>
       {/* Chỉ hiển thị nút tạo công việc và modal khi đã đăng nhập */}
       {isAuthenticated && (
         <>
@@ -48,14 +53,15 @@ function AppContent({ children }) {
             isOpen={isCreateScheduleModalOpen}
             onClose={() => setIsCreateScheduleModalOpen(false)}
             workers={workers}
-            onSuccess={async (targetDate) => {
+            onSuccess={async (targetDate, forceRefresh = false) => {
               // Chỉ gọi refreshData từ ScheduleContext, không gọi notifyJobCreated để tránh duplicate API calls
-              await refreshData(targetDate);
+              await refreshData(targetDate, forceRefresh);
             }}
             selectedDate={selectedDate}
           />
         </>
       )}
+      <LoadingOverlay />
       <ToastContainer />
     </>
   )
@@ -69,9 +75,11 @@ export default function RootLayout({ children }) {
           <AuthProvider>
             <SettingsProvider>
               <ToastProvider>
-                <ScheduleProvider>
-                  <AppContent>{children}</AppContent>
-                </ScheduleProvider>
+                <LoadingProvider>
+                  <ScheduleProvider>
+                    <AppContent>{children}</AppContent>
+                  </ScheduleProvider>
+                </LoadingProvider>
               </ToastProvider>
             </SettingsProvider>
           </AuthProvider>

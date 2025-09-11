@@ -13,6 +13,8 @@ import {
 // Không cần import data cũ nữa vì sẽ dùng API
 import { API_URLS } from "../../config/constants";
 import AddressAutocomplete from "../ui/AddressAutocomplete";
+import DateInput from "../ui/DateInput";
+import JobContentSelector from "../ui/JobContentSelector";
 // Không cần import addNewWork nữa vì chỉ dựa vào API
 
 // CSS để buộc hiển thị format 24h cho input time
@@ -85,15 +87,9 @@ export default function CreateScheduleModal({
   const [selectedImage, setSelectedImage] = useState(null);
   const [imageViewerOpen, setImageViewerOpen] = useState(false);
   const [phoneError, setPhoneError] = useState(false);
+  const [jobContentError, setJobContentError] = useState(false);
   const [currentTime, setCurrentTime] = useState(getCurrentTime());
   
-  // States cho service search
-  const [services, setServices] = useState([]);
-  const [selectedServices, setSelectedServices] = useState([]);
-  const [serviceSearchTerm, setServiceSearchTerm] = useState("");
-  const [showServiceDropdown, setShowServiceDropdown] = useState(false);
-  const [loadingServices, setLoadingServices] = useState(false);
-  const [serviceError, setServiceError] = useState(false);
   
   // useTransition để làm cho UI mượt mà hơn
   const [isPending, startTransition] = useTransition();
@@ -107,138 +103,9 @@ export default function CreateScheduleModal({
       .replace(/Đ/g, "D");
   };
 
-  // Filter services based on search term - sử dụng useMemo để tối ưu
-  const filteredServices = useMemo(() => {
-    if (serviceSearchTerm.trim() === "") {
-      return [];
-    }
 
-    const searchTerm = removeVietnameseAccents(serviceSearchTerm.toLowerCase());
-    return services.filter(service => {
-      const serviceName = removeVietnameseAccents(service.name.toLowerCase());
-      return serviceName.includes(searchTerm);
-    });
-  }, [serviceSearchTerm, services]);
 
-  // Update dropdown visibility based on filtered services
-  useEffect(() => {
-    setShowServiceDropdown(filteredServices.length > 0 && serviceSearchTerm.trim() !== "");
-  }, [filteredServices, serviceSearchTerm]);
 
-  // Service handlers - tối ưu để tránh giật
-  const handleServiceSelect = useCallback((service) => {
-    startTransition(() => {
-      setSelectedServices(prev => {
-        const isAlreadySelected = prev.some(s => s.id === service.id);
-        if (!isAlreadySelected) {
-          const newSelectedServices = [...prev, service];
-          const content = newSelectedServices.map(s => s.name).join(", ");
-          
-          // Batch state updates trong một callback
-          setScheduleData(prevSchedule => ({
-            ...prevSchedule,
-            job_content: content,
-          }));
-          setServiceError(false);
-          
-          console.log("Selected service:", service.name, "Total services:", newSelectedServices.length);
-          return newSelectedServices;
-        }
-        return prev;
-      });
-    });
-    
-    // Clear search và dropdown ngay lập tức (không cần transition)
-    setServiceSearchTerm("");
-    setShowServiceDropdown(false);
-  }, []); // Bỏ dependency để tránh re-create
-
-  const handleServiceRemove = useCallback((serviceId) => {
-    setSelectedServices(prev => {
-      const newSelectedServices = prev.filter(s => s.id !== serviceId);
-      const content = newSelectedServices.map(s => s.name).join(", ");
-      
-      // Batch state updates trong một callback
-      setScheduleData(prevSchedule => ({
-        ...prevSchedule,
-        job_content: content,
-      }));
-      
-      // Clear error if there are still services selected
-      if (newSelectedServices.length > 0) {
-        setServiceError(false);
-      }
-      
-      console.log("Removed service, new content:", content);
-      return newSelectedServices;
-    });
-  }, []); // Bỏ dependency để tránh re-create
-
-  // Debounced search handler
-  const handleServiceSearchChange = useCallback((e) => {
-    const value = e.target.value;
-    setServiceSearchTerm(value);
-  }, []);
-
-  // Debounced search effect
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      // This will trigger the useMemo for filteredServices
-    }, 150); // 150ms debounce
-
-    return () => clearTimeout(timer);
-  }, [serviceSearchTerm]);
-
-  // Memoized dropdown item component - tối ưu để tránh re-render
-  const ServiceDropdownItem = useMemo(() => {
-    return memo(({ service, isSelected, onSelect }) => (
-      <div
-        onClick={(e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          onSelect(service);
-        }}
-        className={`px-3 py-2 text-sm transition-colors cursor-pointer select-none ${
-          isSelected 
-            ? "font-medium bg-brand-green/10 text-brand-green" 
-            : "text-gray-700 hover:bg-gray-100"
-        }`}
-        onMouseDown={(e) => e.preventDefault()}
-      >
-        <div className="flex justify-between items-center">
-          <span>{service.name}</span>
-          {isSelected && (
-            <span className="text-xs">✓</span>
-          )}
-        </div>
-      </div>
-    ));
-  }, []);
-
-  // Load services from API
-  useEffect(() => {
-    const fetchServices = async () => {
-      if (services.length > 0) return; // Đã load rồi
-      
-      setLoadingServices(true);
-      try {
-        const response = await fetch('https://data.thoviet.com/api/get-service-all');
-        const data = await response.json();
-        
-        if (data.success && data.data) {
-          setServices(data.data);
-        }
-      } catch (error) {
-        console.error('Error fetching services:', error);
-      } finally {
-        setLoadingServices(false);
-      }
-    };
-
-    if (isOpen) {
-      fetchServices();
-    }
-  }, [isOpen, services.length]);
 
   // Load saved data when modal opens
   useEffect(() => {
@@ -270,10 +137,6 @@ export default function CreateScheduleModal({
             job_appointment_time: appointmentTime,
           });
 
-          // Load selected services from saved data
-          if (parsedData.selectedServices) {
-            setSelectedServices(parsedData.selectedServices);
-          }
         } catch (error) {
           console.error("Error parsing saved form data:", error);
           resetForm();
@@ -291,13 +154,10 @@ export default function CreateScheduleModal({
     if (isOpen) {
       localStorage.setItem(
         "createScheduleFormData",
-        JSON.stringify({
-          ...scheduleData,
-          selectedServices: selectedServices
-        })
+        JSON.stringify(scheduleData)
       );
     }
-  }, [scheduleData, selectedServices, isOpen]);
+  }, [scheduleData, isOpen]);
 
   // Update current time every minute
   useEffect(() => {
@@ -354,9 +214,8 @@ export default function CreateScheduleModal({
     localStorage.removeItem("createScheduleFormData");
   const resetForm = () => {
     setScheduleData(getDefaultFormData(currentTime));
-    setSelectedServices([]);
-    setServiceSearchTerm("");
-    setServiceError(false);
+    setJobContentError(false);
+    setPhoneError(false);
   };
 
   // Phone number handlers
@@ -442,16 +301,21 @@ export default function CreateScheduleModal({
       // Bỏ validation bắt buộc cho priority - cho phép "không chọn"
     ];
 
-    // Validate nội dung công việc - kiểm tra cả job_content và selectedServices
+    // Validate nội dung công việc - chỉ kiểm tra job_content
     const hasJobContent = scheduleData.job_content && scheduleData.job_content.trim();
-    const hasSelectedServices = selectedServices && selectedServices.length > 0;
     
-    if (!hasJobContent && !hasSelectedServices) {
-      console.log("Validation failed: No job content or selected services");
-      setServiceError(true);
+    console.log("Job content validation:", {
+      job_content: scheduleData.job_content,
+      hasJobContent,
+      trimmed: scheduleData.job_content?.trim()
+    });
+    
+    if (!hasJobContent) {
+      console.log("Validation failed: No job content");
+      setJobContentError(true);
       return;
     } else {
-      setServiceError(false);
+      setJobContentError(false);
     }
 
     // Priority không bắt buộc nữa - có thể để trống
@@ -501,14 +365,8 @@ export default function CreateScheduleModal({
       }
 
       // Chuẩn bị dữ liệu gửi đi với format chính xác
-      // Đảm bảo job_content được tạo từ selectedServices nếu chưa có
-      let finalJobContent = scheduleData.job_content.trim();
-      if (!finalJobContent && selectedServices.length > 0) {
-        finalJobContent = selectedServices.map(service => service.name).join(", ");
-      }
-      
       const requestData = {
-        job_content: finalJobContent,
+        job_content: scheduleData.job_content.trim(),
         job_appointment_date: scheduleData.job_appointment_date,
         // Chỉ gửi giờ hẹn khi có hẹn giờ cụ thể
         ...(scheduleData.has_appointment_time && {
@@ -594,7 +452,8 @@ export default function CreateScheduleModal({
           const targetDate = selectedDate || scheduleData.job_appointment_date;
           try {
             setIsRefreshing(true);
-            await onSuccess(targetDate);
+            await onSuccess(targetDate, true); // Force refresh
+            console.log("✅ Data refreshed successfully after creating job");
           } catch (error) {
             console.error(
               "❌ CreateScheduleModal: Server refresh failed:",
@@ -809,114 +668,28 @@ export default function CreateScheduleModal({
                   </h3>
                 </div>
 
-                {/* Nội dung công việc - Service search */}
+                {/* Nội dung công việc - Job Content Selector */}
                 <div className="space-y-3">
-                  {/* Service search input */}
-                  <div className="relative">
-                    <input
-                      type="text"
-                      value={serviceSearchTerm}
-                      onChange={handleServiceSearchChange}
-                      onFocus={() => {
-                        if (serviceSearchTerm.trim() && filteredServices.length > 0) {
-                          setShowServiceDropdown(true);
-                        }
-                      }}
-                      className={`w-full rounded-lg border-gray-200 shadow-sm focus:border-brand-green focus:ring-brand-green bg-white text-sm px-3 py-2.5 transition-colors ${
-                        serviceError ? "border-red-500" : ""
-                      }`}
-                      placeholder="Tìm kiếm dịch vụ..."
-                    />
-                    
-                    {/* Loading indicator */}
-                    {loadingServices && (
-                      <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-                        <div className="w-4 h-4 rounded-full border-b-2 animate-spin border-brand-green"></div>
-                      </div>
-                    )}
-
-                    {/* Service dropdown */}
-                    {showServiceDropdown && filteredServices.length > 0 && (
-                      <div className="overflow-y-auto absolute z-10 mt-1 w-full max-h-60 bg-white rounded-lg border border-gray-200 shadow-lg">
-                        {filteredServices.map((service) => {
-                          const isSelected = selectedServices.some(s => s.id === service.id);
-                          return (
-                            <ServiceDropdownItem
-                              key={service.id}
-                              service={service}
-                              isSelected={isSelected}
-                              onSelect={handleServiceSelect}
-                            />
-                          );
-                        })}
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Error message */}
-                  {serviceError && (
-                    <p className="mt-1 text-xs text-red-500">
-                      Vui lòng chọn ít nhất một dịch vụ
-                    </p>
-                  )}
-
-                  {/* Selected services tags */}
-                  {selectedServices.length > 0 && (
-                    <div className="space-y-2">
-                      <div className="flex justify-between items-center">
-                        <label className="text-xs font-medium text-gray-600">
-                          Dịch vụ đã chọn ({selectedServices.length}):
-                        </label>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setSelectedServices([]);
-                            setScheduleData((prev) => ({
-                              ...prev,
-                              job_content: "",
-                            }));
-                            setServiceError(false);
-                          }}
-                          className="text-xs text-red-500 transition-colors hover:text-red-600"
-                          title="Xóa tất cả"
-                        >
-                          × Xóa tất cả
-                        </button>
-                      </div>
-                      <div className="flex flex-wrap gap-1.5">
-                        {selectedServices.map((service) => (
-                          <div
-                            key={service.id}
-                            className="inline-flex items-center px-2 py-1 text-xs font-medium rounded-md border bg-brand-green/10 text-brand-green border-brand-green/20"
-                          >
-                            <span>{service.name}</span>
-                            <button
-                              type="button"
-                              onClick={() => handleServiceRemove(service.id)}
-                              className="ml-1.5 text-brand-green/60 hover:text-brand-green transition-colors"
-                              title="Xóa"
-                            >
-                              ×
-                            </button>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Job content preview */}
-                  {scheduleData.job_content && (
-                    <div className="p-3 bg-gray-50 rounded-lg border border-gray-200">
-                      <label className="block text-xs font-medium text-gray-600 mb-1.5">
-                        Nội dung công việc:
-                      </label>
-                      <div className="p-2 bg-white rounded border border-gray-200">
-                        <span className="text-sm font-medium text-gray-800">
-                          {scheduleData.job_content}
-                        </span>
-                      </div>
-                    </div>
-                  )}
+                  <JobContentSelector
+                    value={scheduleData.job_content}
+                    onContentChange={(content) => {
+                      console.log("CreateScheduleModal - onContentChange called with:", content);
+                      setScheduleData((prev) => {
+                        const newData = {
+                          ...prev,
+                          job_content: content,
+                        };
+                        console.log("CreateScheduleModal - new scheduleData:", newData);
+                        return newData;
+                      });
+                      // Clear error when content changes
+                      if (content && content.trim()) {
+                        setJobContentError(false);
+                      }
+                    }}
+                    required={true}
+                    error={jobContentError ? "Vui lòng chọn nội dung công việc" : null}
+                  />
                 </div>
 
                 <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
@@ -975,8 +748,7 @@ export default function CreateScheduleModal({
                     <label className="block mb-2 text-xs font-medium text-gray-700">
                       Ngày hẹn <span className="text-red-500">*</span>
                     </label>
-                    <input
-                      type="date"
+                    <DateInput
                       value={scheduleData.job_appointment_date}
                       onChange={(e) =>
                         setScheduleData({
@@ -984,7 +756,8 @@ export default function CreateScheduleModal({
                           job_appointment_date: e.target.value,
                         })
                       }
-                      className="w-full rounded-lg border-gray-200 shadow-sm focus:border-brand-green focus:ring-brand-green bg-white text-sm px-3 py-2.5 transition-colors"
+                      placeholder="DD/MM/YYYY"
+                      className="w-full text-sm"
                       required
                     />
                   </div>

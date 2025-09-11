@@ -95,7 +95,7 @@ const nextConfig = {
   // Tắt Next.js development indicator
   devIndicators: {
     buildActivity: false,
-    buildActivityPosition: 'bottom-right',
+    position: 'bottom-right',
   },
 };
 

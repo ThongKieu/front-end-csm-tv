@@ -14,7 +14,6 @@ const AssignWorkerModal = ({
   const [selectedExtraWorker, setSelectedExtraWorker] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isRefreshing, setIsRefreshing] = useState(false);
 
   const { user } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
@@ -76,12 +75,12 @@ const AssignWorkerModal = ({
   };
 
   const handleSubmit = async () => {
-    if (!selectedMainWorker || !user?.id) {
+    if (!selectedMainWorker || !user?.id || isSubmitting) {
       return;
     }
 
     setIsSubmitting(true);
-    
+
     try {
       // Phân công thợ chính
       const mainWorkerData = {
@@ -103,13 +102,17 @@ const AssignWorkerModal = ({
         await assignWorkerAPI(extraWorkerData);
       }
       
-      // Đóng modal ngay lập tức sau khi gửi API thành công
-      handleClose();
+      // Đóng modal trước, sau đó refresh data
+      onClose();
       
+      // Refresh data sau khi đóng modal (không await để không block UI)
+      refreshData().then(() => {
+        console.log('✅ Data refreshed successfully after worker assignment');
+      }).catch(error => {
+        console.error('❌ Error refreshing data after worker assignment:', error);
+      });
     } catch (error) {
       console.error('Error assigning worker:', error);
-      // Vẫn đóng modal khi có lỗi
-      handleClose();
     } finally {
       setIsSubmitting(false);
     }
@@ -129,29 +132,6 @@ const AssignWorkerModal = ({
     setSelectedExtraWorker(null);
     setSearchTerm("");
     setIsSubmitting(false);
-    setIsRefreshing(false);
-    
-    // Refresh data và gọi callback sau khi đóng modal
-    setTimeout(() => {
-      // Refresh data
-      refreshData().catch(error => {
-        console.error('Error refreshing data:', error);
-      });
-      
-      // Gọi callback nếu có
-      if (onAssign && typeof onAssign === 'function') {
-        try {
-          onAssign({
-            work: work,
-            mainWorker: selectedMainWorker,
-            extraWorker: selectedExtraWorker,
-          });
-        } catch (error) {
-          console.error('Error in onAssign callback:', error);
-        }
-      }
-    }, 100);
-    
     onClose();
   };
 
@@ -438,22 +418,17 @@ const AssignWorkerModal = ({
             </button>
             <button
               onClick={handleSubmit}
-              disabled={!selectedMainWorker || isSubmitting || isRefreshing}
+              disabled={!selectedMainWorker || isSubmitting}
               className={`px-3 py-1 text-xs text-white rounded-lg transition-colors duration-200 ${
-                !selectedMainWorker || isSubmitting || isRefreshing
+                !selectedMainWorker || isSubmitting
                   ? "bg-gray-400 cursor-not-allowed"
                   : "bg-brand-green hover:bg-green-700"
               }`}
             >
               {isSubmitting ? (
                 <div className="flex items-center space-x-1">
-                  <div className="w-2.5 h-2.5 rounded-full border-2 border-white animate-spin border-t-transparent" />
-                  <span>Đang xử lý...</span>
-                </div>
-              ) : isRefreshing ? (
-                <div className="flex items-center space-x-1">
-                  <div className="w-2.5 h-2.5 rounded-full border-2 border-white animate-spin border-t-transparent" />
-                  <span>Đang cập nhật...</span>
+                  <div className="w-3 h-3 rounded-full border border-white animate-spin border-t-transparent"></div>
+                  <span>Đang phân công...</span>
                 </div>
               ) : (
                 <span>{isChanging ? "Cập nhật" : "Phân công"}</span>
