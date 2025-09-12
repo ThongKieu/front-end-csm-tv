@@ -14,6 +14,7 @@ import { AlertCircle, Crown } from "lucide-react";
 import {
   fetchWorkers,
   setSelectedDate,
+  moveJobToAssigned,
 } from "@/store/slices/workSlice";
 import { 
   selectSelectedDate,
@@ -49,6 +50,7 @@ export default function DashboardClient() {
   const [selectedWork, setSelectedWork] = useState(null);
   const [isChangingWorker, setIsChangingWorker] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [isChangingDate, setIsChangingDate] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isEditAssignedModalOpen, setIsEditAssignedModalOpen] = useState(false);
   const [selectedWorkForEdit, setSelectedWorkForEdit] = useState(null);
@@ -76,10 +78,20 @@ export default function DashboardClient() {
   // Không cần callback handleJobCreated nữa vì đã được xử lý trong ScheduleContext
 
   // Khôi phục ngày từ localStorage ngay khi component mount
+  // Chỉ tự động cập nhật về ngày hôm nay nếu chưa có ngày được chọn
   useEffect(() => {
     const savedDate = localStorage.getItem("selectedWorkDate");
-    if (savedDate && savedDate !== selectedDate) {
-      dispatch(setSelectedDate(savedDate));
+    const today = new Date().toLocaleDateString("en-CA");
+    
+    if (savedDate) {
+      // Sử dụng ngày đã lưu, không tự động cập nhật về ngày hôm nay
+      if (savedDate !== selectedDate) {
+        dispatch(setSelectedDate(savedDate));
+      }
+    } else {
+      // Nếu chưa có ngày lưu, sử dụng ngày hôm nay
+      dispatch(setSelectedDate(today));
+      localStorage.setItem("selectedWorkDate", today);
     }
   }, []); // Chỉ chạy một lần khi component mount
 
@@ -93,26 +105,56 @@ export default function DashboardClient() {
   }, []);
 
   const handleAssignSubmit = useCallback(
-    async (updatedWork) => {
+    async (updatedWork, forceRefresh = false) => {
       try {
-        await new Promise(resolve => setTimeout(resolve, 500));
-        try {
-          await scheduleRefreshData(selectedDate);
-          // Force re-render sau khi load data từ API
-          setRefreshTrigger(prev => {
-            return prev + 1;
-          });
-        } catch (error) {
-          console.error('❌ handleAssignSubmit: Error loading server API data:', error);
-          window.location.reload();
-        }
+        console.log('🔄 Refreshing data after worker assignment...');
         
+        // Sử dụng cùng logic như CreateScheduleModal
+        if (forceRefresh) {
+          // Force refresh data từ server
+          await scheduleRefreshData(selectedDate, true);
+          console.log('✅ Data refreshed successfully after worker assignment');
+        } else {
+          // Fallback: cập nhật Redux state trực tiếp
+          if (updatedWork && updatedWork.id) {
+            // Lấy thông tin worker từ workers list
+            const worker = workers.find(w => w.id === updatedWork.id_worker);
+            
+            if (worker) {
+              const workerData = {
+                worker_id: worker.id,
+                worker_code: worker.type_code,
+                worker_name: worker.full_name,
+                worker_full_name: worker.full_name
+              };
+              
+              // Di chuyển job từ unassigned sang assigned
+              dispatch(moveJobToAssigned({
+                jobId: updatedWork.id,
+                workerData: workerData
+              }));
+              
+              console.log('✅ Redux state updated successfully after worker assignment');
+            } else {
+              console.warn('⚠️ Worker not found in workers list, falling back to API refresh');
+              // Fallback: gọi API nếu không tìm thấy worker
+              await dispatch(fetchUnassignedWorks({ date: selectedDate, forceRefresh: true }));
+              await dispatch(fetchAssignedWorks({ date: selectedDate, forceRefresh: true }));
+            }
+          } else {
+            console.warn('⚠️ No updatedWork data, falling back to API refresh');
+            // Fallback: gọi API nếu không có updatedWork
+            await dispatch(fetchUnassignedWorks({ date: selectedDate, forceRefresh: true }));
+            await dispatch(fetchAssignedWorks({ date: selectedDate, forceRefresh: true }));
+          }
+        }
       } catch (error) {
-        console.error('❌ handleAssignSubmit: Worker assignment failed:', error);
-        alert(`Lỗi phân công thợ: ${error.message}`);
+        console.error('❌ handleAssignSubmit: Error updating data:', error);
+        // Nếu cập nhật thất bại, reload trang
+        window.location.reload();
       }
     },
-    [selectedDate, scheduleRefreshData, isAssignModalOpen]
+    [dispatch, selectedDate, workers, scheduleRefreshData]
   );
 
   const handleCloseAssignModal = useCallback(() => {
@@ -284,6 +326,24 @@ export default function DashboardClient() {
     async (e) => {
       const newDate = e.target.value;
       
+      // Validate date format
+      if (!newDate || !/^\d{4}-\d{2}-\d{2}$/.test(newDate)) {
+        console.warn('Invalid date format:', newDate);
+        return;
+      }
+      
+      // Set loading state
+      setIsChangingDate(true);
+      setError(null);
+      
+      // Clear cache cho ngày cũ trước khi thay đổi
+      try {
+        const { clearCacheForDate } = await import("@/store/slices/workSlice");
+        dispatch(clearCacheForDate(selectedDate));
+      } catch (error) {
+        console.warn('Could not clear cache:', error);
+      }
+      
       dispatch(setSelectedDate(newDate));
       // Lưu ngày đã chọn vào localStorage
       localStorage.setItem("selectedWorkDate", newDate);
@@ -292,9 +352,17 @@ export default function DashboardClient() {
       setIsInitialized(false);
       
       // Fetch data cho ngày mới với ScheduleContext
-      await scheduleRefreshData(newDate, true);
+      try {
+        await scheduleRefreshData(newDate, true);
+        console.log('✅ Data loaded for date:', newDate);
+      } catch (error) {
+        console.error('❌ Error loading data for new date:', error);
+        setError("Không thể tải dữ liệu cho ngày đã chọn. Vui lòng thử lại.");
+      } finally {
+        setIsChangingDate(false);
+      }
     },
-    [dispatch, scheduleRefreshData]
+    [dispatch, scheduleRefreshData, selectedDate]
   );
 
 
@@ -303,9 +371,18 @@ export default function DashboardClient() {
     const prevDate = new Date(selectedDate);
     prevDate.setDate(prevDate.getDate() - 1);
     const newDate = prevDate.toISOString().split("T")[0];
+    
+    // Set loading state
+    setIsChangingDate(true);
+    setError(null);
+    
     // Clear cache cho ngày cũ trước khi thay đổi
-    const { clearCacheForDate } = await import("@/store/slices/workSlice");
-    dispatch(clearCacheForDate(selectedDate));
+    try {
+      const { clearCacheForDate } = await import("@/store/slices/workSlice");
+      dispatch(clearCacheForDate(selectedDate));
+    } catch (error) {
+      console.warn('Could not clear cache:', error);
+    }
 
     dispatch(setSelectedDate(newDate));
     // Lưu ngày đã chọn vào localStorage
@@ -313,36 +390,88 @@ export default function DashboardClient() {
 
     // Reset initialization để fetch data mới
     setIsInitialized(false);
-  }, [selectedDate, dispatch]);
+    
+    // Fetch data cho ngày mới
+    try {
+      await scheduleRefreshData(newDate, true);
+      console.log('✅ Data loaded for previous day:', newDate);
+    } catch (error) {
+      console.error('❌ Error loading data for previous day:', error);
+      setError("Không thể tải dữ liệu cho ngày trước. Vui lòng thử lại.");
+    } finally {
+      setIsChangingDate(false);
+    }
+  }, [selectedDate, dispatch, scheduleRefreshData]);
 
   const handleNextDay = useCallback(async () => {
     const nextDate = new Date(selectedDate);
     nextDate.setDate(nextDate.getDate() + 1);
     const newDate = nextDate.toISOString().split("T")[0];
 
+    // Set loading state
+    setIsChangingDate(true);
+    setError(null);
+
     // Clear cache cho ngày cũ trước khi thay đổi
-    const { clearCacheForDate } = await import("@/store/slices/workSlice");
-    dispatch(clearCacheForDate(selectedDate));
+    try {
+      const { clearCacheForDate } = await import("@/store/slices/workSlice");
+      dispatch(clearCacheForDate(selectedDate));
+    } catch (error) {
+      console.warn('Could not clear cache:', error);
+    }
 
     dispatch(setSelectedDate(newDate));
     // Lưu ngày đã chọn vào localStorage
     localStorage.setItem("selectedWorkDate", newDate);
 
+    // Reset initialization để fetch data mới
     setIsInitialized(false);
-  }, [selectedDate, dispatch]);
+    
+    // Fetch data cho ngày mới
+    try {
+      await scheduleRefreshData(newDate, true);
+      console.log('✅ Data loaded for next day:', newDate);
+    } catch (error) {
+      console.error('❌ Error loading data for next day:', error);
+      setError("Không thể tải dữ liệu cho ngày sau. Vui lòng thử lại.");
+    } finally {
+      setIsChangingDate(false);
+    }
+  }, [selectedDate, dispatch, scheduleRefreshData]);
 
   const handleToday = useCallback(async () => {
     const today = new Date().toLocaleDateString("en-CA");
 
+    // Set loading state
+    setIsChangingDate(true);
+    setError(null);
+
     // Clear cache cho ngày cũ trước khi thay đổi
-    const { clearCacheForDate } = await import("@/store/slices/workSlice");
-    dispatch(clearCacheForDate(selectedDate));
+    try {
+      const { clearCacheForDate } = await import("@/store/slices/workSlice");
+      dispatch(clearCacheForDate(selectedDate));
+    } catch (error) {
+      console.warn('Could not clear cache:', error);
+    }
+    
     dispatch(setSelectedDate(today));
     // Lưu ngày đã chọn vào localStorage
     localStorage.setItem("selectedWorkDate", today);
+    
     // Reset initialization để fetch data mới
     setIsInitialized(false);
-  }, [dispatch, selectedDate]);
+    
+    // Fetch data cho ngày hôm nay
+    try {
+      await scheduleRefreshData(today, true);
+      console.log('✅ Data loaded for today:', today);
+    } catch (error) {
+      console.error('❌ Error loading data for today:', error);
+      setError("Không thể tải dữ liệu cho hôm nay. Vui lòng thử lại.");
+    } finally {
+      setIsChangingDate(false);
+    }
+  }, [dispatch, selectedDate, scheduleRefreshData]);
 
   // Effect để load dữ liệu khi assign modal đóng (chỉ một lần)
   useEffect(() => {
@@ -400,6 +529,8 @@ export default function DashboardClient() {
     }
   }, [selectedDate]);
 
+  // Không cần tự động cập nhật ngày nữa - để người dùng tự chọn
+
   // Show loading only during initial load
   if (!isInitialized && loading) {
     return (
@@ -444,6 +575,8 @@ export default function DashboardClient() {
 
   return (
     <div className="flex flex-col h-[calc(100vh-64px)] p-2 mx-auto">
+      {/* Date Update Notification */}
+
       {/* Compact Header */}
       <div className="flex justify-between items-center p-0 mb-0 bg-white rounded-lg shadow-sm">
         {/* Left side - Title and loading */}
@@ -451,31 +584,16 @@ export default function DashboardClient() {
           <h1 className="text-lg font-bold text-transparent bg-clip-text bg-gradient-to-r from-brand-green to-brand-yellow">
             Phân công công việc
           </h1>
-          {isRefreshing && (
+          {(isRefreshing || isChangingDate) && (
             <div className="flex gap-2 items-center text-sm text-brand-green">
               <div className="w-4 h-4 rounded-full border-2 animate-spin border-brand-green border-t-transparent"></div>
-              <span>Đang cập nhật...</span>
+              <span>{isChangingDate ? 'Đang chuyển ngày...' : 'Đang cập nhật...'}</span>
             </div>
           )}
         </div>
 
         {/* Right side - Date picker and admin button */}
         <div className="flex gap-2 items-center mr-[15%]">
-          {/* Refresh button */}
-          <button
-            onClick={() => {
-              setIsInitialized(false);
-              refreshData(true);
-            }}
-            className="flex items-center gap-1 px-2 py-1.5 text-xs text-gray-600 bg-white rounded-md border border-gray-300 transition-colors hover:bg-gray-50 hover:border-brand-green"
-            title="Tải lại dữ liệu"
-          >
-            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-            </svg>
-            Tải lại
-          </button>
-
           {/* Date Navigator - Sử dụng UI component */}
           <DateNavigator
             selectedDate={selectedDate}
@@ -501,9 +619,9 @@ export default function DashboardClient() {
         <div className="flex flex-col flex-1 min-h-0">
           {/* BỎ StatusLegend */}
           {/* <StatusLegend /> */}
-          <div className="grid flex-1 grid-cols-1 gap-2 mt-2 min-h-0 lg:grid-cols-2">
+          <div className="grid flex-1 grid-cols-1 gap-2 mt-2 min-h-0 lg:grid-cols-5">
             {/* Unassigned Works */}
-            <div className="flex overflow-hidden flex-col h-full bg-white rounded-lg border shadow-sm border-brand-green/20">
+            <div className="flex overflow-hidden flex-col h-full bg-white rounded-lg border shadow-sm border-brand-green/20 lg:col-span-2">
               <div className="p-1.5 bg-gradient-to-r from-brand-green/10 to-brand-yellow/10 border-b border-brand-green/20 flex items-center justify-between">
                 <div className="flex items-center">
                   <h2 className="flex items-center text-xs font-semibold text-brand-green">
@@ -548,7 +666,7 @@ export default function DashboardClient() {
             </div>
 
             {/* Assigned Works */}
-            <div className="flex overflow-hidden flex-col h-full bg-white rounded-lg border shadow-sm border-brand-green/20">
+            <div className="flex overflow-hidden flex-col h-full bg-white rounded-lg border shadow-sm border-brand-green/20 lg:col-span-3">
               <div className="p-1.5 bg-gradient-to-r from-brand-green/10 to-brand-yellow/10 border-b border-brand-green/20 flex items-center justify-between">
                 <div className="flex items-center">
                   <h2 className="flex items-center text-xs font-semibold text-brand-green">

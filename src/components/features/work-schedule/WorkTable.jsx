@@ -1,5 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
-import { format } from "date-fns";
+import React, { useState, useMemo } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import {
   useReactTable,
@@ -10,23 +9,16 @@ import {
 import {
   ChevronDown,
   ChevronUp,
-  UserPlus,
-  Copy,
-  UserCog,
-  Settings,
-  DollarSign,
-  Phone,
 } from "lucide-react";
+import JobItem from "./JobItem";
 import AssignWorkerModal from "./AssignWorkerModal";
 import EditAssignedWorkModal from "./EditAssignedWorkModal";
 import EditWorkModal from "./EditWorkModal";
 import JobDetailModal from "./JobDetailModal";
-import JobDetailTooltip from "./JobDetailTooltip";
 import { selectSelectedDate } from "@/store/slices/workSlice";
 import { clearCacheForDate } from "@/store/slices/workSlice";
 import { useSchedule } from "@/contexts/ScheduleContext";
-import axios from "axios";
-import { getClientApiUrl, CONFIG, API_URLS } from "@/config/constants";
+import { useJobOperations } from "@/hooks/useJobOperations";
 
 // Export các function để sử dụng ở component khác
 export const getWorkTypeColor = (kindWork) => {
@@ -171,45 +163,17 @@ const WorkTable = ({ works = [], workers = [] }) => {
   const dispatch = useDispatch();
   const selectedDate = useSelector(selectSelectedDate);
   const { refreshData: scheduleRefreshData } = useSchedule();
+  const { isRefreshing, handleCopy, copiedWorkId, refreshData, updateJob } = useJobOperations();
+  
   const [selectedWork, setSelectedWork] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isChangingWorker, setIsChangingWorker] = useState(false);
-  const [copiedWorkId, setCopiedWorkId] = useState(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const auth = useSelector((state) => state.auth);
   const [isEditAssignedModalOpen, setIsEditAssignedModalOpen] = useState(false);
   const [selectedAssignedWork, setSelectedAssignedWork] = useState(null);
-  const [isRefreshing, setIsRefreshing] = useState(false);
-  const [showTooltip, setShowTooltip] = useState(false);
-  const [tooltipWork, setTooltipWork] = useState(null);
-  const [tooltipPosition, setTooltipPosition] = useState("bottom");
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [selectedDetailWork, setSelectedDetailWork] = useState(null);
 
-  // Kiểm tra vị trí của tooltip để quyết định hiển thị lên trên hay xuống dưới
-  useEffect(() => {
-    const checkTooltipPosition = () => {
-      if (showTooltip) {
-        const tooltipElement = document.querySelector(".job-tooltip");
-        if (tooltipElement) {
-          const rect = tooltipElement.getBoundingClientRect();
-          const viewportHeight = window.innerHeight;
-          const tooltipHeight = 200; // Ước tính chiều cao của tooltip
-
-          // Nếu tooltip ở gần cuối viewport, hiển thị lên trên
-          if (rect.bottom + tooltipHeight > viewportHeight - 20) {
-            setTooltipPosition("top");
-          } else {
-            setTooltipPosition("bottom");
-          }
-        }
-      }
-    };
-
-    if (showTooltip) {
-      checkTooltipPosition();
-    }
-  }, [showTooltip]);
 
   // Transform the new API data structure to flat list for table
   const transformedWorks = useMemo(() => {
@@ -256,26 +220,12 @@ const WorkTable = ({ works = [], workers = [] }) => {
 
   const handleAssignSubmit = async (updatedWork) => {
     try {
-      if (!selectedDate) {
-        console.error("No selected date for refreshing data");
-        return;
-      }
-
-      setIsRefreshing(true);
-
-      // Sử dụng ScheduleContext để gọi API
-      await scheduleRefreshData(selectedDate);
-
-      // Clear cache cho unassigned works để đảm bảo dữ liệu mới
-      dispatch(clearCacheForDate(selectedDate));
-    } catch (error) {
-      console.error("Error refreshing data after assignment:", error);
-    } finally {
-      setIsRefreshing(false);
-      // Luôn đóng modal
+      await refreshData();
       setIsModalOpen(false);
       setSelectedWork(null);
       setIsChangingWorker(false);
+    } catch (error) {
+      console.error("Error refreshing data after assignment:", error);
     }
   };
 
@@ -301,108 +251,11 @@ const WorkTable = ({ works = [], workers = [] }) => {
     setSelectedWork(null);
   };
 
-  // Function to refresh data after edit success
   const handleEditSuccess = async () => {
     try {
-      setIsRefreshing(true);
-      // Sử dụng ScheduleContext để gọi API
-      await scheduleRefreshData(selectedDate);
-
-      // Clear cache để đảm bảo dữ liệu mới
-      dispatch(clearCacheForDate(selectedDate));
+      await refreshData();
     } catch (error) {
       console.error("Error refreshing data after edit:", error);
-    } finally {
-      setIsRefreshing(false);
-    }
-  };
-
-  const handleCopy = async (work) => {
-    try {
-      if (!work) {
-        console.error("No work data provided to copy");
-        return;
-      }
-
-      // Tạo nội dung để copy
-      const copyContent = `Công việc: ${
-        work.work_content || work.job_content || "Không có nội dung"
-      }
-Khách hàng: ${work.name_cus || work.job_customer_name || "Chưa có thông tin"}
-SĐT: ${work.phone_number || work.job_customer_phone || "Chưa có thông tin"}
-Địa chỉ: ${work.street || work.job_customer_address || "Chưa có thông tin"}
-Ngày: ${work.date_book || work.job_appointment_date || "Chưa có thông tin"}
-Ghi chú: ${work.work_note || work.job_customer_note || "Không có"}`;
-
-      // Copy vào clipboard
-      if (navigator.clipboard) {
-        await navigator.clipboard.writeText(copyContent);
-        setCopiedWorkId(work.id);
-        setTimeout(() => setCopiedWorkId(null), 2000);
-      } else {
-        console.error("Clipboard API not available");
-      }
-    } catch (error) {
-      console.error("Failed to copy:", error);
-      // Có thể thêm thông báo lỗi cho user ở đây
-    }
-  };
-
-  const handleEdit = async (editValue) => {
-    try {
-      setIsRefreshing(true);
-      const data = {
-        ...editValue,
-        auth_id: auth.user.id,
-        date_book: selectedDate,
-        from_cus: editValue.from_cus || 0,
-        status_cus: editValue.status_cus || 0,
-        kind_work: editValue.kind_work || 0,
-      };
-      // Call API to update server
-      await axios.post(API_URLS.JOB_UPDATE, data);
-
-      // Refresh data after successful edit
-      // Chỉ gọi 1 API duy nhất dựa vào loại work
-      if (editValue.is_assigned) {
-        await dispatch(fetchAssignedWorks(selectedDate));
-      } else {
-        await dispatch(fetchUnassignedWorks(selectedDate));
-      }
-
-      // Clear cache để đảm bảo dữ liệu mới
-      dispatch(clearCacheForDate(selectedDate));
-
-      handleCloseEditModal();
-    } catch (error) {
-      console.error("Error updating work:", error);
-    } finally {
-      setIsRefreshing(false);
-    }
-  };
-
-  const getWorkTypeGradient = (kindWork) => {
-    switch (kindWork) {
-      case 1:
-        return "bg-gradient-to-r from-brand-green to-brand-green/80"; // Điện Nước
-      case 2:
-        return "bg-gradient-to-r from-brand-green to-brand-green/80"; // Điện Lạnh
-      case 3:
-        return "bg-gradient-to-r from-brand-yellow to-brand-yellow/80"; // Đồ gỗ
-      case 4:
-        return "bg-gradient-to-r from-brand-yellow to-brand-yellow/80"; // Năng Lượng Mặt trời
-      case 5:
-        return "bg-gradient-to-r from-brand-green to-brand-green/80"; // Xây Dựng
-      case 6:
-        return "bg-gradient-to-r from-brand-yellow to-brand-yellow/80"; // Tài Xế
-      case 7:
-        return "bg-gradient-to-r from-brand-green to-brand-green/80"; // Cơ Khí
-      case 8:
-        return "bg-gradient-to-r from-brand-yellow to-brand-yellow/80"; // Điện - Điện Tử
-      case 9:
-        return "bg-gradient-to-r from-gray-500 to-gray-600"; // Văn Phòng
-      default:
-        return "bg-gradient-to-r from-gray-500 to-gray-600";
     }
   };
 
@@ -418,18 +271,10 @@ Ghi chú: ${work.work_note || work.job_customer_note || "Không có"}`;
 
   const handleSaveAssignedWork = async (formData) => {
     try {
-      setIsRefreshing(true);
-      // Call API to update server
-      await axios.post(API_URLS.JOB_UPDATE, formData);
-
-      // Refresh data after successful save
-      await dispatch(fetchAssignedWorks(selectedDate));
-
+      await updateJob(formData);
       handleCloseEditAssignedModal();
     } catch (error) {
       console.error("Error updating assigned work:", error);
-    } finally {
-      setIsRefreshing(false);
     }
   };
 
@@ -451,209 +296,24 @@ Ghi chú: ${work.work_note || work.job_customer_note || "Không có"}`;
         cell: (info) => {
           const work = info.row.original;
           const rowIndex = info.row.index;
-          const assignedWorker =
-            work.worker_code ||
-            work.worker_full_name ||
-            work.worker_name ||
-            work.id_worker;
 
           return (
-            <div
+            <JobItem
               key={`${work.id || work.job_code}-${rowIndex}`}
-              className="flex flex-row items-center space-x-3 bg-gray-50 rounded-lg border border-gray-100 transition-colors hover:border-brand-green/30"
-            >
-              <div
-                className="flex-1 min-w-0 cursor-pointer"
-                onClick={() => handleViewDetail(work)}
-              >
-                <div className="flex flex-col space-y-0.5 text-xs">
-                  {/* Dòng 1: Mã code lịch */}
-                  {work.job_code && (
-                    <div className="flex items-center space-x-1">
-                      <span className="text-xs font-bold text-[#125d0d]">
-                        #{work.job_code}
-                      </span>
-                    </div>
-                  )}
-                  
-                  {/* Dòng 2: Nội dung công việc + Tên KH + SĐT + Thời gian hẹn */}
-                  <div className="flex items-center space-x-2">
-                    {/* Nội dung công việc */}
-                    <div className="flex items-center space-x-1 min-w-0">
-                      <span className="font-medium text-gray-900 truncate max-w-40">
-                        {work.work_content || work.job_content || "Không có nội dung"}
-                      </span>
-                    </div>
-                    
-                    {/* Tên khách hàng */}
-                    <div className="flex items-center space-x-1 min-w-0">
-                      <span className="text-xs font-medium text-gray-600 truncate max-w-24">
-                        {work.name_cus || work.job_customer_name || ""}
-                      </span>
-                    </div>
-                    
-                    {/* Số điện thoại */}
-                    <div className="flex items-center space-x-1 min-w-0">
-                      <span className="text-xs font-medium text-gray-600 truncate max-w-20">
-                        {work.phone_number || work.job_customer_phone || ""}
-                      </span>
-                    </div>
-                    
-                    {/* Thời gian hẹn */}
-                    {(work.time_book || work.job_appointment_time) && (
-                      <div className="flex items-center space-x-1 min-w-0">
-                        <span className="text-xs font-medium text-brand-yellow">
-                          {work.time_book || work.job_appointment_time}
-                        </span>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Dòng 3: Địa chỉ + Ghi chú + Hình ảnh */}
-                  <div className="flex items-center space-x-2">
-                    {/* Địa chỉ */}
-                    <div className="flex flex-1 items-center space-x-1 min-w-0">
-                      <span className="text-xs text-gray-700 truncate">
-                        {work.street || work.job_customer_address || ""}
-                      </span>
-                    </div>
-                    
-                    {/* Ghi chú */}
-                    {(work.work_note || work.job_customer_note) && (
-                      <div className="flex items-center space-x-1 min-w-0">
-                        <span className="text-xs text-gray-500 truncate max-w-32" title={work.work_note || work.job_customer_note}>
-                          {(work.work_note || work.job_customer_note).length > 20 
-                            ? (work.work_note || work.job_customer_note).substring(0, 20) + "..." 
-                            : (work.work_note || work.job_customer_note)}
-                        </span>
-                      </div>
-                    )}
-                    
-                    {/* Hình ảnh */}
-                    {work.images_count > 0 && (
-                      <div className="flex items-center space-x-1 min-w-0">
-                        <span className="text-xs font-medium text-brand-green">
-                          {work.images_count} ảnh
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              {/* Thông tin thợ đã phân công */}
-              {assignedWorker && (
-                <div className="flex-shrink-0 mr-3 min-w-0 max-w-32">
-                  <div className="flex items-center">
-                    <span className="text-xs font-medium truncate text-brand-green">
-                      {work.worker_full_name || work.worker_name} ({work.worker_code})
-                    </span>
-                  </div>
-                </div>
-              )}
-
-              {/* Phần nút - hoàn toàn tách biệt, không ảnh hưởng đến modal chi tiết */}
-              <div className="flex flex-shrink-0 items-center space-x-2">
-                <button
-                  onClick={(e) => {
-                    try {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      handleCopy(work);
-                    } catch (error) {
-                      console.error("Error in copy button handler:", error);
-                    }
-                  }}
-                  className={`p-2 rounded-full transition-colors ${
-                    copiedWorkId === work.id
-                      ? "text-brand-green bg-brand-green/10"
-                      : "text-gray-500 hover:text-brand-green hover:bg-brand-green/10"
-                  }`}
-                  title="Sao chép lịch"
-                >
-                  <Copy className="w-5 h-5" />
-                </button>
-                {assignedWorker ? (
-                  <>
-                    <button
-                      onClick={(e) => {
-                        try {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          handleChangeWorker(work);
-                        } catch (error) {
-                          console.error(
-                            "Error in change worker button handler:",
-                            error
-                          );
-                        }
-                      }}
-                      className="p-2 text-gray-500 rounded-full transition-colors cursor-pointer hover:text-brand-green hover:bg-brand-green/10"
-                      title="Đổi thợ"
-                    >
-                      <UserCog className="w-5 h-5" />
-                    </button>
-                    <button
-                      onClick={(e) => {
-                        try {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          handleEditAssignedWork(work);
-                        } catch (error) {
-                          console.error(
-                            "Error in edit assigned work button handler:",
-                            error
-                          );
-                        }
-                      }}
-                      className="p-2 text-gray-500 rounded-full transition-colors hover:text-brand-green hover:bg-brand-green/10"
-                      title="Nhập thu chi"
-                    >
-                      <DollarSign className="w-5 h-5" />
-                    </button>
-                  </>
-                ) : (
-                  <>
-                    <button
-                      onClick={(e) => {
-                        try {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          handleAssignWorker(work);
-                        } catch (error) {
-                          console.error(
-                            "Error in assign worker button handler:",
-                            error
-                          );
-                        }
-                      }}
-                      className="p-2 text-gray-500 rounded-full transition-colors hover:text-brand-green hover:bg-brand-green/10"
-                      title="Phân công thợ"
-                    >
-                      <UserPlus className="w-5 h-5" />
-                    </button>
-                    <button
-                      onClick={(e) => {
-                        try {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          handleEditWork(work);
-                        } catch (error) {
-                          console.error(
-                            "Error in edit work button handler:",
-                            error
-                          );
-                        }
-                      }}
-                      className="p-2 text-gray-500 rounded-full transition-colors hover:text-brand-green hover:bg-brand-green/10"
-                      title="Chỉnh sửa"
-                    >
-                      <Settings className="w-5 h-5" />
-                    </button>
-                  </>
-                )}
-              </div>
-            </div>
+              job={work}
+              index={rowIndex}
+              onAssign={handleAssignWorker}
+              onEdit={handleEditWork}
+              onEditAssigned={handleEditAssignedWork}
+              onChangeWorker={handleChangeWorker}
+              onCopy={handleCopy}
+              copiedWorkId={copiedWorkId}
+              showWorker={!!(work.worker_code || work.worker_full_name || work.worker_name || work.id_worker)}
+              showTooltip={false}
+              onClick={handleViewDetail}
+              className="bg-gray-50 rounded-lg border border-gray-100 transition-colors hover:border-brand-green/30"
+              actionsMode="full"
+            />
           );
         },
       },

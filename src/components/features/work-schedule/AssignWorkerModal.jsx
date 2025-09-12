@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { X, User, UserPlus, Search, CheckCircle } from "lucide-react";
-import { useSelector, useDispatch } from "react-redux";
-import { useSchedule } from "@/contexts/ScheduleContext";
+import { useSelector } from "react-redux";
 import { API_URLS } from "@/config/constants";
 
 const AssignWorkerModal = ({
@@ -17,8 +16,6 @@ const AssignWorkerModal = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const { user } = useSelector((state) => state.auth);
-  const dispatch = useDispatch();
-  const { refreshData } = useSchedule();
 
   const filteredWorkers = useMemo(() => {
     if (!searchTerm.trim()) return workers;
@@ -42,30 +39,30 @@ const AssignWorkerModal = ({
     }
   }, [work, workers]);
 
-  // Không cần fetch workers nữa vì đã được load từ DashboardClient
-  // Workers đã có sẵn từ props và Redux store
-
   // Hàm gọi API phân công thợ
   const assignWorkerAPI = async (assignData) => {
     try {
-      const response = await fetch(API_URLS.WORK_ASSIGNMENT_ASSIGN, {
+      const response = await fetch(API_URLS.JOB_ASSIGN_WORKER, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          work: {
-            id: assignData.job_id,
-          },
-          worker: assignData.worker_id,
+          job_id: assignData.job_id,
+          worker_id: assignData.worker_id,
           role: assignData.role,
-          authId: assignData.user_id,
+          user_id: assignData.user_id,
         }),
       });
 
       if (!response.ok) {
         const errorText = await response.text();
-        throw new Error(`HTTP error! status: ${response.status}`);
+        console.error('❌ API Error Response:', {
+          status: response.status,
+          statusText: response.statusText,
+          body: errorText
+        });
+        throw new Error(`HTTP error! status: ${response.status} - ${errorText}`);
       }
 
       const result = await response.json();
@@ -103,14 +100,19 @@ const AssignWorkerModal = ({
         await assignWorkerAPI(extraWorkerData);
       }
       
-      // Đóng modal trước, sau đó refresh data
-      onClose();
+      // Gọi onAssign callback để refresh data (giống như CreateScheduleModal)
+      if (onAssign && typeof onAssign === 'function') {
+        try {
+          // Sử dụng cùng logic như CreateScheduleModal: onSuccess(targetDate, true)
+          await onAssign(work, true); // Pass work object and forceRefresh = true
+          console.log('✅ Data refreshed successfully after worker assignment');
+        } catch (error) {
+          console.error('❌ Error refreshing data after worker assignment:', error);
+        }
+      }
       
-      // Refresh data sau khi đóng modal (không await để không block UI)
-      refreshData().then(() => {
-      }).catch(error => {
-        console.error('❌ Error refreshing data after worker assignment:', error);
-      });
+      // Đóng modal sau khi refresh
+      onClose();
     } catch (error) {
       console.error('Error assigning worker:', error);
     } finally {
@@ -154,7 +156,7 @@ const AssignWorkerModal = ({
 
   return (
     <div
-      className="fixed inset-0 z-[9999] flex justify-center items-start pt-20 backdrop-blur-sm bg-black/25"
+      className="fixed inset-0 z-[9999] flex justify-center items-start pt-20"
       onClick={handleClose}
     >
       <div
@@ -419,10 +421,10 @@ const AssignWorkerModal = ({
             <button
               onClick={handleSubmit}
               disabled={!selectedMainWorker || isSubmitting}
-              className={`px-3 py-1 text-xs text-white rounded-lg transition-colors duration-200 ${
+              className={`px-3 py-1 text-xs text-[#125d0d] bg-white border border-[#125d0d] rounded-lg transition-colors duration-200 ${
                 !selectedMainWorker || isSubmitting
-                  ? "bg-gray-400 cursor-not-allowed"
-                  : "bg-brand-green hover:bg-green-700"
+                  ? "bg-gray-400 cursor-not-allowed "
+                  : "bg-brand-green hover:bg-[#125d0d]"
               }`}
             >
               {isSubmitting ? (

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import JobCard from './JobCard';
-import { getWorkTypeColor, getWorkTypeName } from './WorkTable';
+import { getWorkTypeColor, getWorkTypeName } from './utils';
 
 const JobsList = ({ jobs = [], workers = [], onAssign, onEdit, onCopy, copiedWorkId }) => {
   const [selectedWorkerType, setSelectedWorkerType] = useState("all");

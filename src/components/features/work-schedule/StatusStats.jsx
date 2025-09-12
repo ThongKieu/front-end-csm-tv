@@ -1,5 +1,5 @@
 import React from 'react';
-import { getStatusColor, getStatusName } from './WorkTable';
+import { getStatusColor, getStatusName } from './utils';
 
 const mainStatusOrder = [4, 10, 9, 6, 0]; // Lịch gấp, ưu tiên, khách quen, đã phân, chưa phân
 

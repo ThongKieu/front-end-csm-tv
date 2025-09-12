@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { ChevronDown, ChevronUp } from 'lucide-react';
-import { getStatusColor, getStatusName } from './WorkTable';
+import { getStatusColor, getStatusName } from './utils';
 
 const StatusLegend = () => {
   const [isExpanded, setIsExpanded] = useState(false);

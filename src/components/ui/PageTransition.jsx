@@ -8,14 +8,18 @@ const PageTransition = memo(function PageTransition({ children }) {
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [displayChildren, setDisplayChildren] = useState(children);
   const [showLoader, setShowLoader] = useState(false);
+  const [previousPathname, setPreviousPathname] = useState(null);
   const pathname = usePathname();
 
   useEffect(() => {
-    // Only show loader for actual page changes, not initial load
-    if (pathname !== window.location.pathname) {
+    // Check if this is a real page change (not initial load)
+    if (previousPathname && previousPathname !== pathname) {
       setIsTransitioning(true);
       setShowLoader(true);
     }
+    
+    // Update previous pathname
+    setPreviousPathname(pathname);
     
     // Optimized delay for better LCP - ensure content is fully loaded
     const timer = setTimeout(() => {
@@ -29,21 +33,20 @@ const PageTransition = memo(function PageTransition({ children }) {
     }, 150);
 
     return () => clearTimeout(timer);
-  }, [pathname, children]);
+  }, [pathname, children, previousPathname]);
 
   return (
     <div className="relative min-h-screen">
       {/* Page content */}
       <div
-        className={`${
+        className={`transition-all duration-300 ease-out ${
           isTransitioning
-            ? 'opacity-0 transform translate-y-8 scale-95 blur-sm'
-            : 'opacity-100 transform translate-y-0 scale-100 blur-0 page-enter'
+            ? 'opacity-0 transform translate-y-4 scale-98 blur-sm'
+            : 'opacity-100 transform translate-y-0 scale-100 blur-0'
         }`}
         style={{
-          transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-          animation: !isTransitioning ? 'pageEnter 0.4s ease-out' : 'none',
-          willChange: isTransitioning ? 'opacity, transform' : 'auto'
+          transition: 'all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+          willChange: isTransitioning ? 'opacity, transform, filter' : 'auto'
         }}
       >
         {displayChildren}

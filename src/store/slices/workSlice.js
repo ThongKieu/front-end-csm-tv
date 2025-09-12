@@ -208,6 +208,61 @@ const workSlice = createSlice({
       delete state.cache.unassignedWorks[date];
     },
     
+    // Di chuyển job từ unassigned sang assigned sau khi phân thợ
+    moveJobToAssigned: (state, action) => {
+      const { jobId, workerData } = action.payload;
+      try {
+        // Tìm và xóa job từ unassignedWorks
+        if (state.unassignedWorks && typeof state.unassignedWorks === 'object') {
+          Object.keys(state.unassignedWorks).forEach(categoryKey => {
+            const category = state.unassignedWorks[categoryKey];
+            if (Array.isArray(category)) {
+              const jobIndex = category.findIndex(job => 
+                job.id === jobId || job.job_id === jobId || job.work_id === jobId
+              );
+              if (jobIndex !== -1) {
+                // Xóa job khỏi unassigned
+                const [movedJob] = category.splice(jobIndex, 1);
+                
+                // Cập nhật job với thông tin worker
+                const updatedJob = {
+                  ...movedJob,
+                  id_worker: workerData.worker_id,
+                  worker_code: workerData.worker_code,
+                  worker_name: workerData.worker_name,
+                  worker_full_name: workerData.worker_full_name,
+                  job_main_status: 'assigned'
+                };
+                
+                // Thêm vào assignedWorks
+                if (!state.assignedWorks || !Array.isArray(state.assignedWorks)) {
+                  state.assignedWorks = [];
+                }
+                state.assignedWorks.push(updatedJob);
+                
+                // Cập nhật cache
+                if (state.cache.unassignedWorks[state.selectedDate]?.data) {
+                  const cacheData = state.cache.unassignedWorks[state.selectedDate].data;
+                  if (typeof cacheData === 'object' && cacheData[categoryKey]) {
+                    cacheData[categoryKey].splice(jobIndex, 1);
+                  }
+                }
+                
+                if (state.cache.assignedWorks[state.selectedDate]?.data) {
+                  const cacheData = state.cache.assignedWorks[state.selectedDate].data;
+                  if (Array.isArray(cacheData)) {
+                    cacheData.push(updatedJob);
+                  }
+                }
+              }
+            }
+          });
+        }
+      } catch (error) {
+        console.error('❌ Error in moveJobToAssigned:', error);
+      }
+    },
+
     // Thêm job mới vào Redux store
     addNewWork: (state, action) => {
       const { work, targetDate } = action.payload;
@@ -599,5 +654,8 @@ export const selectWorkers = (state) => state.work.workers;
 export const selectSelectedDate = (state) => state.work.selectedDate;
 export const selectLoading = (state) => state.work.loading;
 export const selectError = (state) => state.work.error;
+
+// Export actions
+export const { moveJobToAssigned } = workSlice.actions;
 
 export default workSlice.reducer; 
