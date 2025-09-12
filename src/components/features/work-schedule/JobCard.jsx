@@ -1,12 +1,10 @@
 import React, { useState } from "react";
 import JobItem from "./JobItem";
 import AssignWorkerModal from "./AssignWorkerModal";
-import { useJobOperations } from "@/hooks/useJobOperations";
 
 const JobCard = ({ job, index, onAssign, onEdit, workers = [] }) => {
   const [isAssignModalOpen, setIsAssignModalOpen] = useState(false);
   const [isChangingWorker, setIsChangingWorker] = useState(false);
-  const { handleCopy, copiedWorkId } = useJobOperations();
 
   const handleAssignClick = (job) => {
     setIsChangingWorker(false);
@@ -35,8 +33,6 @@ const JobCard = ({ job, index, onAssign, onEdit, workers = [] }) => {
         onEdit={handleEditClick}
         onEditAssigned={handleEditAssignedClick}
         onChangeWorker={handleChangeWorkerClick}
-        onCopy={handleCopy}
-        copiedWorkId={copiedWorkId}
         showWorker={!!job.id_worker}
         showTooltip={true}
         onClick={handleEditClick}

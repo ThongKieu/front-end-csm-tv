@@ -6,6 +6,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
 import { logout } from "@/store/slices/authSlice";
 import { ROUTES } from "@/config/routes";
+import { useSchedule } from "@/contexts/ScheduleContext";
 import {
   LayoutDashboard,
   Users,
@@ -24,6 +25,8 @@ import {
   Crown,
   DollarSign,
   MapPin,
+  CalendarPlus,
+  Sparkles,
 } from "lucide-react";
 
 export default function Header() {
@@ -31,6 +34,7 @@ export default function Header() {
   const router = useRouter();
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
+  const { setIsCreateScheduleModalOpen } = useSchedule();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
@@ -184,6 +188,16 @@ export default function Header() {
 
           {/* Right Section */}
           <div className="hidden items-center space-x-4 md:flex">
+            {/* Create Schedule Button */}
+            <button
+              onClick={() => setIsCreateScheduleModalOpen(true)}
+              className="flex items-center px-4 py-2 space-x-2 text-[#125d0d] rounded-lg bg-[#f5d20d] transition-all hover:bg-[#125d0d] hover:text-white hover:shadow-md hover:scale-105"
+            >
+              <Sparkles className="w-4 h-4 animate-pulse" />
+              <span className="text-sm font-medium">Tạo lịch</span>
+              <CalendarPlus className="w-4 h-4" />
+            </button>
+
             {/* Search */}
             <div className="relative">
               <button
@@ -290,17 +304,30 @@ export default function Header() {
             </div>
           </div>
 
-          {/* Mobile Menu Button */}
-          <button
-            className="p-2 text-gray-600 rounded-md md:hidden hover:text-gray-900 hover:bg-gray-100"
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
-          >
-            {isMenuOpen ? (
-              <X className="w-6 h-6" />
-            ) : (
-              <Menu className="w-6 h-6" />
-            )}
-          </button>
+          {/* Mobile Right Section */}
+          <div className="flex items-center space-x-2 md:hidden">
+            {/* Create Schedule Button for Mobile - Full width */}
+            <button
+              onClick={() => setIsCreateScheduleModalOpen(true)}
+              className="flex items-center justify-center flex-1 px-4 py-2 space-x-2 text-[#125d0d] rounded-md bg-[#f5d20d] transition-all hover:bg-[#125d0d] hover:text-white hover:shadow-md"
+            >
+              <Sparkles className="w-4 h-4 animate-pulse" />
+              <span className="text-sm font-medium">Tạo lịch</span>
+              <CalendarPlus className="w-4 h-4" />
+            </button>
+            
+            {/* Mobile Menu Button */}
+            <button
+              className="p-2 text-gray-600 rounded-md hover:text-gray-900 hover:bg-gray-100"
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+            >
+              {isMenuOpen ? (
+                <X className="w-6 h-6" />
+              ) : (
+                <Menu className="w-6 h-6" />
+              )}
+            </button>
+          </div>
         </div>
 
         {/* Mobile Navigation */}

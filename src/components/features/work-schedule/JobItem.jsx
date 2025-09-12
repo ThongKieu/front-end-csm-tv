@@ -8,10 +8,8 @@ const JobItem = ({
   index, 
   onAssign, 
   onEdit, 
-  onCopy,
   onEditAssigned,
   onChangeWorker,
-  copiedWorkId,
   showWorker = false,
   showTooltip = true,
   className = "",
@@ -53,13 +51,13 @@ const JobItem = ({
   return (
     <div
       ref={itemRef}
-      className={`flex relative items-center text-xs bg-white rounded-lg border border-gray-200 transition-all duration-200 hover:border-brand-green/300 hover:shadow-md ${className}`}
+      className={`flex relative items-center text-xs bg-white rounded-lg border border-gray-200 transition-all duration-200 hover:border-brand-green/300 hover:shadow-md min-w-0 ${className}`}
       onMouseEnter={() => showTooltip && setShowTooltipState(true)}
       onMouseLeave={() => showTooltip && setShowTooltipState(false)}
     >
       {/* Phần bên trái - Thông tin job */}
       <div
-        className="flex flex-1 gap-2 items-center px-2 py-1 min-w-0 rounded-l-lg transition-colors cursor-pointer hover:bg-blue-50/30"
+        className="flex flex-1 gap-1 sm:gap-2 items-center px-1 sm:px-2 py-1 min-w-0 rounded-l-lg transition-colors cursor-pointer hover:bg-blue-50/30"
         onClick={handleClick}
       >
         <JobInfo 
@@ -71,19 +69,17 @@ const JobItem = ({
 
       {/* Phần bên phải - Các nút hành động */}
       <div
-        className="flex flex-shrink-0 items-center px-2 py-1 space-x-0.5 w-auto rounded-r-lg border-l border-gray-200 bg-gray-100/50"
+        className="flex flex-shrink-0 items-center px-1 sm:px-2 py-1 space-x-0.5 w-auto rounded-r-lg border-l border-gray-200 bg-gray-100/50"
         onClick={(e) => e.stopPropagation()}
         onMouseEnter={() => setShowTooltipState(false)}
         onMouseLeave={() => setShowTooltipState(false)}
       >
         <JobActions
           job={job}
-          onCopy={onCopy}
           onAssign={onAssign}
           onEdit={onEdit}
           onEditAssigned={onEditAssigned}
           onChangeWorker={onChangeWorker}
-          copiedWorkId={copiedWorkId}
           mode={actionsMode}
         />
       </div>

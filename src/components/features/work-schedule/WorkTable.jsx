@@ -163,7 +163,7 @@ const WorkTable = ({ works = [], workers = [] }) => {
   const dispatch = useDispatch();
   const selectedDate = useSelector(selectSelectedDate);
   const { refreshData: scheduleRefreshData } = useSchedule();
-  const { isRefreshing, handleCopy, copiedWorkId, refreshData, updateJob } = useJobOperations();
+  const { isRefreshing, refreshData, updateJob } = useJobOperations();
   
   const [selectedWork, setSelectedWork] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -306,8 +306,6 @@ const WorkTable = ({ works = [], workers = [] }) => {
               onEdit={handleEditWork}
               onEditAssigned={handleEditAssignedWork}
               onChangeWorker={handleChangeWorker}
-              onCopy={handleCopy}
-              copiedWorkId={copiedWorkId}
               showWorker={!!(work.worker_code || work.worker_full_name || work.worker_name || work.id_worker)}
               showTooltip={false}
               onClick={handleViewDetail}
@@ -318,7 +316,7 @@ const WorkTable = ({ works = [], workers = [] }) => {
         },
       },
     ],
-    [copiedWorkId, workers]
+    [workers]
   );
 
   const filteredData = useMemo(() => transformedWorks, [transformedWorks]);
@@ -341,8 +339,8 @@ const WorkTable = ({ works = [], workers = [] }) => {
         </div>
       )}
 
-      <div className="overflow-auto flex-1">
-        <table className="min-w-full divide-y divide-gray-100">
+      <div className="overflow-y-auto flex-1">
+        <table className="w-full divide-y divide-gray-100">
           <thead className="sticky top-0 z-10 bg-gray-50">
             {table.getHeaderGroups().map((headerGroup) => (
               <tr key={headerGroup.id}>

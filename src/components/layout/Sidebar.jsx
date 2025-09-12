@@ -63,6 +63,13 @@ export default function Sidebar() {
       roles: ['admin', 'manager', 'office']
     },
     {
+      id: 1.5,
+      label: 'Quản lý Admin',
+      icon: 'Settings',
+      route: '/admin',
+      roles: ['admin', 'manager', 'office']
+    },
+    {
       id: 2,
       label: 'Quản lý người dùng',
       icon: 'Users',

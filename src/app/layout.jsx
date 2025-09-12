@@ -45,10 +45,9 @@ function AppContent({ children }) {
       <PageTransition>
         {children}
       </PageTransition>
-      {/* Chỉ hiển thị nút tạo công việc và modal khi đã đăng nhập */}
+      {/* Chỉ hiển thị modal khi đã đăng nhập (nút đã được đưa lên header) */}
       {isAuthenticated && (
         <>
-          <CreateScheduleButton />
           <CreateScheduleModal
             isOpen={isCreateScheduleModalOpen}
             onClose={() => setIsCreateScheduleModalOpen(false)}

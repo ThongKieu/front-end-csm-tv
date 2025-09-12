@@ -14,7 +14,8 @@ import {
   DollarSign,
   MapPin,
   Activity,
-  Shield
+  Shield,
+  Calendar
 } from "lucide-react";
 
 export default function AdminPage() {
@@ -108,7 +109,7 @@ export default function AdminPage() {
           {/* Header */}
           <div className="flex justify-between items-center">
             <div>
-              <div className="flex items-center gap-2">
+              <div className="flex gap-2 items-center">
                 <Crown className="w-6 h-6 text-brand-green" />
                 <h1 className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-brand-green to-brand-yellow">
                   Admin Panel
@@ -118,8 +119,8 @@ export default function AdminPage() {
                 Trung tâm quản lý hệ thống CSM TV
               </p>
             </div>
-            <div className="px-4 py-2 text-sm text-brand-green bg-white rounded-lg border border-brand-green/20 shadow-sm">
-              <div className="flex items-center gap-2">
+            <div className="px-4 py-2 text-sm bg-white rounded-lg border shadow-sm text-brand-green border-brand-green/20">
+              <div className="flex gap-2 items-center">
                 <Shield className="w-4 h-4" />
                 <span>Quyền Admin</span>
               </div>
@@ -130,12 +131,12 @@ export default function AdminPage() {
           <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
             <Card className="bg-white border-brand-green/20">
               <CardContent className="p-4">
-                <div className="flex items-center justify-between">
+                <div className="flex justify-between items-center">
                   <div>
                     <p className="text-sm font-medium text-gray-600">Tổng người dùng</p>
                     <p className="text-2xl font-bold text-brand-green">{stats.totalUsers}</p>
                   </div>
-                  <div className="p-2 bg-brand-green/10 rounded-lg">
+                  <div className="p-2 rounded-lg bg-brand-green/10">
                     <Users className="w-5 h-5 text-brand-green" />
                   </div>
                 </div>
@@ -144,12 +145,12 @@ export default function AdminPage() {
 
             <Card className="bg-white border-brand-green/20">
               <CardContent className="p-4">
-                <div className="flex items-center justify-between">
+                <div className="flex justify-between items-center">
                   <div>
                     <p className="text-sm font-medium text-gray-600">Đang hoạt động</p>
                     <p className="text-2xl font-bold text-brand-green">{stats.activeUsers}</p>
                   </div>
-                  <div className="p-2 bg-brand-green/10 rounded-lg">
+                  <div className="p-2 rounded-lg bg-brand-green/10">
                     <Activity className="w-5 h-5 text-brand-green" />
                   </div>
                 </div>
@@ -158,12 +159,12 @@ export default function AdminPage() {
 
             <Card className="bg-white border-brand-green/20">
               <CardContent className="p-4">
-                <div className="flex items-center justify-between">
+                <div className="flex justify-between items-center">
                   <div>
                     <p className="text-sm font-medium text-gray-600">Tổng công việc</p>
                     <p className="text-2xl font-bold text-brand-green">{stats.totalWorks}</p>
                   </div>
-                  <div className="p-2 bg-brand-green/10 rounded-lg">
+                  <div className="p-2 rounded-lg bg-brand-green/10">
                     <Calendar className="w-5 h-5 text-brand-green" />
                   </div>
                 </div>
@@ -172,12 +173,12 @@ export default function AdminPage() {
 
             <Card className="bg-white border-brand-green/20">
               <CardContent className="p-4">
-                <div className="flex items-center justify-between">
+                <div className="flex justify-between items-center">
                   <div>
                     <p className="text-sm font-medium text-gray-600">Chờ xử lý</p>
                     <p className="text-2xl font-bold text-brand-green">{stats.pendingWorks}</p>
                   </div>
-                  <div className="p-2 bg-brand-green/10 rounded-lg">
+                  <div className="p-2 rounded-lg bg-brand-green/10">
                     <Activity className="w-5 h-5 text-brand-green" />
                   </div>
                 </div>
@@ -187,23 +188,23 @@ export default function AdminPage() {
 
           {/* Admin Features Grid */}
           <div>
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">Chức năng quản lý</h2>
+            <h2 className="mb-4 text-xl font-semibold text-gray-900">Chức năng quản lý</h2>
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
               {adminFeatures.map((feature) => {
                 const Icon = feature.icon;
                 return (
                   <Link key={feature.id} href={feature.route}>
-                    <Card className="bg-white border-gray-200 hover:border-brand-green/30 transition-all duration-200 hover:shadow-lg cursor-pointer group">
+                    <Card className="bg-white border-gray-200 transition-all duration-200 cursor-pointer hover:border-brand-green/30 hover:shadow-lg group">
                       <CardContent className="p-6">
                         <div className="flex items-start space-x-4">
                           <div className={`p-3 rounded-lg ${feature.bgColor} group-hover:scale-110 transition-transform duration-200`}>
                             <Icon className={`w-6 h-6 bg-gradient-to-r ${feature.color} bg-clip-text text-transparent`} />
                           </div>
                           <div className="flex-1">
-                            <h3 className="font-semibold text-gray-900 group-hover:text-brand-green transition-colors">
+                            <h3 className="font-semibold text-gray-900 transition-colors group-hover:text-brand-green">
                               {feature.title}
                             </h3>
-                            <p className="text-sm text-gray-600 mt-1">
+                            <p className="mt-1 text-sm text-gray-600">
                               {feature.description}
                             </p>
                           </div>
@@ -224,7 +225,7 @@ export default function AdminPage() {
             <CardContent>
               <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
                 <Link href="/admin/users">
-                  <button className="w-full p-4 text-left bg-gradient-to-r from-brand-green/10 to-brand-yellow/10 rounded-lg border border-brand-green/20 hover:border-brand-green/40 transition-colors">
+                  <button className="p-4 w-full text-left bg-gradient-to-r rounded-lg border transition-colors from-brand-green/10 to-brand-yellow/10 border-brand-green/20 hover:border-brand-green/40">
                     <div className="flex items-center space-x-3">
                       <Users className="w-5 h-5 text-brand-green" />
                       <div>
@@ -236,7 +237,7 @@ export default function AdminPage() {
                 </Link>
 
                 <Link href="/admin/system">
-                  <button className="w-full p-4 text-left bg-gradient-to-r from-brand-green/10 to-brand-yellow/10 rounded-lg border border-brand-green/20 hover:border-brand-green/40 transition-colors">
+                  <button className="p-4 w-full text-left bg-gradient-to-r rounded-lg border transition-colors from-brand-green/10 to-brand-yellow/10 border-brand-green/20 hover:border-brand-green/40">
                     <div className="flex items-center space-x-3">
                       <Server className="w-5 h-5 text-brand-green" />
                       <div>
@@ -248,7 +249,7 @@ export default function AdminPage() {
                 </Link>
 
                 <Link href="/admin/zns">
-                  <button className="w-full p-4 text-left bg-gradient-to-r from-brand-green/10 to-brand-yellow/10 rounded-lg border border-brand-green/20 hover:border-brand-green/40 transition-colors">
+                  <button className="p-4 w-full text-left bg-gradient-to-r rounded-lg border transition-colors from-brand-green/10 to-brand-yellow/10 border-brand-green/20 hover:border-brand-green/40">
                     <div className="flex items-center space-x-3">
                       <MessageSquare className="w-5 h-5 text-brand-green" />
                       <div>

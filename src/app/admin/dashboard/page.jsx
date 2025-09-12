@@ -5,7 +5,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Calendar, Phone, Users, TrendingUp, Clock, CheckCircle, ArrowUpRight, ArrowDownRight, DollarSign, Briefcase, MessageSquare, Crown } from "lucide-react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, Area, AreaChart } from "recharts";
 import { format, parseISO } from "date-fns";
-import { vi } from "date-fns/locale";
 
 // Mock data for the chart
 const chartData = [
@@ -115,7 +114,7 @@ export default function AdminDashboard() {
         const response = await fetch("/api/admin/stats");
         const data = await response.json();
         setStats(data);
-        setLastUpdated(format(new Date(), "HH:mm:ss dd/MM/yyyy", { locale: vi }));
+        setLastUpdated(format(new Date(), "HH:mm:ss dd/MM/yyyy"));
       } catch (error) {
         console.error("Error fetching stats:", error);
       }
@@ -126,14 +125,14 @@ export default function AdminDashboard() {
     
     // Chỉ update thời gian, không fetch API lại
     const interval = setInterval(() => {
-      setLastUpdated(format(new Date(), "HH:mm:ss dd/MM/yyyy", { locale: vi }));
+      setLastUpdated(format(new Date(), "HH:mm:ss dd/MM/yyyy"));
     }, 60000);
 
     return () => clearInterval(interval);
   }, []);
 
   const formatDate = (dateString) => {
-    return format(parseISO(dateString), "HH:mm:ss dd/MM/yyyy", { locale: vi });
+    return format(parseISO(dateString), "HH:mm:ss dd/MM/yyyy");
   };
 
   const formatCurrency = (amount) => {
@@ -350,4 +349,4 @@ export default function AdminDashboard() {
       </div>
     </div>
   );
-} 
+}

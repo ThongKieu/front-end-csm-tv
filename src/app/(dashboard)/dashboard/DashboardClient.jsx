@@ -109,10 +109,12 @@ export default function DashboardClient() {
       try {
         console.log('🔄 Refreshing data after worker assignment...');
         
-        // Sử dụng cùng logic như CreateScheduleModal
+        // Sử dụng Redux dispatch trực tiếp để đảm bảo hoạt động
         if (forceRefresh) {
-          // Force refresh data từ server
-          await scheduleRefreshData(selectedDate, true);
+          // Force refresh data từ server bằng Redux dispatch
+          console.log('🔄 Force refreshing data from server...');
+          await dispatch(fetchUnassignedWorks({ date: selectedDate, forceRefresh: true }));
+          await dispatch(fetchAssignedWorks({ date: selectedDate, forceRefresh: true }));
           console.log('✅ Data refreshed successfully after worker assignment');
         } else {
           // Fallback: cập nhật Redux state trực tiếp
@@ -154,7 +156,7 @@ export default function DashboardClient() {
         window.location.reload();
       }
     },
-    [dispatch, selectedDate, workers, scheduleRefreshData]
+    [dispatch, selectedDate, workers]
   );
 
   const handleCloseAssignModal = useCallback(() => {
@@ -440,7 +442,8 @@ export default function DashboardClient() {
   }, [selectedDate, dispatch, scheduleRefreshData]);
 
   const handleToday = useCallback(async () => {
-    const today = new Date().toLocaleDateString("en-CA");
+    const today = new Date();
+    const todayString = `${today.getFullYear()}-${(today.getMonth() + 1).toString().padStart(2, '0')}-${today.getDate().toString().padStart(2, '0')}`;
 
     // Set loading state
     setIsChangingDate(true);
@@ -454,17 +457,17 @@ export default function DashboardClient() {
       console.warn('Could not clear cache:', error);
     }
     
-    dispatch(setSelectedDate(today));
+    dispatch(setSelectedDate(todayString));
     // Lưu ngày đã chọn vào localStorage
-    localStorage.setItem("selectedWorkDate", today);
+    localStorage.setItem("selectedWorkDate", todayString);
     
     // Reset initialization để fetch data mới
     setIsInitialized(false);
     
     // Fetch data cho ngày hôm nay
     try {
-      await scheduleRefreshData(today, true);
-      console.log('✅ Data loaded for today:', today);
+      await scheduleRefreshData(todayString, true);
+      console.log('✅ Data loaded for today:', todayString);
     } catch (error) {
       console.error('❌ Error loading data for today:', error);
       setError("Không thể tải dữ liệu cho hôm nay. Vui lòng thử lại.");
@@ -578,7 +581,7 @@ export default function DashboardClient() {
       {/* Date Update Notification */}
 
       {/* Compact Header */}
-      <div className="flex justify-between items-center p-0 mb-0 bg-white rounded-lg shadow-sm">
+      <div className="flex justify-between items-center px-1 mb-0 bg-white rounded-lg shadow-sm">
         {/* Left side - Title and loading */}
         <div className="flex gap-4 items-center">
           <h1 className="text-lg font-bold text-transparent bg-clip-text bg-gradient-to-r from-brand-green to-brand-yellow">
@@ -593,22 +596,24 @@ export default function DashboardClient() {
         </div>
 
         {/* Right side - Date picker and admin button */}
-        <div className="flex gap-2 items-center mr-[15%]">
+        <div className="flex gap-2 items-center">
           {/* Date Navigator - Sử dụng UI component */}
-          <DateNavigator
-            selectedDate={selectedDate}
-            onDateChange={handleDateChange}
-            onPreviousDay={handlePreviousDay}
-            onNextDay={handleNextDay}
-            onToday={handleToday}
-            compact={true}
-            className="text-xs"
-          />
+          <div className="flex-1 md:flex-none">
+            <DateNavigator
+              selectedDate={selectedDate}
+              onDateChange={handleDateChange}
+              onPreviousDay={handlePreviousDay}
+              onNextDay={handleNextDay}
+              onToday={handleToday}
+              compact={true}
+              className="w-full text-xs md:w-auto"
+            />
+          </div>
           
           {user?.role === "admin" && (
             <Link
               href={ROUTES.ADMIN.DASHBOARD}
-              className="flex items-center gap-1.5 px-2 py-1.5 text-white transition-all duration-200 rounded-md shadow-sm bg-gradient-to-r from-brand-green to-brand-yellow hover:from-green-700 hover:to-yellow-600 text-xs font-medium"
+              className="flex items-center gap-1.5 px-2 py-1.5 text-white transition-all duration-200 rounded-md shadow-sm bg-gradient-to-r from-brand-green to-brand-yellow hover:from-green-700 hover:to-yellow-600 text-xs font-medium flex-1 md:flex-none justify-center"
             >
               <Crown className="w-3 h-3" />
               <span>Admin</span>
@@ -616,12 +621,12 @@ export default function DashboardClient() {
           )}
         </div>
       </div>
-        <div className="flex flex-col flex-1 min-h-0">
+      <div className="flex flex-col flex-1 min-h-0">
           {/* BỎ StatusLegend */}
           {/* <StatusLegend /> */}
-          <div className="grid flex-1 grid-cols-1 gap-2 mt-2 min-h-0 lg:grid-cols-5">
+          <div className="grid flex-1 grid-cols-1 auto-rows-fr gap-2 mt-2 min-h-0 sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-5">
             {/* Unassigned Works */}
-            <div className="flex overflow-hidden flex-col h-full bg-white rounded-lg border shadow-sm border-brand-green/20 lg:col-span-2">
+            <div className="flex overflow-hidden flex-col h-full bg-white rounded-lg border shadow-sm border-brand-green/20 lg:col-span-2 min-h-[300px] sm:min-h-[400px] lg:min-h-0">
               <div className="p-1.5 bg-gradient-to-r from-brand-green/10 to-brand-yellow/10 border-b border-brand-green/20 flex items-center justify-between">
                 <div className="flex items-center">
                   <h2 className="flex items-center text-xs font-semibold text-brand-green">
@@ -630,7 +635,7 @@ export default function DashboardClient() {
                   </h2>
                 </div>
               </div>
-              <div className="overflow-hidden flex-1 p-1">
+              <div className="overflow-y-auto flex-1 p-1">
                 {unassignedWorks ? (
                   <MemoizedNewJobsList
                     jobs={unassignedWorks}
@@ -666,7 +671,7 @@ export default function DashboardClient() {
             </div>
 
             {/* Assigned Works */}
-            <div className="flex overflow-hidden flex-col h-full bg-white rounded-lg border shadow-sm border-brand-green/20 lg:col-span-3">
+            <div className="flex overflow-hidden flex-col h-full bg-white rounded-lg border shadow-sm border-brand-green/20 lg:col-span-3 min-h-[300px] sm:min-h-[400px] lg:min-h-0">
               <div className="p-1.5 bg-gradient-to-r from-brand-green/10 to-brand-yellow/10 border-b border-brand-green/20 flex items-center justify-between">
                 <div className="flex items-center">
                   <h2 className="flex items-center text-xs font-semibold text-brand-green">
@@ -675,7 +680,7 @@ export default function DashboardClient() {
                   </h2>
                 </div>
               </div>
-              <div className="overflow-hidden flex-1 p-1">
+              <div className="overflow-y-auto flex-1 p-1">
                 {assignedWorks ? (
                   <MemoizedWorkTable works={assignedWorks} workers={workers} />
                 ) : (
@@ -701,6 +706,7 @@ export default function DashboardClient() {
             </div>
           </div>
         </div>
+      
       {isAssignModalOpen && selectedWork ? (
         <MemoizedAssignWorkerModal
           work={selectedWork}
