@@ -15,6 +15,8 @@ import {
   fetchWorkers,
   setSelectedDate,
   moveJobToAssigned,
+  fetchUnassignedWorks,
+  fetchAssignedWorks,
 } from "@/store/slices/workSlice";
 import { 
   selectSelectedDate,
@@ -78,18 +80,25 @@ export default function DashboardClient() {
   // Không cần callback handleJobCreated nữa vì đã được xử lý trong ScheduleContext
 
   // Khôi phục ngày từ localStorage ngay khi component mount
-  // Chỉ tự động cập nhật về ngày hôm nay nếu chưa có ngày được chọn
+  // Tự động cập nhật về ngày hiện tại lần đầu tiên, sau đó để người dùng tự chọn
   useEffect(() => {
     const savedDate = localStorage.getItem("selectedWorkDate");
+    const hasUserChosenDate = localStorage.getItem("userHasChosenDate"); // Flag để biết người dùng đã chọn ngày chưa
     const today = new Date().toLocaleDateString("en-CA");
     
-    if (savedDate) {
-      // Sử dụng ngày đã lưu, không tự động cập nhật về ngày hôm nay
+    if (!hasUserChosenDate) {
+      // Lần đầu tiên chạy - tự động cập nhật về ngày hiện tại
+      dispatch(setSelectedDate(today));
+      localStorage.setItem("selectedWorkDate", today);
+      console.log('🔄 Lần đầu tiên chạy - tự động cập nhật về ngày hiện tại:', today);
+    } else if (savedDate) {
+      // Người dùng đã chọn ngày trước đó - sử dụng ngày đã lưu
       if (savedDate !== selectedDate) {
         dispatch(setSelectedDate(savedDate));
       }
+      console.log('📅 Sử dụng ngày người dùng đã chọn:', savedDate);
     } else {
-      // Nếu chưa có ngày lưu, sử dụng ngày hôm nay
+      // Fallback - nếu không có gì cả
       dispatch(setSelectedDate(today));
       localStorage.setItem("selectedWorkDate", today);
     }
@@ -107,15 +116,10 @@ export default function DashboardClient() {
   const handleAssignSubmit = useCallback(
     async (updatedWork, forceRefresh = false) => {
       try {
-        console.log('🔄 Refreshing data after worker assignment...');
-        
-        // Sử dụng Redux dispatch trực tiếp để đảm bảo hoạt động
         if (forceRefresh) {
-          // Force refresh data từ server bằng Redux dispatch
-          console.log('🔄 Force refreshing data from server...');
           await dispatch(fetchUnassignedWorks({ date: selectedDate, forceRefresh: true }));
           await dispatch(fetchAssignedWorks({ date: selectedDate, forceRefresh: true }));
-          console.log('✅ Data refreshed successfully after worker assignment');
+         
         } else {
           // Fallback: cập nhật Redux state trực tiếp
           if (updatedWork && updatedWork.id) {
@@ -347,8 +351,9 @@ export default function DashboardClient() {
       }
       
       dispatch(setSelectedDate(newDate));
-      // Lưu ngày đã chọn vào localStorage
+      // Lưu ngày đã chọn vào localStorage và đánh dấu người dùng đã chọn ngày
       localStorage.setItem("selectedWorkDate", newDate);
+      localStorage.setItem("userHasChosenDate", "true");
 
       // Reset initialization để fetch data mới
       setIsInitialized(false);
@@ -387,8 +392,9 @@ export default function DashboardClient() {
     }
 
     dispatch(setSelectedDate(newDate));
-    // Lưu ngày đã chọn vào localStorage
+    // Lưu ngày đã chọn vào localStorage và đánh dấu người dùng đã chọn ngày
     localStorage.setItem("selectedWorkDate", newDate);
+    localStorage.setItem("userHasChosenDate", "true");
 
     // Reset initialization để fetch data mới
     setIsInitialized(false);
@@ -423,8 +429,9 @@ export default function DashboardClient() {
     }
 
     dispatch(setSelectedDate(newDate));
-    // Lưu ngày đã chọn vào localStorage
+    // Lưu ngày đã chọn vào localStorage và đánh dấu người dùng đã chọn ngày
     localStorage.setItem("selectedWorkDate", newDate);
+    localStorage.setItem("userHasChosenDate", "true");
 
     // Reset initialization để fetch data mới
     setIsInitialized(false);
@@ -458,8 +465,9 @@ export default function DashboardClient() {
     }
     
     dispatch(setSelectedDate(todayString));
-    // Lưu ngày đã chọn vào localStorage
+    // Lưu ngày đã chọn vào localStorage và đánh dấu người dùng đã chọn ngày
     localStorage.setItem("selectedWorkDate", todayString);
+    localStorage.setItem("userHasChosenDate", "true");
     
     // Reset initialization để fetch data mới
     setIsInitialized(false);
@@ -526,9 +534,11 @@ export default function DashboardClient() {
   // Chỉ refresh khi thực sự cần thiết (thay đổi ngày, assign worker, etc.)
 
   // Lưu ngày đã chọn vào localStorage mỗi khi selectedDate thay đổi
+  // Chỉ đánh dấu userHasChosenDate nếu người dùng thực sự thay đổi ngày (không phải lần đầu tiên)
   useEffect(() => {
     if (selectedDate) {
       localStorage.setItem("selectedWorkDate", selectedDate);
+      // Không đánh dấu userHasChosenDate ở đây vì có thể là do lần đầu tiên khởi tạo
     }
   }, [selectedDate]);
 

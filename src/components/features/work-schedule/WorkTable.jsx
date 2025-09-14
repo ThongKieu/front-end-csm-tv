@@ -1,15 +1,5 @@
 import React, { useState, useMemo } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import {
-  useReactTable,
-  getCoreRowModel,
-  getSortedRowModel,
-  flexRender,
-} from "@tanstack/react-table";
-import {
-  ChevronDown,
-  ChevronUp,
-} from "lucide-react";
 import JobItem from "./JobItem";
 import AssignWorkerModal from "./AssignWorkerModal";
 import EditAssignedWorkModal from "./EditAssignedWorkModal";
@@ -288,45 +278,6 @@ const WorkTable = ({ works = [], workers = [] }) => {
     setSelectedDetailWork(null);
   };
 
-  const columns = useMemo(
-    () => [
-      {
-        header: "Nội Dung",
-        accessorKey: "data",
-        cell: (info) => {
-          const work = info.row.original;
-          const rowIndex = info.row.index;
-
-          return (
-            <JobItem
-              key={`${work.id || work.job_code}-${rowIndex}`}
-              job={work}
-              index={rowIndex}
-              onAssign={handleAssignWorker}
-              onEdit={handleEditWork}
-              onEditAssigned={handleEditAssignedWork}
-              onChangeWorker={handleChangeWorker}
-              showWorker={!!(work.worker_code || work.worker_full_name || work.worker_name || work.id_worker)}
-              showTooltip={false}
-              onClick={handleViewDetail}
-              className="bg-gray-50 rounded-lg border border-gray-100 transition-colors hover:border-brand-green/30"
-              actionsMode="full"
-            />
-          );
-        },
-      },
-    ],
-    [workers]
-  );
-
-  const filteredData = useMemo(() => transformedWorks, [transformedWorks]);
-
-  const table = useReactTable({
-    data: filteredData,
-    columns,
-    getCoreRowModel: getCoreRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-  });
   return (
     <div className="flex flex-col h-full">
       {/* Loading indicator when refreshing */}
@@ -340,45 +291,24 @@ const WorkTable = ({ works = [], workers = [] }) => {
       )}
 
       <div className="overflow-y-auto flex-1">
-        <table className="w-full divide-y divide-gray-100">
-          <thead className="sticky top-0 z-10 bg-gray-50">
-            {table.getHeaderGroups().map((headerGroup) => (
-              <tr key={headerGroup.id}>
-                {headerGroup.headers.map((header) => (
-                  <th
-                    key={header.id}
-                    className="px-2 py-1 text-left text-[10px] font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors bg-gray-50"
-                    onClick={header.column.getToggleSortingHandler()}
-                  >
-                    <div className="flex items-center space-x-1">
-                      {flexRender(
-                        header.column.columnDef.header,
-                        header.getContext()
-                      )}
-                      {header.column.getIsSorted() &&
-                        (header.column.getIsSorted() === "asc" ? (
-                          <ChevronUp className="w-3 h-3" />
-                        ) : (
-                          <ChevronDown className="w-3 h-3" />
-                        ))}
-                    </div>
-                  </th>
-                ))}
-              </tr>
-            ))}
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-100">
-            {table.getRowModel().rows.map((row) => (
-              <tr key={row.id} className="transition-colors hover:bg-gray-50">
-                {row.getVisibleCells().map((cell) => (
-                  <td key={cell.id} className="px-2 py-1">
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </td>
-                ))}
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <div className="space-y-2">
+          {transformedWorks.map((work, index) => (
+            <JobItem
+              key={`${work.id || work.job_code}-${index}`}
+              job={work}
+              index={index}
+              onAssign={handleAssignWorker}
+              onEdit={handleEditWork}
+              onEditAssigned={handleEditAssignedWork}
+              onChangeWorker={handleChangeWorker}
+              showWorker={!!(work.worker_code || work.worker_full_name || work.worker_name || work.id_worker)}
+              showTooltip={false}
+              onClick={handleViewDetail}
+              className="bg-gray-50 rounded-lg border border-gray-100 transition-colors hover:border-brand-green/30"
+              actionsMode="full"
+            />
+          ))}
+        </div>
       </div>
 
       {isModalOpen && (

@@ -117,21 +117,21 @@ export default function ChangePasswordPage() {
   const inputClassName = "block w-full pl-10 pr-12 py-3 text-sm border border-gray-300 rounded-lg transition-all duration-200 bg-white text-gray-900 placeholder-gray-500 hover:border-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none"
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
-        <div className="bg-white rounded-2xl shadow-xl p-8">
-          <div className="text-center mb-8">
-            <div className="mx-auto h-16 w-16 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full flex items-center justify-center mb-4">
-              <Lock className="h-8 w-8 text-white" />
+    <div className="flex justify-center items-center px-4 py-12 min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 sm:px-6 lg:px-8">
+      <div className="space-y-8 w-full max-w-md">
+        <div className="p-8 bg-white rounded-2xl shadow-xl">
+          <div className="mb-8 text-center">
+            <div className="flex justify-center items-center mx-auto mb-4 w-16 h-16 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full">
+              <Lock className="w-8 h-8 text-white" />
             </div>
-            <h2 className="text-3xl font-bold text-gray-900 mb-2">Đổi mật khẩu</h2>
+            <h2 className="mb-2 text-3xl font-bold text-gray-900">Đổi mật khẩu</h2>
             <p className="text-gray-600">Cập nhật mật khẩu mới cho tài khoản của bạn</p>
           </div>
 
           {/* Error Message */}
           {error && (
             <div className="flex items-center p-4 mb-6 text-sm text-red-700 bg-red-50 rounded-lg border border-red-200">
-              <AlertCircle className="mr-3 w-5 h-5 text-red-500 flex-shrink-0" />
+              <AlertCircle className="flex-shrink-0 mr-3 w-5 h-5 text-red-500" />
               <span className="font-medium">{error}</span>
             </div>
           )}
@@ -139,7 +139,7 @@ export default function ChangePasswordPage() {
           {/* Success Message */}
           {success && (
             <div className="flex items-center p-4 mb-6 text-sm text-green-700 bg-green-50 rounded-lg border border-green-200">
-              <CheckCircle className="mr-3 w-5 h-5 text-green-500 flex-shrink-0" />
+              <CheckCircle className="flex-shrink-0 mr-3 w-5 h-5 text-green-500" />
               <span className="font-medium">{success}</span>
             </div>
           )}
@@ -185,7 +185,7 @@ export default function ChangePasswordPage() {
                 <button
                   type="button"
                   onClick={() => togglePasswordVisibility('current')}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                  className="absolute right-3 top-1/2 text-gray-400 transition-colors transform -translate-y-1/2 hover:text-gray-600"
                 >
                   {showPasswords.current ? (
                     <EyeOff className="w-5 h-5" />
@@ -217,7 +217,7 @@ export default function ChangePasswordPage() {
                 <button
                   type="button"
                   onClick={() => togglePasswordVisibility('new')}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                  className="absolute right-3 top-1/2 text-gray-400 transition-colors transform -translate-y-1/2 hover:text-gray-600"
                 >
                   {showPasswords.current ? (
                     <EyeOff className="w-5 h-5" />
@@ -248,7 +248,7 @@ export default function ChangePasswordPage() {
                 <button
                   type="button"
                   onClick={() => togglePasswordVisibility('confirm')}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                  className="absolute right-3 top-1/2 text-gray-400 transition-colors transform -translate-y-1/2 hover:text-gray-600"
                 >
                   {showPasswords.confirm ? (
                     <EyeOff className="w-5 h-5" />
@@ -267,7 +267,7 @@ export default function ChangePasswordPage() {
             >
               {isLoading ? (
                 <div className="flex justify-center items-center">
-                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                  <div className="mr-2 w-5 h-5 rounded-full border-b-2 border-white animate-spin"></div>
                   Đang xử lý...
                 </div>
               ) : (
@@ -280,7 +280,7 @@ export default function ChangePasswordPage() {
               <button
                 type="button"
                 onClick={() => router.push('/login')}
-                className="text-sm text-blue-600 hover:text-blue-800 font-medium transition-colors"
+                className="text-sm font-medium text-blue-600 transition-colors hover:text-blue-800"
               >
                 ← Quay lại đăng nhập
               </button>

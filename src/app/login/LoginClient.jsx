@@ -141,25 +141,25 @@ export default function LoginClient() {
   };
 
   return (
-    <div className="flex justify-center items-center w-full min-h-screen bg-gray-50">
-      <div className="w-full max-w-md">
-        <div className="p-8 bg-white rounded-lg shadow-lg">
-          <div className="mb-6 text-center">
-            <div className="inline-flex justify-center items-center mb-3 w-16 h-16 rounded-full bg-brand-green">
-              <Globe className="w-8 h-8 text-white" />
+    <div className="flex justify-center items-center px-4 py-6 w-full min-h-screen bg-gradient-to-br from-brand-green/8 to-brand-yellow/8">
+      <div className="w-full max-w-[320px] sm:max-w-md">
+        <div className="p-5 rounded-2xl border shadow-2xl backdrop-blur-sm sm:p-8 bg-white/95 border-white/20">
+          <div className="mb-4 text-center sm:mb-6">
+            <div className="inline-flex justify-center items-center mb-2 w-10 h-10 bg-gradient-to-r rounded-full shadow-lg sm:mb-4 sm:w-16 sm:h-16 from-brand-green to-brand-yellow">
+             <img src="https://thoviet.com.vn/wp-content/uploads/2025/05/logo-thoviet.png" alt="CSM TV" className="w-5 h-5 text-white sm:w-8 sm:h-8" />
             </div>
-            <h1 className="text-2xl font-bold text-gray-900">CSM TV</h1>
-            <p className="text-base text-gray-600">Hệ thống quản lý dịch vụ</p>
+            <h1 className="text-lg sm:text-2xl font-bold text-gray-900 mb-0.5">CSM TV</h1>
+            <p className="text-xs text-gray-600 sm:text-base">Hệ thống quản lý dịch vụ</p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
             <div>
-              <label htmlFor="user_name" className="block mb-2 text-base font-medium text-gray-700">
+              <label htmlFor="user_name" className="block mb-1 text-xs font-medium text-gray-700 sm:text-sm">
                 Tên đăng nhập
               </label>
               <div className="relative">
                 <div className="flex absolute inset-y-0 left-0 items-center pl-3 pointer-events-none">
-                  <Mail className="w-5 h-5 text-gray-400" />
+                  <Mail className="w-4 h-4 text-gray-400" />
                 </div>
                 <input
                   type="text"
@@ -168,19 +168,19 @@ export default function LoginClient() {
                   value={formData.user_name}
                   onChange={(e) => handleInputChange("user_name", e.target.value)}
                   required
-                  className="py-3 pr-3 pl-12 w-full text-base rounded-md border border-gray-300 focus:ring-2 focus:ring-brand-green focus:border-brand-green"
-                  placeholder="Nhập tên đăng nhập"
+                  className="py-2.5 pr-3 pl-10 w-full text-sm rounded-lg border border-gray-200 bg-gray-50/50 focus:ring-2 focus:ring-brand-green focus:border-brand-green focus:bg-white transition-all duration-200"
+                  placeholder="Tên đăng nhập"
                 />
               </div>
             </div>
 
             <div>
-              <label htmlFor="password" className="block mb-2 text-base font-medium text-gray-700">
+              <label htmlFor="password" className="block mb-1 text-xs font-medium text-gray-700 sm:text-sm">
                 Mật khẩu
               </label>
               <div className="relative">
                 <div className="flex absolute inset-y-0 left-0 items-center pl-3 pointer-events-none">
-                  <Lock className="w-5 h-5 text-gray-400" />
+                  <Lock className="w-4 h-4 text-gray-400" />
                 </div>
                 <input
                   type={showPassword ? "text" : "password"}
@@ -189,56 +189,65 @@ export default function LoginClient() {
                   value={formData.password}
                   onChange={(e) => handleInputChange("password", e.target.value)}
                   required
-                  className="py-3 pr-12 pl-12 w-full text-base rounded-md border border-gray-300 focus:ring-2 focus:ring-brand-green focus:border-brand-green"
-                  placeholder="Nhập mật khẩu"
+                  className="py-2.5 pr-10 pl-10 w-full text-sm rounded-lg border border-gray-200 bg-gray-50/50 focus:ring-2 focus:ring-brand-green focus:border-brand-green focus:bg-white transition-all duration-200"
+                  placeholder="Mật khẩu"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 p-1 text-gray-400 rounded transform -translate-y-1/2 hover:text-gray-600"
+                  className="absolute right-3 top-1/2 p-1 text-gray-400 rounded transition-colors transform -translate-y-1/2 hover:text-gray-600"
                 >
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
               </div>
             </div>
 
-            <div className="flex items-center">
-              <input
-                id="remember"
-                name="remember"
-                type="checkbox"
-                checked={rememberMe}
-                onChange={() => setRememberMe(!rememberMe)}
-                className="w-4 h-4 rounded border-gray-300 text-brand-green focus:ring-brand-green"
-              />
-              <label htmlFor="remember" className="block ml-2 text-base text-gray-700 cursor-pointer select-none">
-                Ghi nhớ đăng nhập
-              </label>
-            </div>
-
-            <div className="text-center">
-              <button
-                type="button"
-                onClick={() => router.push('/register')}
-                className="text-sm text-gray-500 underline hover:text-gray-700"
-              >
-                Chưa có tài khoản? Đăng ký ngay
-              </button>
+            <div className="flex justify-between items-center">
+              <div className="flex items-center">
+                <input
+                  id="remember"
+                  name="remember"
+                  type="checkbox"
+                  checked={rememberMe}
+                  onChange={() => setRememberMe(!rememberMe)}
+                  className="w-4 h-4 rounded border-gray-300 text-brand-green focus:ring-brand-green"
+                />
+                <label htmlFor="remember" className="block ml-2 text-xs text-gray-700 cursor-pointer select-none">
+                  Ghi nhớ
+                </label>
+              </div>
             </div>
 
             {error && (
-              <div className="p-3 bg-red-50 rounded-md border border-red-200">
-                <p className="text-base text-red-600">{error}</p>
+              <div className="p-2.5 bg-red-50/80 rounded-lg border border-red-200/50">
+                <p className="text-xs text-red-600">{error}</p>
               </div>
             )}
 
             <button
               type="submit"
               disabled={isLoading}
-              className="px-6 py-3 w-full text-base font-semibold text-green-700 rounded-md border-2 border-green-700 shadow-sm transition-colors hover:text-white bg-brand-green hover:bg-green-700 focus:ring-2 focus:ring-brand-green focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-6 py-3 w-full text-sm font-semibold text-white rounded-xl bg-gradient-to-r from-brand-green to-brand-yellow shadow-lg transition-all duration-200 hover:shadow-xl hover:scale-[1.02] focus:ring-2 focus:ring-brand-green focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
             >
-              {isLoading ? "Đang đăng nhập..." : "Đăng nhập"}
+              {isLoading ? (
+                <span className="flex justify-center items-center">
+                  <Loader2 className="mr-2 w-4 h-4 animate-spin" />
+                  Đang đăng nhập...
+                </span>
+              ) : (
+                "Đăng nhập"
+              )}
             </button>
+
+            <div className="pt-1 text-center">
+              <button
+                type="button"
+                onClick={() => router.push('/register')}
+                className="text-xs text-gray-500 underline transition-colors hover:text-gray-700"
+              >
+                Chưa có tài khoản? Đăng ký
+              </button>
+            </div>
           </form>
         </div>
       </div>
