@@ -9,12 +9,9 @@ import {
   EyeOff, 
   Loader2, 
   Mail, 
-  Lock, 
-  Building2,
-  Check,
-  Globe
+  Lock
 } from "lucide-react";
-import { getBackendUrl } from '@/config/constants';
+import { API_URLS } from '@/config/constants';
 
 export default function LoginClient() {
   const [formData, setFormData] = useState({
@@ -33,15 +30,18 @@ export default function LoginClient() {
 
   // Load saved login info when component mounts
   useEffect(() => {
-    try {
-      const savedLoginInfo = localStorage.getItem('savedLoginInfo');
-      if (savedLoginInfo) {
-        const { user_name, password, rememberMe: savedRememberMe } = JSON.parse(savedLoginInfo);
-        setFormData({ user_name, password });
-        setRememberMe(savedRememberMe);
+    // Check if we're on the client side
+    if (typeof window !== 'undefined') {
+      try {
+        const savedLoginInfo = localStorage.getItem('savedLoginInfo');
+        if (savedLoginInfo) {
+          const { user_name, password, rememberMe: savedRememberMe } = JSON.parse(savedLoginInfo);
+          setFormData({ user_name, password });
+          setRememberMe(savedRememberMe);
+        }
+      } catch (error) {
+        // Silently handle error - don't show to user
       }
-    } catch (error) {
-      console.error('Error loading saved login info:', error);
     }
   }, []);
 
@@ -51,7 +51,9 @@ export default function LoginClient() {
   };
 
   const clearSavedLoginInfo = () => {
-    localStorage.removeItem('savedLoginInfo');
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('savedLoginInfo');
+    }
     setFormData({ user_name: "", password: "" });
     setRememberMe(false);
   };
@@ -62,7 +64,7 @@ export default function LoginClient() {
     setError("");
 
     try {
-      const response = await fetch("http://192.168.1.46/api/user/login", {
+      const response = await fetch(API_URLS.USER_LOGIN, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -118,14 +120,16 @@ export default function LoginClient() {
         }));
         
         // Lưu thông tin đăng nhập nếu rememberMe được chọn
-        if (rememberMe) {
-          localStorage.setItem('savedLoginInfo', JSON.stringify({
-            user_name: formData.user_name,
-            password: formData.password,
-            rememberMe: true
-          }));
-        } else {
-          clearSavedLoginInfo();
+        if (typeof window !== 'undefined') {
+          if (rememberMe) {
+            localStorage.setItem('savedLoginInfo', JSON.stringify({
+              user_name: formData.user_name,
+              password: formData.password,
+              rememberMe: true
+            }));
+          } else {
+            clearSavedLoginInfo();
+          }
         }
         
         router.push('/dashboard');
@@ -133,7 +137,6 @@ export default function LoginClient() {
         throw new Error(data.message || "Đăng nhập thất bại");
       }
     } catch (error) {
-      console.error('LoginClient: Login error:', error);
       setError(error.message || "Có lỗi xảy ra khi đăng nhập");
     } finally {
       setIsLoading(false);
@@ -227,7 +230,7 @@ export default function LoginClient() {
             <button
               type="submit"
               disabled={isLoading}
-              className="px-6 py-3 w-full text-sm font-semibold text-white rounded-xl bg-gradient-to-r from-brand-green to-brand-yellow shadow-lg transition-all duration-200 hover:shadow-xl hover:scale-[1.02] focus:ring-2 focus:ring-brand-green focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+              className="px-6 py-3 w-full text-sm font-semibold text-white bg-[#125d0d] rounded-xl bg-gradient-to-r from-brand-green to-brand-yellow shadow-lg transition-all duration-200 hover:shadow-xl hover:scale-[1.02] focus:ring-2 focus:ring-brand-green focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
             >
               {isLoading ? (
                 <span className="flex justify-center items-center">

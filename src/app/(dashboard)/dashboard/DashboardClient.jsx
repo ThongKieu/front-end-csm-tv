@@ -90,13 +90,11 @@ export default function DashboardClient() {
       // Lần đầu tiên chạy - tự động cập nhật về ngày hiện tại
       dispatch(setSelectedDate(today));
       localStorage.setItem("selectedWorkDate", today);
-      console.log('🔄 Lần đầu tiên chạy - tự động cập nhật về ngày hiện tại:', today);
     } else if (savedDate) {
       // Người dùng đã chọn ngày trước đó - sử dụng ngày đã lưu
       if (savedDate !== selectedDate) {
         dispatch(setSelectedDate(savedDate));
       }
-      console.log('📅 Sử dụng ngày người dùng đã chọn:', savedDate);
     } else {
       // Fallback - nếu không có gì cả
       dispatch(setSelectedDate(today));
@@ -140,7 +138,6 @@ export default function DashboardClient() {
                 workerData: workerData
               }));
               
-              console.log('✅ Redux state updated successfully after worker assignment');
             } else {
               console.warn('⚠️ Worker not found in workers list, falling back to API refresh');
               // Fallback: gọi API nếu không tìm thấy worker
@@ -361,7 +358,6 @@ export default function DashboardClient() {
       // Fetch data cho ngày mới với ScheduleContext
       try {
         await scheduleRefreshData(newDate, true);
-        console.log('✅ Data loaded for date:', newDate);
       } catch (error) {
         console.error('❌ Error loading data for new date:', error);
         setError("Không thể tải dữ liệu cho ngày đã chọn. Vui lòng thử lại.");
@@ -402,7 +398,6 @@ export default function DashboardClient() {
     // Fetch data cho ngày mới
     try {
       await scheduleRefreshData(newDate, true);
-      console.log('✅ Data loaded for previous day:', newDate);
     } catch (error) {
       console.error('❌ Error loading data for previous day:', error);
       setError("Không thể tải dữ liệu cho ngày trước. Vui lòng thử lại.");
@@ -439,7 +434,6 @@ export default function DashboardClient() {
     // Fetch data cho ngày mới
     try {
       await scheduleRefreshData(newDate, true);
-      console.log('✅ Data loaded for next day:', newDate);
     } catch (error) {
       console.error('❌ Error loading data for next day:', error);
       setError("Không thể tải dữ liệu cho ngày sau. Vui lòng thử lại.");
@@ -475,7 +469,6 @@ export default function DashboardClient() {
     // Fetch data cho ngày hôm nay
     try {
       await scheduleRefreshData(todayString, true);
-      console.log('✅ Data loaded for today:', todayString);
     } catch (error) {
       console.error('❌ Error loading data for today:', error);
       setError("Không thể tải dữ liệu cho hôm nay. Vui lòng thử lại.");

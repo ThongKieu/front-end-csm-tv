@@ -106,7 +106,6 @@ const AssignWorkerModal = ({
       
       // Refresh data sau khi đóng modal (không await để không block UI)
       refreshData().then(() => {
-        console.log('✅ Data refreshed successfully after worker assignment');
       }).catch(error => {
         console.error('❌ Error refreshing data after worker assignment:', error);
       });

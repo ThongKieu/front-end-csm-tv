@@ -1,0 +1,68 @@
+{
+  "name": "Thành phố Hồ Chí Minh",
+  "code": "79",
+  "description": "Dữ liệu cập nhật từ Goong API - Cấu trúc hành chính mới của TP.HCM",
+  "last_updated": "2025-09-14T09:31:43.212Z",
+  "source": "goong_api_export",
+  "total_wards": 2,
+  "wards": [
+    {
+      "name": "Phường Diên Hồng",
+      "code": "26734",
+      "description": "Phường Diên Hồng, Quận 10, TP. Hồ Chí Minh",
+      "current_district": "Quận 10",
+      "current_commune": "Phường Diên Hồng",
+      "current_province": "TP. Hồ Chí Minh",
+      "deprecated_district": "Quận 6, Quận 8, Quận 14",
+      "has_deprecated_unit": true,
+      "old_wards": [
+        "6",
+        "8",
+        "14"
+      ],
+      "old_district_info": [
+        {
+          "district": "Quận 6 cũ",
+          "commune": "",
+          "province": "TP. Hồ Chí Minh"
+        },
+        {
+          "district": "Quận 8 cũ",
+          "commune": "",
+          "province": "TP. Hồ Chí Minh"
+        },
+        {
+          "district": "Quận 14 cũ",
+          "commune": "",
+          "province": "TP. Hồ Chí Minh"
+        }
+      ],
+      "merged_from": "Được sáp nhập từ Phường 6, 8, 14 của Quận 6, Quận 8, Quận 14 cũ",
+      "types": [
+        "administrative_area"
+      ],
+      "place_id": "sample_place_id_1",
+      "last_updated": "2025-09-14T09:31:43.213Z",
+      "source": "goong_api_sample"
+    },
+    {
+      "name": "Phường Sài Gòn",
+      "code": "26734",
+      "description": "Phường Sài Gòn, Quận 1, TP. Hồ Chí Minh",
+      "current_district": "Quận 1",
+      "current_commune": "Phường Sài Gòn",
+      "current_province": "TP. Hồ Chí Minh",
+      "deprecated_district": "",
+      "has_deprecated_unit": false,
+      "old_wards": [],
+      "old_district_info": [],
+      "merged_from": "Phường Bến Nghé, một phần phường Đa Kao và Nguyễn Thái Bình (Quận 1)",
+      "types": [
+        "administrative_area"
+      ],
+      "place_id": "sample_place_id_2",
+      "last_updated": "2025-09-14T09:31:43.213Z",
+      "source": "goong_api_sample"
+    }
+  ]
+}

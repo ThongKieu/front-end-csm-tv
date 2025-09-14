@@ -1,0 +1,113 @@
+{
+  "instructions": [
+    "1. Lấy API key mới từ https://account.goong.io",
+    "2. Cập nhật GOONG_API_KEY trong scripts/update-wards-data.js",
+    "3. Chạy npm run test-api để test API key",
+    "4. Chạy npm run update-wards để cập nhật toàn bộ dữ liệu"
+  ],
+  "api_key_required": true,
+  "endpoints": {
+    "autocomplete": "https://rsapi.goong.io/v2/place/autocomplete",
+    "detail": "https://rsapi.goong.io/place/detail"
+  },
+  "search_terms": [
+    "Phường Diên Hồng",
+    "Phường Sài Gòn",
+    "Phường Tân Định",
+    "Phường Bến Thành",
+    "Phường Cầu Ông Lãnh",
+    "Phường Bàn Cờ",
+    "Quận 1",
+    "Quận 2",
+    "Quận 3",
+    "Quận 4",
+    "Quận 5",
+    "Quận 6",
+    "Quận 7",
+    "Quận 8",
+    "Quận 9",
+    "Quận 10",
+    "Quận 11",
+    "Quận 12",
+    "Quận Thủ Đức",
+    "Quận Gò Vấp",
+    "Quận Bình Thạnh",
+    "Quận Tân Bình",
+    "Quận Tân Phú",
+    "Quận Phú Nhuận",
+    "Quận Bình Tân",
+    "Quận Củ Chi",
+    "Quận Hóc Môn",
+    "Quận Bình Chánh",
+    "Quận Nhà Bè",
+    "Quận Cần Giờ"
+  ],
+  "sample_data": {
+    "name": "Thành phố Hồ Chí Minh",
+    "code": "79",
+    "description": "Dữ liệu cập nhật từ Goong API - Cấu trúc hành chính mới của TP.HCM",
+    "last_updated": "2025-09-14T09:31:43.212Z",
+    "source": "goong_api_export",
+    "total_wards": 2,
+    "wards": [
+      {
+        "name": "Phường Diên Hồng",
+        "code": "26734",
+        "description": "Phường Diên Hồng, Quận 10, TP. Hồ Chí Minh",
+        "current_district": "Quận 10",
+        "current_commune": "Phường Diên Hồng",
+        "current_province": "TP. Hồ Chí Minh",
+        "deprecated_district": "Quận 6, Quận 8, Quận 14",
+        "has_deprecated_unit": true,
+        "old_wards": [
+          "6",
+          "8",
+          "14"
+        ],
+        "old_district_info": [
+          {
+            "district": "Quận 6 cũ",
+            "commune": "",
+            "province": "TP. Hồ Chí Minh"
+          },
+          {
+            "district": "Quận 8 cũ",
+            "commune": "",
+            "province": "TP. Hồ Chí Minh"
+          },
+          {
+            "district": "Quận 14 cũ",
+            "commune": "",
+            "province": "TP. Hồ Chí Minh"
+          }
+        ],
+        "merged_from": "Được sáp nhập từ Phường 6, 8, 14 của Quận 6, Quận 8, Quận 14 cũ",
+        "types": [
+          "administrative_area"
+        ],
+        "place_id": "sample_place_id_1",
+        "last_updated": "2025-09-14T09:31:43.213Z",
+        "source": "goong_api_sample"
+      },
+      {
+        "name": "Phường Sài Gòn",
+        "code": "26734",
+        "description": "Phường Sài Gòn, Quận 1, TP. Hồ Chí Minh",
+        "current_district": "Quận 1",
+        "current_commune": "Phường Sài Gòn",
+        "current_province": "TP. Hồ Chí Minh",
+        "deprecated_district": "",
+        "has_deprecated_unit": false,
+        "old_wards": [],
+        "old_district_info": [],
+        "merged_from": "Phường Bến Nghé, một phần phường Đa Kao và Nguyễn Thái Bình (Quận 1)",
+        "types": [
+          "administrative_area"
+        ],
+        "place_id": "sample_place_id_2",
+        "last_updated": "2025-09-14T09:31:43.213Z",
+        "source": "goong_api_sample"
+      }
+    ]
+  }
+}

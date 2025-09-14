@@ -12,6 +12,7 @@ import { useSchedule } from '@/contexts/ScheduleContext'
 import { SettingsProvider } from '@/contexts/SettingsContext'
 import { ToastProvider } from '@/contexts/ToastContext'
 import { LoadingProvider } from '@/contexts/LoadingContext'
+import { GoongProvider } from '@/contexts/GoongContext'
 import { ToastContainer } from '@/components/ui/toast'
 import LoadingOverlay from '@/components/ui/LoadingOverlay'
 import PageTransition from '@/components/ui/PageTransition'
@@ -75,9 +76,11 @@ export default function RootLayout({ children }) {
             <SettingsProvider>
               <ToastProvider>
                 <LoadingProvider>
-                  <ScheduleProvider>
-                    <AppContent>{children}</AppContent>
-                  </ScheduleProvider>
+                  <GoongProvider>
+                    <ScheduleProvider>
+                      <AppContent>{children}</AppContent>
+                    </ScheduleProvider>
+                  </GoongProvider>
                 </LoadingProvider>
               </ToastProvider>
             </SettingsProvider>

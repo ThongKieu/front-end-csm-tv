@@ -6,7 +6,11 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "test-api": "node scripts/test-api-update.js",
+    "update-wards": "node scripts/update-wards-data.js",
+    "extract-data": "node scripts/extract-from-app.js",
+    "backup-replace": "node scripts/backup-and-replace.js"
   },
   "dependencies": {
     "@headlessui/react": "^2.2.4",

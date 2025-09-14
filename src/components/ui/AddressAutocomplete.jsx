@@ -2,10 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { MapPin } from "lucide-react";
-
-// Goong API configuration
-const GOONG_API_KEY = "sVaACBVHw2KeYaL8C5BvH3fvM20S7LLqX6V57plr";
-const GOONG_BASE_URL = "https://rsapi.goong.io/Place/AutoComplete";
+import { useGoong } from '../../contexts/GoongContext';
 
 export default function AddressAutocomplete({
   value = "",
@@ -23,6 +20,8 @@ export default function AddressAutocomplete({
   minLength = 2,
   debounceDelay = 200,
 }) {
+  const { searchPlaces } = useGoong();
+  
   const [addressSuggestions, setAddressSuggestions] = useState([]);
   const [showAddressDropdown, setShowAddressDropdown] = useState(false);
   const [isLoadingAddress, setIsLoadingAddress] = useState(false);
@@ -39,26 +38,14 @@ export default function AddressAutocomplete({
     setIsLoadingAddress(true);
 
     try {
-      const url = `${GOONG_BASE_URL}?api_key=${GOONG_API_KEY}&location=${location}&input=${encodeURIComponent(
-        query
-      )}`;
+      const data = await searchPlaces(query, {
+        location: location,
+        limit: 10
+      });
 
-      const response = await fetch(url);
-
-      if (response.ok) {
-        const data = await response.json();
-
-        if (
-          data.status === "OK" &&
-          data.predictions &&
-          data.predictions.length > 0
-        ) {
-          setAddressSuggestions(data.predictions);
-          setShowAddressDropdown(true);
-        } else {
-          setAddressSuggestions([]);
-          setShowAddressDropdown(false);
-        }
+      if (data.status === "OK" && data.predictions && data.predictions.length > 0) {
+        setAddressSuggestions(data.predictions);
+        setShowAddressDropdown(true);
       } else {
         setAddressSuggestions([]);
         setShowAddressDropdown(false);
